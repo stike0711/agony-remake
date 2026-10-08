@@ -12,7 +12,8 @@ läuft auf einem Modell der Grafik-Hardware mit dem übertragenen Spielcode (E-0
 Gegner mit eigener Routine, Tod der Eule, Schild beim Wiedereinstieg und Spielende mit Rückkehr ins Menü; ohne
 Eingabe bis nach dem Spielende pixelgenau wie im Emulator, ebenso ein Lauf mit Dauerfeuer, Abschüssen und Ausweichen.
 Alle Gegner-Routinen, Bonus und Levelende von Level 1 sind übertragen (gegen das Original noch ungeprüft); nach dem
-Levelende folgt vorläufig ein Platzhalter. Als Nächstes: Ladebild von Level 2, danach Zaubermenü und die nächsten Level; am PC eine Aufnahme über Bild 14.792
+Levelende folgt das Ladebild von Level 2 (gegen das Original noch ungeprüft), danach vorläufig ein Platzhalter. Als
+Nächstes: Zaubermenü, danach die nächsten Level; am PC eine Aufnahme über Bild 14.792
 hinaus zur Prüfung von Gegner-Routinen und Bonus, Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist eingeplant, sobald ein
 Mac zur Verfügung steht.
 
@@ -25,10 +26,10 @@ Mac zur Verfügung steht.
 | 1. Wiki anlegen und die Rechercheergebnisse übernehmen | ✅ erledigt | 06.10.2026 |
 | 2. Quellcode sichten und in [Quellcode](quellcode.md) kartieren (Routinen, Datenstrukturen, Tabellen) | 🟡 begonnen | Überblick auf Datei-Ebene; Routinen und Datenstrukturen fehlen noch |
 | 3. Referenz-Emulator mit den ADFs und Kickstart 1.3 einrichten | ✅ erledigt | vAmigaWeb als A500 (OCS, 512 + 512 KB), schrittweise steuerbar, siehe [Setup](setup.md#referenz-emulator) |
-| 4. Asset-Pipeline: Spieldateien entpacken; Grafiken, Paletten, Angriffswellen, Sounds und Musik extrahieren | 🟡 begonnen | Disketten ausgelesen, alle 15 Spieldateien entpackt, Lade- und Startadressen bestimmt; Titelbilder, Menübild, Menüschrift, Texttabelle und Ladebild 1 lokalisiert und mit Python-Prototypen pixelgenau dekodiert; Startliste von Level 1 dekodiert. Pipeline in TypeScript für die Startsequenz fertig (`tools/pipeline/`); Level-Daten fehlen noch |
+| 4. Asset-Pipeline: Spieldateien entpacken; Grafiken, Paletten, Angriffswellen, Sounds und Musik extrahieren | 🟡 begonnen | Disketten ausgelesen, alle 15 Spieldateien entpackt, Lade- und Startadressen bestimmt; Titelbilder, Menübild, Menüschrift, Texttabelle und Ladebilder 1–2 lokalisiert und mit Python-Prototypen pixelgenau dekodiert; Startliste von Level 1 dekodiert. Pipeline in TypeScript für die Startsequenz fertig (`tools/pipeline/`); Level-Daten fehlen noch |
 | 5. Web-Grundgerüst: Spielschleife, Renderer, Eingabe, Audio, Build nach `server/` | ✅ erledigt | 06.10.2026, [Architektur → Umsetzung](architektur.md#umsetzung-web-grundgerüst); ProTracker-Abspieler inzwischen auch; offen: Vollbild, Tests auf echten Geräten |
 | 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026; übrige Gegner-Routinen, Bonus und Levelende übertragen, ungeprüft (08.10.2026) |
-| 7. Titel/Intro, Menü, Ladebilder, Highscore und Spielende; Gesamtabgleich und Bugfixing | 🟡 begonnen | Titelsequenz, Menü, Story-Seite, Ladebild Level 1 fertig und geprüft (06.10.2026); offen: Namenseingabe, Cheat, Ladebilder 2–6, Spielende |
+| 7. Titel/Intro, Menü, Ladebilder, Highscore und Spielende; Gesamtabgleich und Bugfixing | 🟡 begonnen | Titelsequenz, Menü, Story-Seite, Ladebild Level 1 fertig und geprüft (06.10.2026); Ladebild Level 2 übertragen, ungeprüft (08.10.2026); offen: Namenseingabe, Cheat, Ladebilder 3–6, Spielende |
 
 ### Aktueller Meilenstein: Start bis Level 1
 
@@ -72,18 +73,20 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Ladebild Level 2** (nächster Cloud-Schritt, Ablauf E, Effort „mittel“): Nach dem Levelende von Level 1 lädt
-   das Original `load_forest` (`Agony.0A`, `FILE_2_4`) und springt hinein (`$61500`); im Nachbau steht dort
-   vorläufig der Platzhalter `ui.level2Stub` (`flow.ts`, Ausgang `levelDone`). Muster: `load_sea` (Ladebild 1,
-   `LoadingScreen`); laut [Dateiformate](dateiformate.md) endet `load_forest` anders als `load_sea`, Aufbau prüfen.
-   Prüfen mit `node test/tools/explore-level.ts 26000` (aus `game/`, endet bei Bild 23.369 mit `levelDone`).
-   Danach Level 2 selbst (Abbild, Startliste, Routinen), Zaubermenü, übrige Zauber, Äxte, Pause.
+1. **Zaubermenü** (nächster Cloud-Schritt, neues Spielsystem, Effort „hoch“): Auswahl und Auslösen der Zauber in
+   Level 1 aus dem Quellcode (`Agony_Parent_.s`, Level-Modul `Ag_Game_LMER.s`), übrige Zauber, Äxte, Pause; gegen
+   das Original ungeprüft kennzeichnen. Danach Level 2 selbst (Abbild `LFORET`, Startliste, Routinen); das Ladebild
+   `load_forest` steht schon (`flow.ts`, danach Platzhalter `ui.level2Stub`).
 2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
    [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
 
 ### Für den PC
 
 Braucht Emulator, Aufnahmen, Messungen oder Geräte (je mit Empfehlung):
+
+- **Ladebild Level 2 prüfen** (Ablauf C, Effort „mittel“, kann mit der Aufnahme über Bild 14.792 hinaus zusammen
+  laufen): nach `levelDone` die ersten ≈ 100 Bilder von `load_forest` aufnehmen (Bild, Palette beim Einblenden,
+  Lademusik) und mit `LoadingScreen(LOAD_FOREST)` vergleichen wie bei `load_sea`.
 
 - **Geräte-Test** (Effort „mittel“): Start bis Level 1 auf iPad/Android-Tablet im Heimnetz: Ton-Freischaltung, Touch
   (Feuer rechts), Safe Areas, Bildrate, Klang der Musik, Flacker-Trick bei 60/120 Hz (B-001).
@@ -152,11 +155,18 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 |---|---|---|---|---|---|
 | 08.10.2026 | Stand vor dem nächsten Schritt | – | 96 % (Reset 11.10. ~03:00) | 3 % | Ausgangswert; Abschluss von Schritt 2 und Fragen ≈ 3 % des 5-h-Fensters |
 | 08.10.2026 | Zeitmodell bei hoher Last (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar (kein `get_usage`); Cloud-Guthaben statt Plan-Limit; 1 Sitzung, kein Compact |
+| 08.10.2026 | Ladebild Level 2 (Cloud-Session) | mittel | – | – | in der Cloud nicht abfragbar (kein `get_usage`); 1 Sitzung, kein Compact |
 | 08.10.2026 | Gegner-Routinen Level 1 (Cloud-Session) | hoch | – | – | wie oben; dieselbe Sitzung wie der Schritt davor, kein Compact |
 | 08.10.2026 | Bonus (Cloud-Session) | hoch | – | – | wie oben; dieselbe Sitzung |
 | 08.10.2026 | Levelende Level 1 (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung, kein Compact |
 
 ## Verlauf
+
+- **08.10.2026 (Ladebild Level 2, Cloud-Session)** – `load_forest` disassembliert (`work/disasm/load_forest_code.txt`):
+  derselbe Code wie `load_sea`, nur mit verschobenen Adressen (Bild `$66F1A`, Palette `$79A2A`, Modul
+  „loading_forest“ bei `$6323C`). Pipeline erzeugt alle Ladebilder aus einer Tabelle, `LoadingScreen` mit
+  `LOAD_SEA`/`LOAD_FOREST`; nach `levelDone` folgt das Ladebild, dann der Platzhalter. Gegen das Original noch
+  ungeprüft (Test in `game.test.ts`: Bild, Palette, Musik, Feuer). 55 Tests.
 
 - **08.10.2026 (Levelende Level 1, Cloud-Session)** – `Quit_Delay`-Zweig der Eule übertragen (Joystick übersprungen,
   Kollisionsrechteck weiter, `$4412`) und EXIT LEVEL mit Leben (`Agony_Parent_.s`, Label `Exit`): Ergebnis

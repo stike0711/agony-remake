@@ -216,6 +216,47 @@
    ],
    "ehb": true,
    "source": "load_sea $68A58"
+  },
+  "load.forest": {
+   "file": "img/load.forest.idx",
+   "width": 352,
+   "height": 290,
+   "palette": [
+    0,
+    4095,
+    3823,
+    3551,
+    3279,
+    3007,
+    2734,
+    2461,
+    2188,
+    1915,
+    1642,
+    1369,
+    1096,
+    823,
+    550,
+    277,
+    3258,
+    2439,
+    3004,
+    2731,
+    2458,
+    2185,
+    2183,
+    1637,
+    1925,
+    1379,
+    1106,
+    2453,
+    3513,
+    2695,
+    1618,
+    2163
+   ],
+   "ehb": true,
+   "source": "load_forest $66F1A"
   }
  },
  "fonts": {
@@ -701,6 +742,12 @@
    "name": "loading_sea",
    "length": 22556,
    "source": "load_sea $6323C"
+  },
+  "load.forest": {
+   "file": "mod/load.forest.mod",
+   "name": "loading_forest",
+   "length": 15582,
+   "source": "load_forest $6323C"
   }
  },
  "highscores": [

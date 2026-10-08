@@ -14,7 +14,8 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
 - [ ] Menü (`igt`): Bild mit brennendem Baum, Titelmusik von Tim Wright (ProTracker), Abspann-Seiten in der
       Original-Schrift, Highscore-Tabelle, Spielstart per Feuer, Story-Seite, Cheat „FANTASY“ – alles außer dem
       Cheat umgesetzt und bildgenau geprüft (06.10.2026)
-- [ ] Ladebilder vor jedem Level (6 Gemälde von Franck Sauer) mit Lademusik – Level 1 umgesetzt und geprüft
+- [ ] Ladebilder vor jedem Level (6 Gemälde von Franck Sauer) mit Lademusik – Level 1 umgesetzt und geprüft, Level 2
+      umgesetzt, gegen das Original noch ungeprüft (08.10.2026)
 - [ ] Highscore-Liste (6 Einträge) inklusive Namenseingabe und Speichern – Anzeige im Menü steht
 - [ ] Spielende (`ending`) mit Musik
 - [ ] Game Over und Rückkehr ins Menü – „GAME OVER“, stehendes Level, dann das Menü (07.10.2026, E-036); offen:
@@ -48,8 +49,8 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
       übrige Gegner-Routinen samt Endgegner übertragen, gegen das Original noch ungeprüft (`R_Transporteur`,
       `R_Tir_Etoile`, `R_Spectre`, `R_Rapide`, `R_Bomber`, `R_Volant_Grossi`, `R_Jumper`, `R_Volant_Missile`,
       `R_Final`; 08.10.2026, Kern-Tests in `routines.test.ts`); Bonus übertragen, ungeprüft (08.10.2026); Levelende mit
-      Leben übertragen, ungeprüft, danach vorläufig Platzhalter „Level 2“ (08.10.2026); offen: Zauber, Ladebild
-      Level 2, Prüfung der neuen Teile mit einer Aufnahme über Bild 14792 hinaus
+      Leben übertragen, ungeprüft, danach Ladebild Level 2 und vorläufig Platzhalter „Level 2“ (08.10.2026); offen: Zauber,
+      Prüfung der neuen Teile mit einer Aufnahme über Bild 14792 hinaus
 - [ ] Level 2 – Wald (`LFORET`)
 - [ ] Level 3 – Sumpf (`LMARAIS`)
 - [ ] Level 4 – Berge (`LMONTAGNES`)

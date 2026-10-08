@@ -8,7 +8,7 @@
 import { describe, expect, it } from "vitest";
 import { Game, type Screen } from "../src/core/game.ts";
 import { InputFrame, JOY_FIRE } from "../src/core/input.ts";
-import { LoadingScreen } from "../src/core/screens/loading.ts";
+import { LOAD_SEA, LoadingScreen } from "../src/core/screens/loading.ts";
 import { MenuScreen } from "../src/core/screens/menu.ts";
 import type { CopperPicture } from "../src/core/screens/picture.ts";
 import { decodePlanes, hasDump, loadDump } from "./chip-dump.ts";
@@ -84,7 +84,7 @@ describe.skipIf(!hasAssets || !hasTrace("menu2") || !hasTrace("load"))("Feuer, S
     const trace = (frame: number): Trace => (menuTrace.rows.has(frame) ? menuTrace : loadTrace);
     let levelStarted = -1, frame = 0;
     const level: Screen = { enter: () => { levelStarted = frame; }, tick: () => {} };
-    const loading = new LoadingScreen({ asset: "load.sea" }, () => level);
+    const loading = new LoadingScreen(LOAD_SEA, () => level);
     const menu = new MenuScreen(() => loading);
     const game = new Game(loadAssets(), { lang: "en" }, menu);
     const input = new InputFrame();

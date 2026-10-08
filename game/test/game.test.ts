@@ -7,7 +7,8 @@ import { displayChecksum, Replay } from "../src/core/replay.ts";
 import { titleSequence } from "../src/core/flow.ts";
 import { StartGate } from "../src/core/screens/start-gate.ts";
 import { MenuScreen, STORY_FRAMES, STORY_MIN_FRAMES } from "../src/core/screens/menu.ts";
-import { LoadingScreen } from "../src/core/screens/loading.ts";
+import { LOAD_FOREST, LOAD_SEA, LOADING_MIN_FRAMES, LoadingScreen } from "../src/core/screens/loading.ts";
+import type { Screen } from "../src/core/game.ts";
 import { PROMPT_ON_FRAMES } from "../src/core/prompt.ts";
 import { CC_PER_LINE } from "../src/core/timing.ts";
 import { hasAssets, loadAssets } from "./load-assets.ts";
@@ -81,7 +82,7 @@ describe.skipIf(!hasAssets)("Game", () => {
     expect([...lengths].sort()).toEqual([312, 313]);
   });
   it("Story-Seite: Hinweis „Feuer drücken“ blinkt nach der Mindestdauer, gehaltenes Feuer zählt nicht, Tippen schon (E-039)", () => {
-    const menu = new MenuScreen(() => new LoadingScreen({ asset: "load.sea" }, () => menu));
+    const menu = new MenuScreen(() => new LoadingScreen(LOAD_SEA, () => menu));
     const game = new Game(assets, { lang: "de" }, menu);
     const input = new InputFrame();
     input.buttons = JOY_FIRE; // Feuer starten und gedrückt halten
@@ -100,5 +101,27 @@ describe.skipIf(!hasAssets)("Game", () => {
     input.tapY = 100;
     game.tick(input); // Tippen: weiter, Hinweis aus
     expect(game.display.overlay.visible).toBe(false);
+  });
+  it("Ladebild Level 2 (load_forest): Bild, Palette eingeblendet, Lademusik, nach Feuer weiter (gegen das Original noch ungeprüft)", () => {
+    let entered = 0;
+    const next: Screen = { enter: () => { entered++; }, tick: () => {} } as unknown as Screen;
+    const loading = new LoadingScreen(LOAD_FOREST, () => next);
+    const game = new Game(assets, { lang: "de" }, loading);
+    const input = new InputFrame();
+    for (let t = 0; t < 2 + LOADING_MIN_FRAMES; t++) game.tick(input);
+    expect(game.display.overlay.visible).toBe(false);
+    for (let t = 0; t < 100 && !game.display.overlay.visible; t++) game.tick(input); // Einblenden + Mindestdauer
+    expect(game.display.overlay.visible).toBe(true);
+    const img = assets.images.get("load.forest")!;
+    expect(Array.from(loading.copper.palette.subarray(0, 32))).toEqual(Array.from(img.palette.subarray(0, 32)));
+    expect(loading.copper.buffer?.pixels).toEqual(img.pixels.subarray(0, 352 * 290));
+    expect(game.music.master).toBe(0x40);
+    input.tapX = 100;
+    input.tapY = 100;
+    game.tick(input);
+    input.clear();
+    for (let t = 0; t < 200 && entered === 0; t++) game.tick(input);
+    expect(entered).toBe(1);
+    expect(game.music.master).toBe(0);
   });
 });

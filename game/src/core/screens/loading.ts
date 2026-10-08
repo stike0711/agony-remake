@@ -1,5 +1,6 @@
-// Ladebild eines Levels mit Lademusik (bisher Level 1: load_sea).
-// Nachbildung von load_sea (Disassembly work/disasm/load_sea_code.txt): Bild zeigen, Palette einblenden, Musik;
+// Ladebild eines Levels mit Lademusik (bisher Level 1: load_sea, Level 2: load_forest).
+// Nachbildung von load_sea (Disassembly work/disasm/load_sea_code.txt; load_forest hat denselben Code, nur mit
+// verschobenen Adressen, work/disasm/load_forest_code.txt): Bild zeigen, Palette einblenden, Musik;
 // im Original wird jetzt das Level geladen und entpackt (Crack-Fassung ≈ 88 s), danach Bild und Musik ausblenden
 // und das Level starten. Im Nachbau entfällt die Ladezeit: Mindestdauer, danach weiter mit Feuer (E-025).
 // Takt 0 = erster Bild-Interrupt nach dem Start (mt_init läuft schon in `enter`).
@@ -15,14 +16,21 @@ export const LOADING_MIN_FRAMES = 150;
 export interface LevelLoad {
   /** Bild- und Modulschlüssel in den Spieldaten, z. B. "load.sea" */
   asset: string;
+  /** Adresse des Ladebilds im Original (Zeiger bei $61594) */
+  address: number;
 }
+
+/** Quelle: load_sea $61594 */
+export const LOAD_SEA: LevelLoad = { asset: "load.sea", address: 0x68a58 };
+/** Quelle: load_forest $61594 */
+export const LOAD_FOREST: LevelLoad = { asset: "load.forest", address: 0x66f1a };
 
 export class LoadingScreen implements Screen {
   readonly copper = new CopperPicture();
   game!: Game;
   private readonly level: LevelLoad;
-  /** Ladebild (load_sea $68A58) */
-  private readonly buffer = new PictureBuffer(0x68a58);
+  /** Ladebild */
+  private readonly buffer: PictureBuffer;
   private readonly next: () => Screen;
   private readonly script: Script<LoadingScreen>;
   private readonly frames = new FrameWait<LoadingScreen>();
@@ -33,6 +41,7 @@ export class LoadingScreen implements Screen {
 
   constructor(level: LevelLoad, next: () => Screen) {
     this.level = level;
+    this.buffer = new PictureBuffer(level.address);
     this.next = next;
     this.script = new Script(this.program());
   }

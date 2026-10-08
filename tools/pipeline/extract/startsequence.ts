@@ -1,4 +1,4 @@
-// Assets der Startsequenz: Titelsequenz (present), Menü (igt), Ladebild Level 1 (load_sea), Highscores (Agony.00).
+// Assets der Startsequenz: Titelsequenz (present), Menü (igt), Ladebilder (load_sea, load_forest), Highscores (Agony.00).
 // Adressen und Formate: Wiki dateiformate.md; Abläufe: Wiki original/startsequenz.md.
 
 import type { FontAsset, HighscoreEntry, ImageAsset, ModuleAsset, SampleAsset, TextLine } from "../../../game/src/data/manifest.ts";
@@ -206,18 +206,27 @@ function extractMenu(out: Extracted, sink: Sink, disks: GameDisks): void {
   });
 }
 
-// ---- Ladebild Level 1 (load_sea, Basis $61500) ---------------------------------------------------
+// ---- Ladebilder (load_<level>, Basis $61500) ----------------------------------------------------
 
-function extractLoadSea(out: Extracted, sink: Sink, disks: GameDisks): void {
-  const f = disks.get("load_sea");
-  const moduleAddress = 0x6323c; // Quelle: load_sea $61F32 (mt_init)
-  const mem = f.data.slice();
-  applyMtInit(mem, f.offset(moduleAddress)); // O-001: löscht die ersten 4 Byte des Bilds
-  module(out, sink, "load.sea", f, moduleAddress);
-  // Bild direkt hinter dem Modul (Quelle: load_sea $61594, Zeiger $68A58), Palette dahinter ($7B568, $61600)
-  const imageAddress = moduleAddress + moduleInfo(f.data, f.offset(moduleAddress)).length;
-  if (imageAddress !== 0x68a58) throw new Error(`load_sea: Bild bei ${hex(imageAddress)} statt $68A58`);
-  image(out, sink, "load.sea", f, mem, imageAddress, 352, 290, 6, imageAddress + 6 * 44 * 290, 32, true);
+// Alle Ladebild-Dateien haben denselben Code, nur mit verschobenen Adressen (Disassembly
+// work/disasm/load_sea_code.txt und load_forest_code.txt): Modul bei $6323C (Quelle: mt_init $61F32), Bild direkt
+// hinter dem Modul (Quelle: Zeiger bei $61594), Palette direkt hinter dem Bild (Quelle: Einblenden $61600).
+const LOAD_SCREENS = [
+  { file: "load_sea", key: "load.sea", image: 0x68a58 }, // Quelle: load_sea $61594, Palette $7B568
+  { file: "load_forest", key: "load.forest", image: 0x66f1a }, // Quelle: load_forest $61594, Palette $79A2A
+] as const;
+
+function extractLoadScreens(out: Extracted, sink: Sink, disks: GameDisks): void {
+  for (const l of LOAD_SCREENS) {
+    const f = disks.get(l.file);
+    const moduleAddress = 0x6323c; // Quelle: load_<level> $61F32 (mt_init)
+    const mem = f.data.slice();
+    applyMtInit(mem, f.offset(moduleAddress)); // O-001: löscht die ersten 4 Byte des Bilds (bei load_forest ohnehin 0)
+    module(out, sink, l.key, f, moduleAddress);
+    const imageAddress = moduleAddress + moduleInfo(f.data, f.offset(moduleAddress)).length;
+    if (imageAddress !== l.image) throw new Error(`${l.file}: Bild bei ${hex(imageAddress)} statt ${hex(l.image)}`);
+    image(out, sink, l.key, f, mem, imageAddress, 352, 290, 6, imageAddress + 6 * 44 * 290, 32, true);
+  }
 }
 
 // ---- Highscores (Agony.00) -----------------------------------------------------------------------
@@ -237,7 +246,7 @@ export function extractStartSequence(disks: GameDisks, sink: Sink): Extracted {
   const out: Extracted = { images: {}, fonts: {}, texts: {}, samples: {}, modules: {}, highscores: [], tables: {}, previews: [] };
   extractPresent(out, sink, disks);
   extractMenu(out, sink, disks);
-  extractLoadSea(out, sink, disks);
+  extractLoadScreens(out, sink, disks);
   extractHighscores(out, disks);
   return out;
 }

@@ -235,7 +235,11 @@ je Level prüfen):
   Betroffen sind die Ladebilder von Meer (`fffffff8` → 29 Pixel oben links), Sumpf, Bergen und Hochland; bei Wald und
   Feuer sowie beim Menü sind die Bytes ohnehin 0.
 - Prüfung `load_sea`: Bild aus der Datei mit diesem Effekt = Emulator-Aufnahme, 100,00 % pixelgenau.
-- Die anderen Ladebild-Dateien enden nicht immer genau wie `load_sea` (z. B. `load_forest`); Aufbau dort noch prüfen.
+- `load_forest` ✔ (Disassembly `work/disasm/load_forest_code.txt`): derselbe Code, nur mit verschobenen Adressen;
+  Modul „loading_forest“ bei `$6323C` (15.582 Byte), Bild `$66F1A`, Palette `$79A2A`, Copperliste `$79A6A`; die
+  Variablen des Einblendens liegen bei `$79B72`/`$79B74` (bei `load_sea` `$7B6B0`/`$7B6B2`), dahinter 6 statt 4 Byte
+  bis zum Dateiende. Pipeline: Tabelle `LOAD_SCREENS` in `tools/pipeline/extract/startsequence.ts`.
+- Die übrigen Ladebild-Dateien (Level 3–6) noch prüfen.
 
 ## Präsentation (`present`)
 
@@ -532,5 +536,5 @@ File_<disk>_<n>_code  equ  <32-Bit-Wert>
 - Level 2–6: Adressen in den Abbildern (Schema wie Level 1)
 - Aufbau der Objekte/Animationen (`Anim_…`), Bewegungstabellen (`TX_…`, `TY_…`)
 - Musik und Samples in den Abbildern
-- Ladebilder der Level 2–6: Aufbau im Einzelnen prüfen (Schema wie `load_sea`)
+- Ladebilder der Level 3–6: Aufbau im Einzelnen prüfen (Schema wie `load_sea`)
 - `ending` (`Agony.03`): Aufbau
