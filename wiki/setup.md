@@ -461,7 +461,7 @@ eine Arbeitskopie mit Git.
     der Kopie `git add -A`, `git commit`, `git push`. Den Push von Claude blockiert die automatische Freigabe
     (Datenweitergabe) beim großen ersten Push; kleine Pushes auf ausdrücklichen Wunsch gingen (08.10.2026).
   - Nach einer Cloud-Session: in der Kopie `git pull`, dann `node tools/repo/sync.ts pull ../agony-remake-git` –
-    übernimmt geänderte Dateien ins Projekt, sichert Überschriebenes nach `backup/<datum>_repo-pull/`, meldet in der
+    übernimmt geänderte Dateien ins Projekt, sichert Überschriebenes nach `backup/<datum>_<uhrzeit>_repo-pull/`, meldet in der
     Kopie gelöschte Dateien nur. Danach `npm test` und `npm run build` im Projekt.
 - Cloud-Sessions pushen auf einen eigenen Zweig `claude/<name>`, nicht auf `main`. Zurückholen: in der Kopie
   `git fetch`, `git merge --ff-only origin/claude/<name>`, `git push origin main`, dann `sync.ts pull`. Aufgaben an

@@ -2,7 +2,7 @@
 //   push: Projekt → Arbeitskopie. Kopiert alle Dateien außer den Ausnahmen unten; Emulator-Aufnahmen aus work/captures
 //         kommen gepackt nach work/captures-gz/<datei>.gz (in der Arbeitskopie: node tools/repo/unpack-captures.ts).
 //   pull: Arbeitskopie → Projekt. Übernimmt neue und geänderte Dateien; was im Projekt überschrieben wird, sichert es
-//         vorher nach backup/<datum>_repo-pull/. Löschen übernimmt es nicht, sondern listet nur auf.
+//         vorher nach backup/<datum>_<uhrzeit>_repo-pull/. Löschen übernimmt es nicht, sondern listet nur auf.
 // Git selbst (commit, push, pull) läuft getrennt in der Arbeitskopie.
 // Aufruf aus dem Projekt: node tools/repo/sync.ts push|pull <arbeitskopie>
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -68,7 +68,10 @@ if (mode === "push") {
   }
   console.log(`${changed} Dateien in die Arbeitskopie übernommen`);
 } else {
-  const stamp = new Date().toISOString().slice(0, 10);
+  // Datum und Uhrzeit, damit mehrere Abgleiche am selben Tag einander nicht überschreiben
+  const now = new Date();
+  const pad = (n: number): string => String(n).padStart(2, "0");
+  const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
   const backup = join(ROOT, "backup", `${stamp}_repo-pull`);
   for (const r of files(target, target)) {
     if (r.startsWith(`${PACKED}/`)) continue;
