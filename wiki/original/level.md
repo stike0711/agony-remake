@@ -97,17 +97,61 @@ Form eines Delfins, die Kugeln und Murmeln schießt.
 wachsend), `R_Tir_Etoile` (Sternschuss), `DGDP_Grosse_Tete` (großer Kopf), `R_Transporteur`, `…_Boulle` (Kugeln),
 `R_Spectre`, `R_Bomber`, `R_Volant_missile`, `R_Final`. Außerdem 8 Einträge `Demo_Page` (nur im Demo-Modus).
 
-✔ Gegner mit eigener Routine (Code im Level-Abbild ab `$4E9F0`, Disassembly `work/disasm/sea_rout.txt`), Adresse und
-Starts: `R_Spectre` `$4E9F0` (1), `R_Bomber` `$4EC00` (1), `R_Tir_Etoile` `$4ED70` (2), `R_Transporteur` `$4EFC8`
-(1), `R_Sol_Crache` `$4F19A` (4), `R_Volant_Missile` `$4F2F2` (1), `R_Jumper` `$4F696` (3), `R_Araignee` `$4F81C` (8),
-`R_Rapide` `$4F8EE` (3), `R_Final` `$4FA3A` (1). Übertragen (07.10.2026):
+✔ Gegner mit eigener Routine (Code im Level-Abbild ab `$4E9F0`; Disassembly `work/disasm/sea_rout.txt`, die ab
+`$4ED50` wegen eingestreuter Daten aus dem Takt gerät – einzelne Routinen besser mit `tools/analysis/disasm68k.py
+game/public/data/level/sea.game.bin 0x30f34 <von> <bis>`), Adresse und Starts: `R_Spectre` `$4E9F0` (1), `R_Bomber`
+`$4EC00` (1), `R_Tir_Etoile` `$4ED70` (2), `R_Transporteur` `$4EFC8` (1), `R_Sol_Crache` `$4F19A` (4),
+`R_Volant_Missile` `$4F2F2` (1), `R_Volant_Grossi` `$4F696` (3), `R_Jumper` `$4F75E` (0, nie gestartet),
+`R_Araignee` `$4F81C` (8), `R_Rapide` `$4F8EE` (3), `R_Final` `$4FA3A` (1). (Bis 08.10.2026 stand hier irrtümlich
+`R_Jumper` bei `$4F696`.)
+
+✔ Reihenfolge in der Startliste (Wartemarke `Level_X`, Bild ≈ 13.193 + `Level_X` bei ungestörtem Lauf): `R_Sol_Crache`
+576/640, `R_Araignee` 1024–1280, `R_Transporteur` 1600 (Bild 14.793), `R_Tir_Etoile` 3685, `R_Spectre` 3968,
+`R_Rapide` 4160/4192/4224, `R_Tir_Etoile` 4560, `R_Bomber` 5920, `R_Volant_Grossi` 7360–7584, `R_Araignee` und
+`R_Sol_Crache` 7744–8128, `R_Volant_Missile` 8704, `R_Final` 8944.
+
+Übertragen und gegen das Original geprüft (07.10.2026):
 - `R_Sol_Crache` (Pflanze am Boden, Parameter Feuerrate): erscheint rechts (x 256 + 320, y 256 + 190, Energie 8) und
   wandert mit dem Boden 2 Pixel je Durchlauf nach links, bis x 200; Animation jedes zweite Mal. Alle Feuerrate
   Durchläufe spuckt sie einen Feuerball (Energie 2), der 38 Durchläufe lang einem Bogen aus `Sin_Table2` folgt.
 - `R_Araignee` (Spinne, Parameter Start-y und Schritt): kommt von rechts (x 256 + 340, Energie 10), wandert nach links
   und läuft dabei an ihrem Faden zwischen y 150 und 340 auf und ab.
-Beide melden eine eigene Palette an (`Rout_Pal_Ptr`, Zähler `Rout_Mod_Pal_Counter`), die über die Farben der Wellen
-gelegt wird; die letzte endende Routine stellt die Palette des Levels wieder her.
+
+Übertragen, gegen das Original noch ungeprüft (08.10.2026; Ablauf in `routines.ts`, Kern-Tests `routines.test.ts`):
+- `R_Transporteur` (Parameter Launch_X): großer, unverwundbarer Gegner (x 256 + 320, y 144 + 256), 1 Pixel je
+  Durchlauf nach links. Bei x = Launch_X setzt er zwei Wellen kleiner Gegner ab (`R_T_Transporteur1/2`, absolute
+  Bahnen, bei x − 4, y 138 + 256), vibriert dann, explodiert nach 150 und endet nach 175 Durchläufen.
+- `R_Tir_Etoile` (Launch_X, Pos_Y; Energie 50): Monster, 2 Pixel je Durchlauf nach links; bei Launch_X fliegen acht
+  Schüsse (`Obj_Tir_1–8`, Energie 10) sternförmig mit 3 Pixel Abstand je Durchlauf auseinander, das Monster zieht
+  davon. Ende ab x ≤ 224.
+- `R_Spectre` (Launch_X, Fire_Rate, X_Speed, Y_Speed): Phiole (Energie 5), aus der bei Launch_X ein Gespenst
+  (Energie 2, schießt mit Fire_Rate) steigt, das danach der Eule folgt; Ende nach 200 Durchläufen oder wenn die
+  getroffene Phiole x < 200 erreicht.
+- `R_Rapide` (Animation, Tempo, Palette, y): schneller Gegner (Energie 3) von rechts nach links.
+- `R_Bomber`: Sack (Energie 15), der alle 24 Durchläufe eine von bis zu vier Kugeln (Energie 3) entlang `Sin_Table1`
+  fallen lässt.
+- `R_Volant_Grossi` (y, Tempo; Energie 10): Bild wechselt mit der Energie (`Obj_Grossi_1–3`); `R_Jumper` ist im Code
+  eine Kopie mit fester Höhe und ohne Palettenzähler, in Level 1 nicht gestartet.
+- `R_Volant_Missile` (Energie 20): folgt der Eule 35 s lang und feuert alle 200 Durchläufe einen gelenkten Schuss
+  (Energie 10), der waagrecht und senkrecht auf die Eule zusteuert und nach 175 Durchläufen explodiert; nach 45 s Ende.
+- `R_Final` (Endgegner, Energie 130, Schussrate 30): startet alle 70 Durchläufe abwechselnd eine von drei
+  Kugelwellen, blitzt bei Treffern; zerstört folgt eine Explosion in Schritten (Geräusche, Feuer-Palette, vorderes
+  Playfield gelöscht) bis `Clean_Up` (Levelende).
+
+✔ Eigenheiten des Originals (nachgebildet): Wellen aus Routinen (`R_Transporteur`, `R_Final`) setzen Energie und
+Schussrate für 32 statt 16 Gegner und schreiben damit in die folgende AWO-Bank; `R_Bomber` meldet keine Palette an,
+verringert beim Ende den Palettenzähler nicht und rückt in seiner Kugelschleife eine Kugel zu weit vor (bei vier
+Kugeln das obere Byte von `R_B_Mode`); `R_Volant_Missile` und `R_Jumper` melden ihre Palette ohne Zähler an. Im
+Abbild setzt `R_Final` `Quit_Delay` = 100 schon im ersten Explosionsschritt (Quelltext: 25 im letzten).
+
+❓ Folgen der 32er-Schleife, wenn die Bank dahinter schon belegt ist (Energie und Status laufender Gegner würden
+überschrieben); ❓ `R_Final`: Wird er zerstört, bevor alle drei Wellen gestartet sind, schreibt Schritt 19 über einen
+leeren Zeiger (`R_F_AWO_Ptr` = 0) nach Adresse 0 – ob das im Original vorkommen kann und was es bewirkt, zeigt erst die
+Aufnahme.
+
+Die Routinen melden (bis auf die genannten Ausnahmen) eine eigene Palette an (`Rout_Pal_Ptr`, Zähler
+`Rout_Mod_Pal_Counter`), die über die Farben der Wellen gelegt wird; die letzte endende Routine stellt die Palette des
+Levels wieder her.
 
 ### Level 2 – Wald (`Ag_Game_LFORET.s`)
 

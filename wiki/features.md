@@ -45,7 +45,10 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
 - [ ] Level 1 – Meer (`LMER`) – Startbild bis „PRESS FIRE TO START“ fertig und geprüft (07.10.2026); Scrollen beider
       Playfields mit Palettenwechsel pixelgenau; Angriffswellen auf Bahnen (Fische, `Full_7c`) mit Kollisionen und
       Gegnerschüssen pixelgenau; Tod, Schild, `R_Sol_Crache`, `R_Araignee` und Spielende pixelgenau (07.10.2026);
-      offen: 9 weitere Gegner-Routinen, Endgegner (`R_Final`), Bonus, Zauber
+      übrige Gegner-Routinen samt Endgegner übertragen, gegen das Original noch ungeprüft (`R_Transporteur`,
+      `R_Tir_Etoile`, `R_Spectre`, `R_Rapide`, `R_Bomber`, `R_Volant_Grossi`, `R_Jumper`, `R_Volant_Missile`,
+      `R_Final`; 08.10.2026, Kern-Tests in `routines.test.ts`); offen: Bonus, Zauber, Levelende mit Leben, Prüfung der
+      neuen Routinen mit einer Aufnahme über Bild 14792 hinaus
 - [ ] Level 2 – Wald (`LFORET`)
 - [ ] Level 3 – Sumpf (`LMARAIS`)
 - [ ] Level 4 – Berge (`LMONTAGNES`)

@@ -11,8 +11,8 @@ Menümusik → Story-Seite → Ladebild von Level 1 mit Lademusik → Level 1, B
 läuft auf einem Modell der Grafik-Hardware mit dem übertragenen Spielcode (E-032): Angriffswellen, die ersten zwei
 Gegner mit eigener Routine, Tod der Eule, Schild beim Wiedereinstieg und Spielende mit Rückkehr ins Menü; ohne
 Eingabe bis nach dem Spielende pixelgenau wie im Emulator, ebenso ein Lauf mit Dauerfeuer, Abschüssen und Ausweichen.
-Als Nächstes: Zeitmodell bei hoher Last, die übrigen Gegner-Routinen von Level 1, Ton im
-Level. Eine native App für iPadOS (eventuell auch iOS) ist eingeplant, sobald ein
+Als Nächstes: Bonus, eine Aufnahme über Bild 14.792 hinaus zur Prüfung der übertragenen Gegner-Routinen, Zeitmodell
+bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist eingeplant, sobald ein
 Mac zur Verfügung steht.
 
 ## Fahrplan und Fortschritt
@@ -73,18 +73,27 @@ Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im 
 
 1. Start bis Level 1 auf echten Geräten prüfen (iPad/Android-Tablet im Heimnetz): Ton-Freischaltung, Touch (Feuer
    rechts), Safe Areas, Bildrate, Klang der Musik, Flacker-Trick bei 60/120 Hz (B-001).
-2. **Zeitmodell bei hoher Last** (E-037, W-021): Versuch vom 08.10.2026 (Cloud, Effort „hoch“) ohne Durchbruch
+2. **Bonus** (Ablauf B, Effort „hoch“, auch in der Cloud möglich): Mit den Eingaben von `level1_shoot` läuft der
+   Nachbau jetzt bis Bild 15.159; in 15.160 hält er an, weil ein Bonus erscheint (`interrupt.ts`, „Bonus ist noch
+   nicht übertragen“). Ohne Bonus kommt kein Lauf mit Abschüssen weiter, und der Planungs-Bot (`plan-bot.ts`) kann
+   keine Eingaben über 15.160 hinaus planen. Danach Zaubermenü und Levelende mit Leben.
+3. **Aufnahme über Bild 14.792 hinaus** (Ablauf C am PC, nach dem Bonus): Die Gegner-Routinen von Level 1 sind
+   übertragen, aber ungeprüft (08.10.2026, W-022 offen). Empfehlung: vom Schnappschuss `snap_f13100_level1_enter` mit
+   den Eingaben von `SHOOT_RUN` bis 14.790, danach Eingaben vom Planungs-Bot bis zum Levelende (≈ Bild 23.200), Leben
+   per Poke auffüllen wie beim Lauf `level1_music_timing`; Bilder, Spur und Zeitprofil in Abschnitten von höchstens
+   ≈ 2.000 Bildern ab 14.793. Erwartete Starts (Bild ≈ 13.193 + `Level_X`): `R_Transporteur` 14.793,
+   `R_Tir_Etoile` ≈ 16.880, `R_Spectre` ≈ 17.160, `R_Rapide` ≈ 17.350, `R_Bomber` ≈ 19.110, `R_Volant_Grossi`
+   ≈ 20.550, `R_Volant_Missile` ≈ 21.900, `R_Final` ≈ 22.140 (Tode und Pausen verschieben das). Darin auch die ersten
+   Gegnerschüsse im Einsatz (Gespenst, Endgegner, Transporteur-Wellen).
+4. **Zeitmodell bei hoher Last** (E-037, W-021): Versuch vom 08.10.2026 (Cloud, Effort „hoch“) ohne Durchbruch
    angehalten. Ursache eingegrenzt: Der Objekt-Schritt ist bei großer Blitter-Last (Spinne ganz im Bild) im Original
    rund 10 Zeilen kürzer, als das Modell rechnet; die Short_Phase-Entscheidungen stimmen mit gemessener Zeitlage bis
    14792. Vier Erklärungen geprüft und verworfen (W-021). Weiter als eigener Schritt am PC mit Effort „maximal“
    (Ablauf C + D): im Emulator je Blit des Objektteils messen (Haltepunkte an BLTSIZE und WaitBlit), dann
    `fit_part1b_timing.py --run level1_go --run level1_shoot` mit dem neuen Posten und `SHOOT_MODEL_LAST` in
    `level1.test.ts` auf `SHOOT_LAST` (14792) anheben; Detail je Durchlauf mit `node test/tools/detail-timing.ts
-   level1_shoot 14520 14600`. Unabhängig davon (Tests mit gemessener Zeitlage hängen nicht am Modell): die übrigen
-   Gegner-Routinen (`R_Transporteur` startet in Bild 14793, `R_Tir_Etoile`, `R_Spectre`, `R_Rapide`, `R_Bomber`,
-   `R_Jumper`, `R_Volant_Missile`, `R_Final`), Bonus, Zaubermenü, Levelende mit Leben; Gegnerschüsse im Einsatz,
-   sobald ein Gegner schießt (dafür eine neue Aufnahme über Bild 14792 hinaus, Ablauf C am PC).
-3. Ton im Level: Soundeffekte (`Sound.bin`) und die Musik von Jeroen Tel (offene Frage: Treiber portieren oder vorab
+   level1_shoot 14520 14600`.
+5. Ton im Level: Soundeffekte (`Sound.bin`) und die Musik von Jeroen Tel (offene Frage: Treiber portieren oder vorab
    aufnehmen).
 
 Kleinere Restpunkte: Klang (Mixer-Ausgabe) mit einer Audio-Aufnahme des Emulators abgleichen – der Mixer tastet
@@ -128,9 +137,19 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 |---|---|---|---|---|---|
 | 08.10.2026 | Stand vor dem nächsten Schritt | – | 96 % (Reset 11.10. ~03:00) | 3 % | Ausgangswert; Abschluss von Schritt 2 und Fragen ≈ 3 % des 5-h-Fensters |
 | 08.10.2026 | Zeitmodell bei hoher Last (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar (kein `get_usage`); Cloud-Guthaben statt Plan-Limit; 1 Sitzung, kein Compact |
+| 08.10.2026 | Gegner-Routinen Level 1 (Cloud-Session) | hoch | – | – | wie oben; dieselbe Sitzung wie der Schritt davor, kein Compact |
 
 ## Verlauf
 
+- **08.10.2026 (Gegner-Routinen von Level 1, Cloud-Session)** – Ablauf B ohne Bildvergleich: `R_Transporteur`,
+  `R_Tir_Etoile`, `R_Spectre`, `R_Rapide`, `R_Bomber`, `R_Volant_Grossi`, `R_Jumper`, `R_Volant_Missile` und
+  `R_Final` aus `Ag_Game_LMER.s` übertragen, Befehl für Befehl gegen das Abbild abgeglichen (Disassembly neu mit
+  `disasm68k.py`; Capstone in der Cloud per `pip install capstone`). Übertragen, gegen das Original noch ungeprüft
+  (W-022). Eigenheiten nachgebildet (Wellen mit 32 statt 16 Gegnern, Kugelschleife von `R_Bomber`); Abbild weicht in
+  `R_Final` vom Quelltext ab (`Quit_Delay`). Korrektur: `$4F696` ist `R_Volant_Grossi`, `R_Jumper` (`$4F75E`) wird in
+  Level 1 nie gestartet. Neue Kern-Tests ohne Aufnahme (`test/routines.test.ts`, Werte aus dem Quelltext). Der Lauf
+  `level1_shoot` kommt mit seinen Eingaben jetzt bis Bild 15.159 (Transporteur-Wellen abgeschossen); nächste Lücke:
+  Bonus in 15.160. Bilder bis 14.792 unverändert. 50 Tests.
 - **08.10.2026 (Zeitmodell bei hoher Last, Cloud-Session, angehalten)** – Ablauf D über beide Läufe: Daten neu
   gesammelt (`level1_shoot` bis 14792), Anpassungen je Lauf und gemeinsam. Die Konstanten bleiben, denn die gemeinsame
   Anpassung verschlechtert `level1_go` (56 statt höchstens 40 sichtbar falsche Lagen) und löst den Fehler nicht.

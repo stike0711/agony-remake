@@ -199,6 +199,14 @@ Vorlage für neue Einträge:
   ob der Prozessor zwischen den Blits wartet oder parallel rechnet und wie viele Buszyklen ein A+B+C+D-Blit unter
   Bitplane- und Sprite-DMA tatsächlich braucht. Neuer Hardware-Zeiteffekt, Effort „maximal“ (arbeitsablauf.md).
 
+### W-022 Gegner-Routinen von Level 1 ungeprüft
+- Status: offen (wartet auf eine Aufnahme über Bild 14.792 hinaus, status.md)
+- Seit 08.10.2026: `R_Transporteur`, `R_Tir_Etoile`, `R_Spectre`, `R_Rapide`, `R_Bomber`, `R_Volant_Grossi`,
+  `R_Jumper`, `R_Volant_Missile` und `R_Final` sind aus dem Quelltext übertragen und gegen die Disassembly des Abbilds
+  abgeglichen, aber nicht gegen den Emulator geprüft. Abgesichert nur durch Kern-Tests mit Werten aus dem Quelltext
+  (`test/routines.test.ts`). Nicht im Test: Zusammenspiel mit Kollisionen, Explosionen, Gegnerschüssen und Paletten,
+  Zeitlage.
+
 ## Eigenheiten und Fehler des Originals
 
 Grundsatz in Phase 1: originalgetreu, also nachbilden. Beheben erst als zuschaltbare Option (E1, siehe

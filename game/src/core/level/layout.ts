@@ -116,6 +116,10 @@ export interface LevelVars {
   beginToStart: number; // Begin_To_Start
   btsDelay: number; // BTS_Delay
   cleanUp: number; // Clean_Up
+  /** R_F_AWO_Ptr1–3: AWO-Bänke der Wellen des Endgegners (R_Final) */
+  rFAwoPtr1: number;
+  rFAwoPtr2: number;
+  rFAwoPtr3: number;
 }
 
 export interface LevelLayout {
@@ -280,6 +284,8 @@ export const SEA: LevelLayout = {
     sound0: 0x7cbc, sound0b: 0x7cbe, sound0Req: 0x7cc0, sound0Vol: 0x7cc2, sound0VolReq: 0x7cc4, sound0IntStep: 0x7cc6,
     sound0LastPri: 0x7cc8,
     quitDelay: 0x7cca, afOff: 0x7ccc, beginToStart: 0x7cdc, btsDelay: 0x7cde, cleanUp: 0x7ce0,
+    // $4FCAC/$4FD44/$4FDDC: move.l a2,$7CD0/$7CD4/$7CD8(a5)
+    rFAwoPtr1: 0x7cd0, rFAwoPtr2: 0x7cd4, rFAwoPtr3: 0x7cd8,
   },
 
   sorcererDat: 0x178c0, // $4500
@@ -319,6 +325,28 @@ export const SEA: LevelLayout = {
   routines: new Map<number, RoutineDef>([
     [0x4f19a, { kind: "solCrache", pal: 0x4f170, shape: 0x4f184, sin: 0x50a24, obj: 0x196, fireBall: 0x1f0 }],
     [0x4f81c, { kind: "araignee", pal: 0x4f808, obj: 0xea }],
+    // Abbild $4EFC8 (Disassembly mit disasm68k.py aus sea.game.bin)
+    [0x4efc8, { kind: "transporteur", pal: 0x4ef6c, shape: 0x4ef80, wave1: 0x4ef88, wave2: 0x4efa8, obj: 0x122 }],
+    // Abbild $4ED70; Obj_Tir_1–8 aus den move.w #…,Awo_Alien_Obj_Off(a4) bei $4EE2C–$4EE56
+    [0x4ed70, { kind: "tirEtoile", pal: 0x4ed4a, shape: 0x4ed5e, obj: 0x3f2,
+      shots: [0x4d0, 0x4e2, 0x4f8, 0x50a, 0x520, 0x532, 0x548, 0x55a] }],
+    // Abbild $4E9F0; Obj_Spectre_Pot $35A ($4EA24 im MODE 0), Obj_Spectre_4/5 aus MODE 3 ($4EB08–$4EB1C)
+    [0x4e9f0, { kind: "spectre", pal: 0x4e9d2, shape: 0x4e9e6, pot: 0x35a, obj4: 0x3b6, obj5: 0x3d4 }],
+    // Abbild $4F8EE
+    [0x4f8ee, { kind: "rapide" }],
+    // Abbild $4EC00; Obj_Sac $BE ($4EC26), Obj_Boulle $32E ($4ECDC), Sin_Table1 $509C2 ($4ED10)
+    [0x4ec00, { kind: "bomber", obj: 0xbe, bomb: 0x32e, sin: 0x509c2 }],
+    // Abbild $4F696 (R_Volant_Grossi, nicht R_Jumper) und $4F75E (R_Jumper, in Level 1 nicht gestartet);
+    // Obj_Grossi_1–3 = $5A8/$58E/$570 ($4F742/$4F738/$4F72E)
+    [0x4f696, { kind: "volantGrossi", pal: 0x4f682, obj1: 0x5a8, obj2: 0x58e, obj3: 0x570 }],
+    [0x4f75e, { kind: "jumper", pal: 0x4f74a, obj1: 0x5a8, obj2: 0x58e, obj3: 0x570 }],
+    // Abbild $4F2F2; Obj_Volant_Missile_1/2 = $29E/$2B4 ($4F36C/$4F376), Obj_Tir_1–8 wie bei R_Tir_Etoile
+    [0x4f2f2, { kind: "volantMissile", pal: 0x4f2de, obj1: 0x29e, obj2: 0x2b4,
+      shots: [0x4d0, 0x4e2, 0x4f8, 0x50a, 0x520, 0x532, 0x548, 0x55a] }],
+    // Abbild $4FA3A; Obj_Final $5C2 ($4FA66), Obj_Big_Explo_1–3 $5D8/$60A/$640, Front_Screens $607B2–$73F3A ($4FB3C)
+    [0x4fa3a, { kind: "final", palFlash: 0x4f9fe, palNormal: 0x4fa12, palExplo: 0x4fa26, wave1: 0x4f99e,
+      wave2: 0x4f9be, wave3: 0x4f9de, obj: 0x5c2, explo1: 0x5d8, explo2: 0x60a, explo3: 0x640, frontScreens: 0x607b2,
+      frontScreensEnd: 0x73f3a }],
   ]),
   relativeTracks: 0x4fe22, // $2B5C
   absoluteTracks: 0x50036, // $2CBE

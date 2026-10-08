@@ -465,7 +465,7 @@ eine Arbeitskopie mit Git.
   eine laufende Cloud-Session kann Claude von hier aus schicken (SendMessage); antworten kann sie nicht, das Ergebnis
   steht in ihrem Verlauf und im Zweig. Bestätigt 08.10.2026: Das Cloud-Guthaben wird statt des Wochenlimits belastet.
 - In der Cloud: `cd game && npm install`, einmal `node tools/repo/unpack-captures.ts` (aus der Wurzel), dann
-  `npm test`. Neue Emulator-Aufnahmen gehen nur am PC.
+  `npm test`. Für Analysen bei Bedarf `pip install numpy capstone` (Python-Skripte in `tools/analysis/`). Neue Emulator-Aufnahmen gehen nur am PC.
 - Nie gleichzeitig im Projekt und in der Cloud an denselben Dateien arbeiten; vor einer Cloud-Session pushen, danach
   erst zurückholen, dann lokal weiter.
 - Das Guthaben für Cloud-Sessions (Aktion, 100 $) verfällt am 04.11.2026; danach zählen Cloud-Sessions zum Plan-Limit.
