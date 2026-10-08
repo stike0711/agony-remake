@@ -453,7 +453,8 @@ eine Arbeitskopie mit Git.
   und Musik – **nur, weil das Repo privat ist**; nie öffentlich schalten oder weitergeben.
 - Abgleich (aus dem Projekt):
   - `node tools/repo/sync.ts push ../agony-remake-git` – Projekt → Arbeitskopie (packt neue Aufnahmen), danach in
-    der Kopie `git add -A`, `git commit`, `git push`.
+    der Kopie `git add -A`, `git commit`, `git push`. Den Push von Claude blockiert die automatische Freigabe
+    (Datenweitergabe); bis eine Erlaubnisregel gesetzt ist, führt ihn der Nutzer aus. Erster Push am 08.10.2026.
   - Nach einer Cloud-Session: in der Kopie `git pull`, dann `node tools/repo/sync.ts pull ../agony-remake-git` –
     übernimmt geänderte Dateien ins Projekt, sichert Überschriebenes nach `backup/<datum>_repo-pull/`, meldet in der
     Kopie gelöschte Dateien nur. Danach `npm test` und `npm run build` im Projekt.
