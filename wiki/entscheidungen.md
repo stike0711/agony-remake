@@ -389,7 +389,8 @@ Status: **gilt** · **vorgeschlagen** (noch nicht umgesetzt oder bestätigt) · 
   gerechneten Zeile. Mit gemessener Zeitlage bis Bild 14792 pixelgenau bis auf W-017/W-019 und zweimal 1 Pixel.
 - Offen: Gegnerschüsse im Einsatz (Teil 2 an seiner Zeile ist eingebaut, aber ungeprüft; in Level 1 schießt bis
   Bild 14792 kein Gegner), das Zeitmodell bei hoher Last (ab Bild 14567 im Lauf `level1_shoot`
-  sagt es den überlangen Durchlauf eine Runde zu früh voraus), die ungeklärten Fälle, in denen Teil 2 schon in Zeile 6 beginnt (5 von
+  sagt es den überlangen Durchlauf eine Runde zu früh voraus; Ursache eingegrenzt auf den Objekt-Schritt bei großer
+  Blitter-Last, W-021), die ungeklärten Fälle, in denen Teil 2 schon in Zeile 6 beginnt (5 von
   532, Warteschleife `$34F0` müsste bis Zeile 64 warten ❓).
 
 ### E-038 Arbeitsweise: Standardabläufe, kleine Sitzungen, „genau genug“

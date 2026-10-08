@@ -73,13 +73,17 @@ Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im 
 
 1. Start bis Level 1 auf echten Geräten prüfen (iPad/Android-Tablet im Heimnetz): Ton-Freischaltung, Touch (Feuer
    rechts), Safe Areas, Bildrate, Klang der Musik, Flacker-Trick bei 60/120 Hz (B-001).
-2. **Zeitmodell bei hoher Last** (E-037, Ablauf D, Effort „hoch“): Im Lauf `level1_shoot` sagt das Modell den
-   überlangen Durchlauf ab Bild 14567 eine Runde zu früh voraus; Teil 1b (vor allem Schritt 2, Paletten) liegt bei
-   hoher Last rund 10 Zeilen daneben. Teil 1b unter Last neu kalibrieren (`collect-timing.ts level1_shoot`,
-   `fit_part1b_timing.py --run level1_shoot`), dann `SHOOT_MODEL_LAST` in `level1.test.ts` auf `SHOOT_LAST` (14792)
-   anheben. Danach die übrigen Gegner-Routinen (`R_Transporteur` startet in Bild 14793, `R_Tir_Etoile`, `R_Spectre`,
-   `R_Rapide`, `R_Bomber`, `R_Jumper`, `R_Volant_Missile`, `R_Final`), Bonus, Zaubermenü, Levelende mit Leben;
-   Gegnerschüsse im Einsatz, sobald ein Gegner schießt (dafür eine neue Aufnahme über Bild 14792 hinaus).
+2. **Zeitmodell bei hoher Last** (E-037, W-021): Versuch vom 08.10.2026 (Cloud, Effort „hoch“) ohne Durchbruch
+   angehalten. Ursache eingegrenzt: Der Objekt-Schritt ist bei großer Blitter-Last (Spinne ganz im Bild) im Original
+   rund 10 Zeilen kürzer, als das Modell rechnet; die Short_Phase-Entscheidungen stimmen mit gemessener Zeitlage bis
+   14792. Vier Erklärungen geprüft und verworfen (W-021). Weiter als eigener Schritt am PC mit Effort „maximal“
+   (Ablauf C + D): im Emulator je Blit des Objektteils messen (Haltepunkte an BLTSIZE und WaitBlit), dann
+   `fit_part1b_timing.py --run level1_go --run level1_shoot` mit dem neuen Posten und `SHOOT_MODEL_LAST` in
+   `level1.test.ts` auf `SHOOT_LAST` (14792) anheben; Detail je Durchlauf mit `node test/tools/detail-timing.ts
+   level1_shoot 14520 14600`. Unabhängig davon (Tests mit gemessener Zeitlage hängen nicht am Modell): die übrigen
+   Gegner-Routinen (`R_Transporteur` startet in Bild 14793, `R_Tir_Etoile`, `R_Spectre`, `R_Rapide`, `R_Bomber`,
+   `R_Jumper`, `R_Volant_Missile`, `R_Final`), Bonus, Zaubermenü, Levelende mit Leben; Gegnerschüsse im Einsatz,
+   sobald ein Gegner schießt (dafür eine neue Aufnahme über Bild 14792 hinaus, Ablauf C am PC).
 3. Ton im Level: Soundeffekte (`Sound.bin`) und die Musik von Jeroen Tel (offene Frage: Treiber portieren oder vorab
    aufnehmen).
 
@@ -123,9 +127,18 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | Datum | Schritt | Effort | Woche vorher → nachher | 5 h vorher → nachher | Bemerkung |
 |---|---|---|---|---|---|
 | 08.10.2026 | Stand vor dem nächsten Schritt | – | 96 % (Reset 11.10. ~03:00) | 3 % | Ausgangswert; Abschluss von Schritt 2 und Fragen ≈ 3 % des 5-h-Fensters |
+| 08.10.2026 | Zeitmodell bei hoher Last (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar (kein `get_usage`); Cloud-Guthaben statt Plan-Limit; 1 Sitzung, kein Compact |
 
 ## Verlauf
 
+- **08.10.2026 (Zeitmodell bei hoher Last, Cloud-Session, angehalten)** – Ablauf D über beide Läufe: Daten neu
+  gesammelt (`level1_shoot` bis 14792), Anpassungen je Lauf und gemeinsam. Die Konstanten bleiben, denn die gemeinsame
+  Anpassung verschlechtert `level1_go` (56 statt höchstens 40 sichtbar falsche Lagen) und löst den Fehler nicht.
+  Ursache eingegrenzt (W-021): Objekt-Schritt bei großer Blitter-Last im Original rund 10 Zeilen kürzer als
+  gerechnet; Interrupt-Dauer, Blit-Art, Blit-Größe und Sprite-DMA erklären es nicht. Nach der Zwei-Versuche-Regel
+  angehalten. Neu: `fit_part1b_timing.py` mit mehreren `--run` (gemeinsame Anpassung, Rest je Lauf; `--residuals`
+  rechnet den Objekt-Schritt jetzt gegen alle freien Zyklen), `test/tools/detail-timing.ts` (Modell gegen Messung je
+  Durchlauf). `SHOOT_MODEL_LAST` bleibt 14566. 42 Tests.
 - **08.10.2026 (Hauptschleife über zwei Bilder hinaus)** – Die Engine führt Durchläufe der Hauptschleife über
   beliebig viele Bilder aus (`runMainLoop` mit den Stufen Teil 1b, Teil 2, Warten; Lage `at` = 2 · Bilder seit
   Schleifenstart + Seite des Copper-Interrupts; Teil 1a an beliebiger Zeile). Das Zeitmodell rechnet die Warteregeln

@@ -373,7 +373,9 @@ const SHOOT_KNOWN = ["13295: 11", "13779: 11", "13787: 7", ...GO_KNOWN];
 const SHOOT_MEASURED_KNOWN = [...SHOOT_KNOWN, "14578: 2", "14582: 19", "14586: 31", "14590: 19", "14598: 4116", "14792: 2"].sort();
 /**
  * Letztes Bild der Vergleiche mit dem Zeitmodell: Ab 14567 sagt das Modell den überlangen Durchlauf eine Runde zu früh
- * voraus (Teil 1b unter hoher Last noch nicht kalibriert, offener Schritt in status.md).
+ * voraus. Ursache: Mit der Spinne ganz im Bild (über 19.000 Blitter-Takte im Objekt-Schritt) und Regen ist der
+ * Objekt-Schritt im Original rund 500 Arbeitseinheiten (≈ 10 Zeilen) kürzer als gerechnet; Teil 2 rutscht so hinter den
+ * Copper-Interrupt. Short_Phase stimmt mit gemessener Zeitlage bis 14792 (Befund 08.10.2026, W-021).
  */
 const SHOOT_MODEL_LAST = 14566;
 const SHOOT_VARS: [string, number][] = [

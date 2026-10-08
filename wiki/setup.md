@@ -152,10 +152,12 @@ await AG.profileSave("level1_go");
   Bus-Belegung → `<lauf>.work.json`) und `python tools/analysis/fit_loop_timing.py [--detail von bis]` (Anpassung,
   Trefferquote; liest nur `level1_go`).
 - Auswertung Teil 1b und Copper-Interrupt: `node test/tools/collect-timing.ts [<lauf>]` (Arbeit je Schritt, Teile je
-  Interrupt, Bus-Belegung je Bild → `<lauf>.timing.json`), `python tools/analysis/fit_part1b_timing.py [--run <lauf>]
-  [--residuals Schritt]` (Anpassung je Schritt), `python tools/analysis/fit_irq_timing.py [<lauf> …]` (Dauer des
-  Copper-Interrupts über mehrere Läufe, Standard beide) und `node test/tools/eval-timing.ts` (Uhr des Modells gegen
-  die Messung je Schritt).
+  Interrupt, Bus-Belegung je Bild → `<lauf>.timing.json`), `python tools/analysis/fit_part1b_timing.py [--run <lauf> …]
+  [--residuals Schritt] [--outliers]` (Anpassung je Schritt; mehrere `--run` passen gemeinsam an und zeigen den Rest
+  je Lauf), `python tools/analysis/fit_irq_timing.py [<lauf> …]` (Dauer des Copper-Interrupts über mehrere Läufe,
+  Standard beide), `node test/tools/eval-timing.ts` (Uhr des Modells gegen die Messung je Schritt, Lauf `level1_go`)
+  und `node test/tools/detail-timing.ts <lauf> <von> <bis>` (je Durchlauf Modell M und Messung G für Schleifenstart,
+  SEARCH SHORT PHASE, jeden Schritt, Teil 2 und Ende, als Bild/Zeile ab dem Startbild).
 - Fehlersuche im Bild: `node test/tools/debug-frames.ts [--model] [--shoot] Bild …` schreibt Nachbau, Original und
   Unterschied als PPM nach `work/debug/` (`--shoot`: Lauf `level1_shoot`). Kollisionsliste und Gegner je Bild im
   Nachbau und im Original: `node test/tools/debug-shoot.ts von bis`.

@@ -5,3 +5,4 @@ node_modules/
 /work/debug/
 /work/captures/
 /.claude/settings.local.json
+__pycache__/

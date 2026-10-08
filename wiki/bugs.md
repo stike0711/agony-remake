@@ -178,6 +178,27 @@ Vorlage für neue Einträge:
   nächsten Bild; der Nachbau steht am Bildende schon auf dem Wert dazwischen (Bilder 14569, 14611). Die Spur liest
   nur einmal je Bild, die Bilder stimmen.
 
+### W-021 Zeitmodell: Objekt-Schritt unter hoher Blitter-Last zu lang
+- Status: offen (begrenzt die Modelltests im Lauf `level1_shoot` auf Bild 14566, `SHOOT_MODEL_LAST`)
+- Gefunden: 08.10.2026, Lauf `level1_shoot` ab Bild 14535. Die Spinne steht dort weiter im Bild als in `level1_go`
+  (dasselbe Bild 14563: 22.152 statt 9.900 Blitter-Takte im Objekt-Schritt bei gleichen 4 Gegnern und 24 Teilbildern),
+  dazu Regen (Copper-Interrupt 4.400 statt 2.500 Farbtakte). Im Original ist der Objekt-Schritt ($153C → $29D2) dann
+  rund 500 Arbeitseinheiten (freie Buszyklen) kürzer, als die lineare Anpassung rechnet; die Modelluhr liegt danach
+  rund 10 Zeilen zu spät. Teil 2 landet in 14561/14565 hinter dem Copper-Interrupt, im freien Lauf kommt der überlange
+  Durchlauf ab 14567 eine Runde zu früh (Variablen weichen ab). Short_Phase stimmt mit gemessener Zeitlage bis 14792.
+- Geprüft und verworfen (je Anpassung über beide Läufe, 1.607 Durchläufe):
+  - Dauer des Copper-Interrupts: im Modell richtig (4.444 statt gemessen 4.400–4.670).
+  - Art der Blits: alle Objekt-Blits nutzen A+B+C+D (4 Takte je Wort); eigene Faktoren je Kanalkombination ändern nichts.
+  - Größe der Blits (Takte², mittlere Blit-Größe × Interrupt) und Überlappung von Prozessor und Blitter
+    (Blits × min(mittlerer Blit, C)): Rest im Bereich höchstens von 520 auf 280 Einheiten, Gesamtfehler kaum besser.
+  - Sprite-DMA (Regen, Schüsse; im Bereich 1.152 statt sonst 244 Zyklen je Schritt) nur anteilig als belegt zählen:
+    erklärt rund 20 %, Gesamtfehler bei mehr als 30 % schlechter.
+  - Gemeinsame Anpassung aller Schritte über beide Läufe (`fit_part1b_timing.py --run level1_go --run level1_shoot`):
+    `level1_go` wird schlechter (56 statt höchstens 40 sichtbar falsche Lagen), der Rest im Bereich bleibt.
+- Nächster Ansatz: im Emulator je Blit messen (Haltepunkte an BLTSIZE-Schreibzugriffen und WaitBlit im Objektteil),
+  ob der Prozessor zwischen den Blits wartet oder parallel rechnet und wie viele Buszyklen ein A+B+C+D-Blit unter
+  Bitplane- und Sprite-DMA tatsächlich braucht. Neuer Hardware-Zeiteffekt, Effort „maximal“ (arbeitsablauf.md).
+
 ## Eigenheiten und Fehler des Originals
 
 Grundsatz in Phase 1: originalgetreu, also nachbilden. Beheben erst als zuschaltbare Option (E1, siehe

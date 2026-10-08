@@ -11,7 +11,8 @@ Grundwert + Summe(Faktor · Arbeit). Fällt der Copper-Interrupt in die Zeit, ko
 der Vertical-Blank-Interrupt mit dem Musiktreiber. Gesucht: je Schritt Grundwert und Faktoren (kleinste Quadrate),
 danach die Trefferquote der Lage (vor/nach dem Interrupt, Zeile im übernächsten Bild).
 
-Aufruf: python tools/analysis/fit_part1b_timing.py [--run <lauf>]   (Standard level1_go; Ausgabe <lauf>.part1b_fit.json)
+Aufruf: python tools/analysis/fit_part1b_timing.py [--run <lauf> …] [--residuals <Schritt>] [--outliers]
+  (Standard level1_go; mehrere --run passen gemeinsam an; Ausgabe <lauf>[+<lauf>].part1b_fit.json)
 """
 import json, os, sys
 import numpy as np
@@ -29,9 +30,7 @@ WORK = ["aliens", "subs", "clipped", "tracks", "trackAliens", "startEntry", "pal
 STEPS = ["objects", "play", "palette", "colision", "routines", "status", "text", "sounds"]
 STEP_PCS = [[0x153C], [0x29D2], [0x2E82], [0x302C], [0x316E], [0x3194], [0x342E], [0x348C]]
 
-RUN = sys.argv[sys.argv.index("--run") + 1] if "--run" in sys.argv else "level1_go"
-prof_hits = load_hits(os.path.join(C, RUN + ".profile.json"))
-data = json.load(open(os.path.join(C, RUN + ".timing.json")))
+RUNS = [sys.argv[i + 1] for i, a in enumerate(sys.argv) if a == "--run"] or ["level1_go"]
 music = {}
 t0 = {}
 for f, pc, v, h in json.load(open(os.path.join(C, "level1_music_timing.profile.json")))["hits"]:
@@ -41,21 +40,30 @@ for f, pc, v, h in json.load(open(os.path.join(C, "level1_music_timing.profile.j
     elif pc == 0x43BA and f in t0:
         music[f] = t - t0[f]
 
-hits = [((f * LINES + v) * LINE + h, pc) for f, pc, v, h in prof_hits]
-irqs = [(t, pc) for t, pc in hits if pc in (0x43C6, 0x5BC4)]
-irq_start = [t for t, pc in irqs if pc == 0x43C6]
-irq_end = [t for t, pc in irqs if pc == 0x5BC4]
+VBL = int(sys.argv[sys.argv.index("--vbl") + 1]) if "--vbl" in sys.argv else 198
+RESTORE_CYCLES = 11520 * 2
 
-# Durchläufe aus dem Profil: Zeitpunkte je Haltepunkt ab dem Schleifenstart
-loops = []
-cur = None
-for t, pc in hits:
-    if pc == 0xAD8:
-        cur = {"start": t, "pc": {}}
-        loops.append(cur)
-    elif cur is not None:
-        cur["pc"][pc] = t   # letzter Treffer je Haltepunkt (doppelt, wenn ein Interrupt genau dort ankam)
-assert len(loops) >= len(data["loops"]), (len(loops), len(data["loops"]))
+
+def load_run(RUN):
+    """Profil und Nachbau-Daten eines Laufs laden; setzt die globalen Werte, mit denen die Hilfsfunktionen rechnen"""
+    global data, irq_start, irq_end, loops
+    prof_hits = load_hits(os.path.join(C, RUN + ".profile.json"))
+    data = json.load(open(os.path.join(C, RUN + ".timing.json")))
+    hits = [((f * LINES + v) * LINE + h, pc) for f, pc, v, h in prof_hits]
+    irqs = [(t, pc) for t, pc in hits if pc in (0x43C6, 0x5BC4)]
+    irq_start = [t for t, pc in irqs if pc == 0x43C6]
+    irq_end = [t for t, pc in irqs if pc == 0x5BC4]
+
+    # Durchläufe aus dem Profil: Zeitpunkte je Haltepunkt ab dem Schleifenstart
+    loops = []
+    cur = None
+    for t, pc in hits:
+        if pc == 0xAD8:
+            cur = {"start": t, "pc": {}}
+            loops.append(cur)
+        elif cur is not None:
+            cur["pc"][pc] = t   # letzter Treffer je Haltepunkt (doppelt, wenn ein Interrupt genau dort ankam)
+    assert len(loops) >= len(data["loops"]), (len(loops), len(data["loops"]))
 
 
 def bus_of(frame, key="busEven"):
@@ -96,8 +104,6 @@ def advance(a, units, key):
     return t
 
 
-RESTORE_CYCLES = 11520 * 2
-VBL = int(sys.argv[sys.argv.index("--vbl") + 1]) if "--vbl" in sys.argv else 198
 
 
 def interruptions(a, b, key="busEven"):
@@ -126,43 +132,89 @@ def step_times(L):
     return out
 
 
-# Stichproben: Arbeitszeit (freie Zyklen ohne Interrupts) je Schritt gegen dessen Arbeit
-samples = {s: ([], []) for s in range(len(STEPS) - 1)}
-for k, rec in enumerate(data["loops"]):
-    L = loops[k]
-    times = step_times(L)
-    work = rec["work"]
-    for s in range(len(STEPS) - 1):
-        a, b = times[s], times[s + 1]
-        if a is None or b is None or s >= len(work):
-            continue
-        # Fehlt Schritt s+1 im Profil, ist die Zeit 0 (nächster Schritt gleich) – dann nicht verwerten
-        if b <= a:
-            continue
-        if s == 0:
-            # Objekte: Blitter-lastig, gerechnet gegen alle freien Zyklen (der Blitter nutzt auch ungerade)
-            units = free_between(a, b, "bus") - interruptions(a, b, "bus")
-        else:
-            units = free_between(a, b) - interruptions(a, b)
-        row = list(work[s])
-        if s == 0:
-            # nur die Blits der Gegner: Zurücksetzen (9 Blits, 11.520 Wörter A→D) liegt vor ALIEN BANK CTRL
-            row[WORK.index("blitCycles")] -= RESTORE_CYCLES
-            row[WORK.index("blits")] -= 9
-        if s == 1 and len(work) > 2:
-            # Kopieren und Überlagern der Palette liegen vor $2E82, also noch in dieser Zeit
-            for n in ("palCopy", "palOverlays"):
-                row[WORK.index(n)] = work[2][WORK.index(n)]
-        if s == 2:
-            row = [0] * len(row)
-        # Unterbrechung im Schritt: Mehrarbeit über ihre Dauer hinaus (z. B. wartet der nächste Blit auf den Prozessor)
-        row = row[:len(WORK) - 2] + [1 if any(a <= x < b for x in irq_start) else 0,
-                                     1 if int(a // FRAME) != int(b // FRAME) else 0]
-        samples[s][0].append(row)
-        samples[s][1].append(units)
+def units_of(s, a, b):
+    """Arbeitszeit des Schritts s zwischen a und b: freie Zyklen ohne Interrupts. Objekte: Blitter-lastig, gerechnet
+    gegen alle freien Zyklen (der Blitter nutzt auch ungerade); sonst Prozessor mit den freien geraden"""
+    key = "bus" if s == 0 else "busEven"
+    return free_between(a, b, key) - interruptions(a, b, key)
 
+
+def collect(samples, run):
+    """Stichproben je Schritt eines Laufs: Arbeitszeit gegen dessen Arbeit, mit Lauf und Takt für die Auswertung"""
+    for k, rec in enumerate(data["loops"]):
+        L = loops[k]
+        times = step_times(L)
+        work = rec["work"]
+        for s in range(len(STEPS) - 1):
+            a, b = times[s], times[s + 1]
+            if a is None or b is None or s >= len(work):
+                continue
+            # Fehlt Schritt s+1 im Profil, ist die Zeit 0 (nächster Schritt gleich) – dann nicht verwerten
+            if b <= a:
+                continue
+            row = list(work[s])
+            if s == 0:
+                # nur die Blits der Gegner: Zurücksetzen (9 Blits, 11.520 Wörter A→D) liegt vor ALIEN BANK CTRL
+                row[WORK.index("blitCycles")] -= RESTORE_CYCLES
+                row[WORK.index("blits")] -= 9
+            if s == 1 and len(work) > 2:
+                # Kopieren und Überlagern der Palette liegen vor $2E82, also noch in dieser Zeit
+                for n in ("palCopy", "palOverlays"):
+                    row[WORK.index(n)] = work[2][WORK.index(n)]
+            if s == 2:
+                row = [0] * len(row)
+            # Unterbrechung im Schritt: Mehrarbeit über ihre Dauer hinaus (z. B. wartet der nächste Blit auf den
+            # Prozessor)
+            row = row[:len(WORK) - 2] + [1 if any(a <= x < b for x in irq_start) else 0,
+                                         1 if int(a // FRAME) != int(b // FRAME) else 0]
+            samples[s][0].append(row)
+            samples[s][1].append(units_of(s, a, b))
+            samples[s][2].append((run, rec["tick"], a))
+
+
+def extra_samples(ex):
+    """Zurücksetzen (OBJ → BANK, Blitter), Prüfung → Objekte, Teil 2: Beginn nach Zeile $40 und Sprite-Liste"""
+    for k, rec in enumerate(data["loops"]):
+        L = loops[k]["pc"]
+        if 0x149C in L and 0x153C in L:
+            a, b = L[0x149C], L[0x153C]
+            ex["restore"].append((free_between(a, b, "bus") - interruptions(a, b, "bus"),
+                                  1 if any(a <= x < b for x in irq_start) else 0,
+                                  1 if int(a // FRAME) != int(b // FRAME) else 0))
+        if 0x147C in L and 0x149C in L:
+            ex["check_obj"].append(L[0x149C] - L[0x147C])
+        if 0x3514 in L and 0x348C in L:
+            p2, snd = L[0x3514], L[0x348C]
+            line64 = (int(p2 // FRAME)) * FRAME + 64 * LINE
+            if snd < line64 - 2 * LINE:
+                ex["wake"].append(p2 - line64)
+        if 0x3514 in L and 0x3800 in L and len(rec["work"]) > 3:
+            a, b = L[0x3514], L[0x3800]
+            ex["p2_afl"].append((rec["work"][3][WORK.index("colAliens")], free_between(a, b) - interruptions(a, b)))
+
+
+samples = {s: ([], [], []) for s in range(len(STEPS) - 1)}
+extra = {"restore": [], "check_obj": [], "wake": [], "p2_afl": []}
+for run in RUNS:
+    load_run(run)
+    collect(samples, run)
+    extra_samples(extra)
+    if "--outliers" in sys.argv:
+        for k, rec in enumerate(data["loops"]):
+            times = step_times(loops[k])
+            for s in range(len(STEPS) - 1):
+                a, b = times[s], times[s + 1]
+                if a is None or b is None or b <= a:
+                    continue
+                if b - a > 30000:
+                    fa, ra = divmod(a, FRAME)
+                    fb, rb = divmod(b, FRAME)
+                    print(f"{run} Durchlauf {k} Takt {rec['tick']}: {STEPS[s]} {fa}/{ra // LINE} → {STEPS[s + 1]} {fb}/{rb // LINE}")
+
+print("Läufe:", ", ".join(RUNS))
 coefs = {}
-for s, (X, y) in samples.items():
+errors = {}
+for s, (X, y, _) in samples.items():
     if len(y) < 5:
         continue
     X = np.array(X, float)
@@ -171,72 +223,36 @@ for s, (X, y) in samples.items():
     A = np.hstack([np.ones((len(y), 1)), X[:, cols]])
     c, *_ = np.linalg.lstsq(A, y, rcond=None)
     err = A @ c - y
+    errors[s] = err
     coefs[s] = (c[0], {WORK[i]: c[j + 1] for j, i in enumerate(cols)})
-    print(f"{STEPS[s]:9s} → {STEPS[s + 1]:9s} n {len(y):3d} rms {np.sqrt((err ** 2).mean()):7.0f} max {abs(err).max():7.0f}"
+    print(f"{STEPS[s]:9s} → {STEPS[s + 1]:9s} n {len(y):4d} rms {np.sqrt((err ** 2).mean()):7.0f} max {abs(err).max():7.0f}"
           f"  Grund {c[0]:7.1f}  " + ", ".join(f"{WORK[i]} {c[j + 1]:.3f}" for j, i in enumerate(cols)))
+    if len(RUNS) > 1:
+        tags = samples[s][2]
+        print("          je Lauf: " + ", ".join(
+            f"{r} Mittel {err[[i for i, t in enumerate(tags) if t[0] == r]].mean():.0f}"
+            f" rms {np.sqrt((err[[i for i, t in enumerate(tags) if t[0] == r]] ** 2).mean()):.0f}" for r in RUNS))
 
 json.dump({STEPS[s]: {"base": b, **f} for s, (b, f) in coefs.items()},
-          open(os.path.join(C, RUN + ".part1b_fit.json"), "w"), indent=1)
-
-if "--outliers" in sys.argv:
-    for k, rec in enumerate(data["loops"]):
-        L = loops[k]
-        times = step_times(L)
-        for s in range(len(STEPS) - 1):
-            a, b = times[s], times[s + 1]
-            if a is None or b is None or b <= a:
-                continue
-            if b - a > 30000:
-                fa, ra = divmod(a, FRAME)
-                fb, rb = divmod(b, FRAME)
-                print(f"Durchlauf {k} Takt {rec['tick']}: {STEPS[s]} {fa}/{ra // LINE} → {STEPS[s + 1]} {fb}/{rb // LINE}")
+          open(os.path.join(C, "+".join(RUNS) + ".part1b_fit.json"), "w"), indent=1)
 
 if "--residuals" in sys.argv:
+    # Rest = gemessen minus angepasst (positiv: Original langsamer als das Modell)
     s = STEPS.index(sys.argv[sys.argv.index("--residuals") + 1])
-    base, fac = coefs[s]
-    rows = []
-    for k, rec in enumerate(data["loops"]):
-        L = loops[k]
-        times = step_times(L)
-        a, b = times[s], times[s + 1]
-        if a is None or b is None or b <= a or s >= len(rec["work"]):
-            continue
-        w = dict(zip(WORK, rec["work"][s]))
-        pred = base + sum(c * w[n] for n, c in fac.items())
-        units = free_between(a, b) - interruptions(a, b)
-        irq_in = any(a <= x < b for x in irq_start)
-        fe = int(a // FRAME) != int(b // FRAME)
-        rows.append((units - pred, k, rec["tick"], irq_in, fe, divmod(a, FRAME)[1] // LINE, w))
-    rows.sort(key=lambda r: -abs(r[0]))
-    for r in rows[:15]:
-        print(f"Rest {r[0]:7.0f} Durchlauf {r[1]} Takt {r[2]} IRQ {r[3]} Bildwechsel {r[4]} ab Zeile {r[5]}",
-              {n: v for n, v in r[6].items() if v})
+    X, _, tags = samples[s]
+    rows = sorted(((-errors[s][i], tags[i], X[i]) for i in range(len(tags))), key=lambda r: -abs(r[0]))
+    for r, (run, tick, a), x in rows[:15]:
+        print(f"Rest {r:7.0f} {run} Takt {tick} ab Zeile {divmod(a, FRAME)[1] // LINE}",
+              {n: v for n, v in zip(WORK, x) if v})
     import collections
-    for key in ("irq", "fe"):
+    for key, col in (("irq", -2), ("fe", -1)):
         g = collections.defaultdict(list)
-        for r in rows: g[r[3] if key == "irq" else r[4]].append(r[0])
+        for r, _, x in rows: g[x[col]].append(r)
         print(key, {k: (len(v), round(sum(v) / len(v))) for k, v in g.items()})
 
 
-def extra_fits():
-    """Zurücksetzen (OBJ → BANK, Blitter), Prüfung → Objekte, Teil 2: Beginn nach Zeile $40 und Sprite-Liste"""
-    restore, check_obj, wake, p2_afl = [], [], [], []
-    for k, rec in enumerate(data["loops"]):
-        L = loops[k]["pc"]
-        if 0x149C in L and 0x153C in L:
-            a, b = L[0x149C], L[0x153C]
-            restore.append((free_between(a, b, "bus") - interruptions(a, b, "bus"),
-                            1 if any(a <= x < b for x in irq_start) else 0, 1 if int(a // FRAME) != int(b // FRAME) else 0))
-        if 0x147C in L and 0x149C in L:
-            check_obj.append(L[0x149C] - L[0x147C])
-        if 0x3514 in L and 0x348C in L:
-            p2, snd = L[0x3514], L[0x348C]
-            line64 = (int(p2 // FRAME)) * FRAME + 64 * LINE
-            if snd < line64 - 2 * LINE:
-                wake.append(p2 - line64)
-        if 0x3514 in L and 0x3800 in L and len(rec["work"]) > 3:
-            a, b = L[0x3514], L[0x3800]
-            p2_afl.append((rec["work"][3][WORK.index("colAliens")], free_between(a, b) - interruptions(a, b)))
+def extra_fits(ex):
+    restore, check_obj, wake, p2_afl = ex["restore"], ex["check_obj"], ex["wake"], ex["p2_afl"]
     m = lambda v: sum(v) / len(v)
     X = np.array([[1, i, v] for _, i, v in restore], float)
     y = np.array([u for u, _, _ in restore], float)
@@ -253,4 +269,4 @@ def extra_fits():
     print(f"Teil 2 → Sprite-Liste: Grund {c[0]:.0f} + {c[1]:.1f} je Gegner, rms {np.sqrt((err ** 2).mean()):.0f}, n {len(y)}")
 
 
-extra_fits()
+extra_fits(extra)
