@@ -1,8 +1,8 @@
 // Level-Bildschirm: verbindet die Level-Engine (E-032) mit dem Spielablauf. Das Bild ist Hires ohne Interlace
 // (Statuszeile in Hires, Spielfeld in Lowres); der Renderer passt Statuszeile und Spielfeld bildschirmfüllend ein.
 // Nach dem Spielende steht das Bild wie im Original während des Ladens („GAME OVER“, Regen); statt der Ladezeit
-// (Crack-Fassung ≈ 65 s) eine feste Dauer (E-036), dann das Menü. Stand: Level 1 bis zum ersten Gegner mit noch nicht
-// übertragener Routine; dort führt der Bildschirm vorläufig zum Platzhalter.
+// (Crack-Fassung ≈ 65 s) eine feste Dauer (E-036), dann das Menü. Nach dem Levelende mit Leben ebenso, dann das
+// Ladebild des nächsten Levels. An einer noch nicht übertragenen Stelle führt der Bildschirm zum Platzhalter.
 
 import { WINDOW_HSTART, WINDOW_VSTART } from "../display.ts";
 import type { Game, Screen } from "../game.ts";
@@ -18,8 +18,8 @@ const VIEW_Y = 0x2d - WINDOW_VSTART;
 const VIEW_WIDTH = 288;
 const VIEW_HEIGHT = 0x100 - 0x2d;
 /**
- * Nach EXIT LEVEL: 150 Bilder statt der Ladezeit (wie E-025), dann wie im Original 50 Bilder (Delay_Count, die Musik
- * blendet aus) bis zum schwarzen Bild
+ * Nach EXIT LEVEL (Spielende wie Levelende): 150 Bilder statt der Ladezeit (wie E-025), dann wie im Original
+ * 50 Bilder (Delay_Count, die Musik blendet aus) bis zum schwarzen Bild
  */
 const EXIT_WAIT_FRAMES = 150;
 const EXIT_FRAMES = EXIT_WAIT_FRAMES + 50;
@@ -30,6 +30,8 @@ const EXIT_PROMPT_FRAMES = 50;
 export interface LevelExits {
   /** nach dem Spielende (das Original lädt das Menü `igt`) */
   gameOver: () => Screen;
+  /** nach dem Levelende mit Leben (das Original lädt das Ladebild des nächsten Levels) */
+  levelDone: () => Screen;
   /** an der ersten nicht übertragenen Stelle (vorläufig) */
   unported: () => Screen;
 }
@@ -79,6 +81,8 @@ export class LevelScreen implements Screen {
     if (n === EXIT_PROMPT_FRAMES) game.setPrompt("ui.pressFire");
     else if (n > EXIT_PROMPT_FRAMES && n < EXIT_WAIT_FRAMES && firePressed(game)) this.exitFrames = EXIT_WAIT_FRAMES;
     if (this.exitFrames === EXIT_WAIT_FRAMES) game.setPrompt(null);
-    if (this.exitFrames === EXIT_FRAMES) game.setScreen(this.exits.gameOver());
+    if (this.exitFrames === EXIT_FRAMES) {
+      game.setScreen(this.engine.result === "levelDone" ? this.exits.levelDone() : this.exits.gameOver());
+    }
   }
 }

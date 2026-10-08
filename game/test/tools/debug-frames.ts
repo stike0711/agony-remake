@@ -27,7 +27,7 @@ const OUT = "../work/debug";
 mkdirSync(OUT, { recursive: true });
 
 const end: Screen = { enter: () => {}, tick: () => {} };
-const level = new LevelScreen(SEA, { gameOver: () => end, unported: () => end });
+const level = new LevelScreen(SEA, { gameOver: () => end, levelDone: () => end, unported: () => end });
 const game = new Game(loadAssets(), { lang: "en" }, level);
 const capture = new HiresCapture(name);
 const input = new InputFrame();

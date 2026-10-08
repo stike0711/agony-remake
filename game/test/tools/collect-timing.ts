@@ -22,7 +22,7 @@ import { buttonsAt, runOf } from "../runs.ts";
 const run = runOf(process.argv[2]);
 const profile = new Profile(run.name);
 const end: Screen = { enter: () => {}, tick: () => {} };
-const level = new LevelScreen(SEA, { gameOver: () => end, unported: () => end });
+const level = new LevelScreen(SEA, { gameOver: () => end, levelDone: () => end, unported: () => end });
 const game = new Game(loadAssets(), { lang: "en" }, level);
 const e = level.engine;
 e.vposSource = measuredVpos(profile, new Trace(run.name));

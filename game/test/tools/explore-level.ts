@@ -1,6 +1,7 @@
 // Erkundung (Cloud-Aufträge, kein Vergleich mit dem Original): Level 1 mit Dauerfeuer und dem Bewegungsmuster des
 // Planungs-Bots, Leben jedes Bild aufgefüllt (wie die Aufnahme level1_music_timing), bis die Engine anhält oder das
-// Level endet. Meldet Tode, Starts von Gegner-Routinen, Bonusse und den Grund des Anhaltens.
+// Level endet. Meldet Tode, Starts von Gegner-Routinen, Bonusse, den Beginn des Levelendes (Quit_Delay) und den Grund
+// des Anhaltens.
 // Aufruf aus game/: node test/tools/explore-level.ts [<letztes Bild>]
 import { Game, type Screen } from "../../src/core/game.ts";
 import { InputFrame, JOY_DOWN, JOY_FIRE, JOY_LEFT, JOY_RIGHT, JOY_UP } from "../../src/core/input.ts";
@@ -13,6 +14,7 @@ let left = "";
 const end: Screen = { enter: () => {}, tick: () => {} };
 const level = new LevelScreen(SEA, {
   gameOver: () => { left = "Spielende"; return end; },
+  levelDone: () => { left = "Levelende"; return end; },
   unported: () => { left = "nicht übertragen"; return end; },
 });
 const game = new Game(loadAssets(), { lang: "en" }, level);
@@ -22,7 +24,7 @@ const PATTERN: [number, number][] = [
   [25, 0],
 ];
 const V = SEA.vars;
-let k = 0, n = 0, die = 0, bonus = 0, routs = "";
+let k = 0, n = 0, die = 0, bonus = 0, quit = 0, routs = "";
 for (let f = 13112; f <= last && !left; f++) {
   if (f === 13161 || f === 13162) input.buttons = JOY_FIRE;
   else if (f < 13170) input.buttons = 0;
@@ -38,6 +40,9 @@ for (let f = 13112; f <= last && !left; f++) {
   const d = e.w(V.die);
   if (d && !die) console.log(`${f}: Tod`);
   die = d;
+  const q = e.w(V.quitDelay);
+  if (q && !quit) console.log(`${f}: Quit_Delay ${q} (Levelende beginnt)`);
+  quit = q;
   const b = e.w(V.bonusMode);
   if (b !== bonus) console.log(`${f}: Bonus_Mode ${b} (Bonus_Num ${e.w(V.bonusNum)})`);
   bonus = b;

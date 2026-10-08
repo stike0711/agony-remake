@@ -18,6 +18,11 @@ export function menu(): Screen {
 }
 
 function level1(): Screen {
-  // Nach dem Spielende ins Menü (Highscore folgt); an der ersten nicht übertragenen Stelle der Platzhalter
-  return new LevelScreen(SEA, { gameOver: menu, unported: () => new LevelStub(menu) });
+  // Nach dem Spielende ins Menü (Highscore folgt), nach dem Levelende vorläufig zum Platzhalter für Level 2 (Ladebild
+  // load_forest folgt); an der ersten nicht übertragenen Stelle der Platzhalter
+  return new LevelScreen(SEA, {
+    gameOver: menu,
+    levelDone: () => new LevelStub(menu, "ui.level2Stub"),
+    unported: () => new LevelStub(menu, "ui.levelStub"),
+  });
 }

@@ -162,7 +162,8 @@ await AG.profileSave("level1_go");
   Unterschied als PPM nach `work/debug/` (`--shoot`: Lauf `level1_shoot`). Kollisionsliste und Gegner je Bild im
   Nachbau und im Original: `node test/tools/debug-shoot.ts von bis`.
 - Erkunden, wie weit Level 1 ohne Anhalten läuft (Cloud, kein Vergleich): `node test/tools/explore-level.ts [<letztes
-  Bild>]` (Dauerfeuer, Bewegungsmuster des Planungs-Bots, Leben aufgefüllt; meldet Tode, Routinen, Bonusse, Halt).
+  Bild>]` (Dauerfeuer, Bewegungsmuster des Planungs-Bots, Leben aufgefüllt; meldet Tode, Routinen, Bonusse, Beginn des
+  Levelendes und Halt bzw. Verlassen des Levels).
 - Eingaben für eine Aufnahme planen (Ablauf C): `node test/tools/plan-bot.ts <letztes Bild>` erzeugt eine Folge mit
   Dauerfeuer und Bewegung und probiert vor jedem Tod der Eule Ausweichbewegungen (im Nachbau mit dem Zeitmodell, gibt
   die Liste `[Bild, Knöpfe]` aus); `node test/tools/plan-shoot.ts <eingaben.json> [<letztes Bild>]` spielt eine Liste

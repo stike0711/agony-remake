@@ -29,7 +29,7 @@ for (const h of profile.all) {
   } else if (loops.length) loops[loops.length - 1]!.set(h.pc, hitTime(h));
 }
 const end: Screen = { enter: () => {}, tick: () => {} };
-const level = new LevelScreen(SEA, { gameOver: () => end, unported: () => end });
+const level = new LevelScreen(SEA, { gameOver: () => end, levelDone: () => end, unported: () => end });
 const game = new Game(loadAssets(), { lang: "en" }, level);
 const e = level.engine;
 e.vposSource = measuredVpos(profile, new Trace(run.name));

@@ -31,7 +31,7 @@ for (const h of profile.all) {
 }
 
 const end: Screen = { enter: () => {}, tick: () => {} };
-const level = new LevelScreen(SEA, { gameOver: () => end, unported: () => end });
+const level = new LevelScreen(SEA, { gameOver: () => end, levelDone: () => end, unported: () => end });
 const game = new Game(loadAssets(), { lang: "en" }, level);
 const e = level.engine;
 e.vposSource = measuredVpos(profile, new Trace("level1_go"));

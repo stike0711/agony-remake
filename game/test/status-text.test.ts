@@ -53,7 +53,7 @@ describe.skipIf(!hasAssets)("Statuszeile im Level", () => {
 
   function start(lang: "en" | "de"): { game: Game; level: LevelScreen } {
     const end: Screen = { enter: () => {}, tick: () => {} };
-    const level = new LevelScreen(SEA, { gameOver: () => end, unported: () => end });
+    const level = new LevelScreen(SEA, { gameOver: () => end, levelDone: () => end, unported: () => end });
     const game = new Game(assets, { lang }, level);
     const input = new InputFrame();
     for (let t = 0; t < 10; t++) game.tick(input);

@@ -17,7 +17,7 @@ const run = runOf(process.argv[2]);
 const profile = new Profile(run.name);
 const checks = profile.hits(0x147c);
 const end: Screen = { enter: () => {}, tick: () => {} };
-const level = new LevelScreen(SEA, { gameOver: () => end, unported: () => end });
+const level = new LevelScreen(SEA, { gameOver: () => end, levelDone: () => end, unported: () => end });
 const game = new Game(loadAssets(), { lang: "en" }, level);
 const input = new InputFrame();
 const loops: object[] = [];

@@ -161,10 +161,12 @@ Hilfe- oder Anleitungsseite (Enhanced) und fürs Wiki; Tabelle mit Wirkung in
 | `ui.tapToStart` | TAP TO START | ZUM STARTEN / TIPPEN |
 | `ui.pause` | PAUSE | PAUSE |
 | `ui.levelStub` | LEVEL 1 / COMING SOON | LEVEL 1 / KOMMT BALD |
+| `ui.level2Stub` | LEVEL 2 / COMING SOON | LEVEL 2 / KOMMT BALD |
 | `ui.pressFire` | PRESS FIRE | FEUER DRÜCKEN |
 
 `ui.pressFire` ist der Bedienhinweis an ersetzten Ladezeiten (E-039), gezeichnet in der auf 50 % verkleinerten
-Menüschrift. `ui.levelStub` ist ein vorläufiger Platzhalter nach dem Ladebild, bis Level 1 nachgebaut ist; er verschwindet dann.
+Menüschrift. `ui.levelStub` ist ein vorläufiger Platzhalter an noch nicht übertragenen Stellen von Level 1, `ui.level2Stub` nach
+dem Levelende von Level 1, bis Ladebild und Level 2 nachgebaut sind; beide verschwinden dann.
 
 Sprachnamen stehen immer in ihrer eigenen Sprache, damit man sie auch in der falschen Sprache findet. „/“ steht hier
 für einen Zeilenumbruch (im Code `|`): „ZUM STARTEN TIPPEN“ ist mit 360 Pixeln zu breit für eine Zeile.

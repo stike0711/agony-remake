@@ -144,6 +144,23 @@ verringert beim Ende den Palettenzähler nicht und rückt in seiner Kugelschleif
 Kugeln das obere Byte von `R_B_Mode`); `R_Volant_Missile` und `R_Jumper` melden ihre Palette ohne Zähler an. Im
 Abbild setzt `R_Final` `Quit_Delay` = 100 schon im ersten Explosionsschritt (Quelltext: 25 im letzten).
 
+### Levelende ✔
+
+Aus Quelltext und Abbild (`Ag_Sprites.s`, `Agony_Parent_.s`; Nachbau 08.10.2026, gegen das Original noch ungeprüft):
+
+- Solange `Quit_Delay` ≠ 0 ist, überspringt der Copper-Interrupt Joystick (die Eule steht, `$4412`), Äxte und
+  Zaubermenü; das Kollisionsrechteck der Eule wird weiter geschrieben. Ein Treffer setzt `Die`, die Todesfolge (MAIN
+  CHAR DIE) läuft aber nicht, also kein Lebensverlust. Feuer startet weiter Schüsse (O-015).
+- Die Hauptschleife zählt `Quit_Delay` je Durchlauf um 1 herunter; bei 1 folgt EXIT LEVEL (`$3A78`): Zauber aus,
+  `Stop`, `Die` gelöscht. Ohne Leben lädt das Spiel das Menü (`igt`), mit Leben das Ladebild des nächsten Levels
+  (Level 1: `FILE_2_4` = `load_forest`, `Agony.0A`). Währenddessen steht das Bild, nur der Copper-Interrupt läuft;
+  danach blendet `SetFade` die vier Farbbereiche aus, 50 Bilder Wartezeit, Interrupts und DMA aus, Sprung ins
+  Ladebild bei `$61500` (Level 6: `FILE_0_5` bei `$600`).
+- Bei 100 aus `R_Final` dauert das Levelende 98 Durchläufe der Hauptschleife; im Erkundungslauf des Nachbaus
+  (`explore-level.ts`) von Bild ≈ 23.172 bis 23.369.
+- Nicht übertragen: die Tastatur (Abbruch per Taste und „Level überspringen“ setzen `Quit_Delay` = 20 und `Clean_Up`,
+  `$5E22`/`$5E3E`).
+
 ❓ Folgen der 32er-Schleife, wenn die Bank dahinter schon belegt ist (Energie und Status laufender Gegner würden
 überschrieben); ❓ `R_Final`: Wird er zerstört, bevor alle drei Wellen gestartet sind, schreibt Schritt 19 über einen
 leeren Zeiger (`R_F_AWO_Ptr` = 0) nach Adresse 0 – ob das im Original vorkommen kann und was es bewirkt, zeigt erst die

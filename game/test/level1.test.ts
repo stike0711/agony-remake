@@ -31,7 +31,7 @@ import { buttonsAt, FIRE_RUN, SHOOT_RUN } from "./runs.ts";
 /** Level-Bildschirm, der am Ende nirgendwohin führt (Tests prüfen nur die Engine) */
 function levelScreen(): LevelScreen {
   const end: Screen = { enter: () => {}, tick: () => {} };
-  return new LevelScreen(SEA, { gameOver: () => end, unported: () => end });
+  return new LevelScreen(SEA, { gameOver: () => end, levelDone: () => end, unported: () => end });
 }
 
 /** Emulator-Bild, in dem die Copperliste des Levels zum ersten Mal läuft (Takt 0) */
@@ -336,7 +336,7 @@ describe.skipIf(!hasAssets)("Level 1: Spielende mit Bedienhinweis (E-039)", () =
   it("zeigt nach 1 s „Feuer drücken“; gehaltenes Feuer zählt nicht, ein neuer Druck überspringt die Wartezeit", () => {
     let left = -1;
     const end: Screen = { enter: () => {}, tick: () => {} };
-    const level = new LevelScreen(SEA, { gameOver: () => { left = f; return end; }, unported: () => end });
+    const level = new LevelScreen(SEA, { gameOver: () => { left = f; return end; }, levelDone: () => end, unported: () => end });
     const game = new Game(loadAssets(), { lang: "en" }, level);
     const frame = new InputFrame();
     let f = LEVEL_FIRST, exit = -1, promptAt = -1;

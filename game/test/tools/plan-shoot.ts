@@ -20,7 +20,7 @@ export interface PlanResult {
 
 export function plan(input: [number, number][], lastFrame: number, verbose = false): PlanResult {
   const end: Screen = { enter: () => {}, tick: () => {} };
-  const level = new LevelScreen(SEA, { gameOver: () => end, unported: () => end });
+  const level = new LevelScreen(SEA, { gameOver: () => end, levelDone: () => end, unported: () => end });
   const game = new Game(loadAssets(), { lang: "en" }, level);
   const frame = new InputFrame();
   const e = level.engine;

@@ -11,7 +11,8 @@ Menümusik → Story-Seite → Ladebild von Level 1 mit Lademusik → Level 1, B
 läuft auf einem Modell der Grafik-Hardware mit dem übertragenen Spielcode (E-032): Angriffswellen, die ersten zwei
 Gegner mit eigener Routine, Tod der Eule, Schild beim Wiedereinstieg und Spielende mit Rückkehr ins Menü; ohne
 Eingabe bis nach dem Spielende pixelgenau wie im Emulator, ebenso ein Lauf mit Dauerfeuer, Abschüssen und Ausweichen.
-Als Nächstes: Levelende von Level 1, danach Zaubermenü und die nächsten Level; am PC eine Aufnahme über Bild 14.792
+Alle Gegner-Routinen, Bonus und Levelende von Level 1 sind übertragen (gegen das Original noch ungeprüft); nach dem
+Levelende folgt vorläufig ein Platzhalter. Als Nächstes: Ladebild von Level 2, danach Zaubermenü und die nächsten Level; am PC eine Aufnahme über Bild 14.792
 hinaus zur Prüfung von Gegner-Routinen und Bonus, Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist eingeplant, sobald ein
 Mac zur Verfügung steht.
 
@@ -26,7 +27,7 @@ Mac zur Verfügung steht.
 | 3. Referenz-Emulator mit den ADFs und Kickstart 1.3 einrichten | ✅ erledigt | vAmigaWeb als A500 (OCS, 512 + 512 KB), schrittweise steuerbar, siehe [Setup](setup.md#referenz-emulator) |
 | 4. Asset-Pipeline: Spieldateien entpacken; Grafiken, Paletten, Angriffswellen, Sounds und Musik extrahieren | 🟡 begonnen | Disketten ausgelesen, alle 15 Spieldateien entpackt, Lade- und Startadressen bestimmt; Titelbilder, Menübild, Menüschrift, Texttabelle und Ladebild 1 lokalisiert und mit Python-Prototypen pixelgenau dekodiert; Startliste von Level 1 dekodiert. Pipeline in TypeScript für die Startsequenz fertig (`tools/pipeline/`); Level-Daten fehlen noch |
 | 5. Web-Grundgerüst: Spielschleife, Renderer, Eingabe, Audio, Build nach `server/` | ✅ erledigt | 06.10.2026, [Architektur → Umsetzung](architektur.md#umsetzung-web-grundgerüst); ProTracker-Abspieler inzwischen auch; offen: Vollbild, Tests auf echten Geräten |
-| 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026 |
+| 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026; übrige Gegner-Routinen, Bonus und Levelende übertragen, ungeprüft (08.10.2026) |
 | 7. Titel/Intro, Menü, Ladebilder, Highscore und Spielende; Gesamtabgleich und Bugfixing | 🟡 begonnen | Titelsequenz, Menü, Story-Seite, Ladebild Level 1 fertig und geprüft (06.10.2026); offen: Namenseingabe, Cheat, Ladebilder 2–6, Spielende |
 
 ### Aktueller Meilenstein: Start bis Level 1
@@ -71,11 +72,12 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Levelende mit Leben** (nächster Cloud-Schritt, Ablauf B/E, Effort „hoch“): Mit Dauerfeuer und aufgefüllten
-   Leben läuft Level 1 jetzt durch alle Gegner-Routinen bis zum Endgegner; nach dessen Explosion hält die Engine bei
-   Bild ≈ 23.020 an: „Levelende (Quit_Delay) ist noch nicht übertragen“ (`interrupt.ts`, SORCERER). Prüfen mit
-   `node test/tools/explore-level.ts 26000` (aus `game/`). Danach, was der Lauf als Nächstes braucht (Ladebild
-   Level 2, Zwischenbild); dann Zaubermenü, übrige Zauber, Äxte, Pause.
+1. **Ladebild Level 2** (nächster Cloud-Schritt, Ablauf E, Effort „mittel“): Nach dem Levelende von Level 1 lädt
+   das Original `load_forest` (`Agony.0A`, `FILE_2_4`) und springt hinein (`$61500`); im Nachbau steht dort
+   vorläufig der Platzhalter `ui.level2Stub` (`flow.ts`, Ausgang `levelDone`). Muster: `load_sea` (Ladebild 1,
+   `LoadingScreen`); laut [Dateiformate](dateiformate.md) endet `load_forest` anders als `load_sea`, Aufbau prüfen.
+   Prüfen mit `node test/tools/explore-level.ts 26000` (aus `game/`, endet bei Bild 23.369 mit `levelDone`).
+   Danach Level 2 selbst (Abbild, Startliste, Routinen), Zaubermenü, übrige Zauber, Äxte, Pause.
 2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
    [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
 
@@ -88,7 +90,8 @@ Braucht Emulator, Aufnahmen, Messungen oder Geräte (je mit Empfehlung):
 - **Aufnahme über Bild 14.792 hinaus** (Ablauf C, Effort „hoch“; prüft W-022 und W-023): Gegner-Routinen und Bonus
   sind übertragen, aber ungeprüft. Vom Schnappschuss `snap_f13100_level1_enter` mit den Eingaben von `SHOOT_RUN` bis
   14.790, danach Dauerfeuer mit dem Bewegungsmuster des Planungs-Bots (wie `explore-level.ts`), Leben jedes Bild per
-  Poke auffüllen (`if ((wasm_peek16(0x1b8) & 0xff) < 3) wasm_poke(0x1b9, 7)`), bis zum Levelende (≈ Bild 23.100);
+  Poke auffüllen (`if ((wasm_peek16(0x1b8) & 0xff) < 3) wasm_poke(0x1b9, 7)`), bis nach dem Levelende (im Nachbau
+  `Quit_Delay` ab ≈ 23.172, Exit bei 23.369; dabei auch prüfen, ob Feuer während des Levelendes Schüsse startet, O-015);
   Bilder, Spur und Zeitprofil in Abschnitten von höchstens ≈ 2.000 Bildern ab 14.793. Starts (Bild ≈ 13.193 +
   `Level_X`): `R_Transporteur` 14.793, `R_Tir_Etoile` ≈ 16.880, `R_Spectre` ≈ 17.160, `R_Rapide` ≈ 17.350,
   `R_Bomber` ≈ 19.110, `R_Volant_Grossi` ≈ 20.550, `R_Volant_Missile` ≈ 21.900, `R_Final` ≈ 22.140; erster Bonus
@@ -151,9 +154,16 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 08.10.2026 | Zeitmodell bei hoher Last (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar (kein `get_usage`); Cloud-Guthaben statt Plan-Limit; 1 Sitzung, kein Compact |
 | 08.10.2026 | Gegner-Routinen Level 1 (Cloud-Session) | hoch | – | – | wie oben; dieselbe Sitzung wie der Schritt davor, kein Compact |
 | 08.10.2026 | Bonus (Cloud-Session) | hoch | – | – | wie oben; dieselbe Sitzung |
+| 08.10.2026 | Levelende Level 1 (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung, kein Compact |
 
 ## Verlauf
 
+- **08.10.2026 (Levelende Level 1, Cloud-Session)** – `Quit_Delay`-Zweig der Eule übertragen (Joystick übersprungen,
+  Kollisionsrechteck weiter, `$4412`) und EXIT LEVEL mit Leben (`Agony_Parent_.s`, Label `Exit`): Ergebnis
+  `levelDone`, der Level-Bildschirm wartet wie beim Spielende und führt dann vorläufig zum Platzhalter „Level 2“
+  (`ui.level2Stub`). Alle Lesestellen von `Quit_Delay` im Abbild geprüft; neue Eigenheit O-015 (Feuersperre wirkungslos).
+  Erkundungslauf endet regulär: Levelende ab Bild ≈ 23.172, Exit 23.369. Gegen das Original noch ungeprüft. Neuer
+  Kern-Test `test/level-end.test.ts`. 54 Tests.
 - **08.10.2026 (Bonus, Cloud-Session)** – BONUS aus dem Copper-Interrupt (`$56BA`, `Ag_Sprites.s`) übertragen und
   gegen die Disassembly abgeglichen: Auswahl nach 2000 Bildern (Waffe, Geld, Äxte, nächster fehlender Zauber nach
   `Spell_Pri`), Regen aus, Fallen und Rollen, Anzeige mit Sprite 6/7, Einsammeln. Gegen das Original noch ungeprüft

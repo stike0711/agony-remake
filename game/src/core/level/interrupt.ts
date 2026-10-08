@@ -56,6 +56,35 @@ function sprites(e: LevelEngine): void {
   for (let s = 0; s < 8; s++) e.copperPtr(e.L.sprPtr + 8 * s, e.l(e.V.sprPtrB + 4 * s));
 }
 
+/** JOYSTICK TEST ($441A): Eule um 3 Pixel bewegen; true, wenn sie sich waagerecht bewegt hat (d6) */
+function joystick(e: LevelEngine): boolean {
+  const { V } = e;
+  const d0 = e.joy1dat >> 8;
+  const d5 = e.joy1dat & 0xff;
+  let d2 = d5 >> 1;
+  let d4 = d0 >> 1;
+  let moved = false;
+  if (d2 & 1) {
+    if (e.sw(V.sorcererX) < 280 - 32 + 256) {
+      e.setW(V.sorcererX, e.w(V.sorcererX) + 3); // rechts
+      moved = true;
+    }
+  } else if (d4 & 1) {
+    if (e.sw(V.sorcererX) > 256) {
+      moved = true;
+      e.setW(V.sorcererX, e.w(V.sorcererX) - 3); // links
+    }
+  }
+  d2 ^= d5;
+  if (d2 & 1) {
+    if (e.sw(V.sorcererY) < 192 - 60 + 256) e.setW(V.sorcererY, e.w(V.sorcererY) + 3); // unten
+  } else {
+    d4 ^= d0;
+    if ((d4 & 1) && e.sw(V.sorcererY) > 256 - 20) e.setW(V.sorcererY, e.w(V.sorcererY) - 3); // oben
+  }
+  return moved;
+}
+
 /**
  * SORCERER ($43E2): Joystick, Kollisionsrechteck, Flügelschlag, Sprite-Listen der Eule und der Äxte.
  * Liefert false, wenn das Original danach Schuss und Äxte überspringt.
@@ -70,46 +99,27 @@ function sorcerer(e: LevelEngine): boolean {
   }
   e.irqWork[IRQ.sorcerer] = 1;
   if (e.w(V.pause2) === 0) {
-    if (e.w(V.quitDelay) === 0) {
-      // JOYSTICK TEST ($441A)
-      const d0 = e.joy1dat >> 8;
-      const d5 = e.joy1dat & 0xff;
-      let d2 = d5 >> 1;
-      let d4 = d0 >> 1;
-      let moved = false;
-      if (d2 & 1) {
-        if (e.sw(V.sorcererX) < 280 - 32 + 256) {
-          e.setW(V.sorcererX, e.w(V.sorcererX) + 3); // rechts
-          moved = true;
-        }
-      } else if (d4 & 1) {
-        if (e.sw(V.sorcererX) > 256) {
-          moved = true;
-          e.setW(V.sorcererX, e.w(V.sorcererX) - 3); // links
-        }
-      }
-      d2 ^= d5;
-      if (d2 & 1) {
-        if (e.sw(V.sorcererY) < 192 - 60 + 256) e.setW(V.sorcererY, e.w(V.sorcererY) + 3); // unten
-      } else {
-        d4 ^= d0;
-        if ((d4 & 1) && e.sw(V.sorcererY) > 256 - 20) e.setW(V.sorcererY, e.w(V.sorcererY) - 3); // oben
-      }
-      // Kollisionsrechteck ($449A)
-      const x = e.w(V.sorcererX);
-      const y = e.w(V.sorcererY) + 37;
-      ram.setWord(L.goodColList, x);
-      ram.setWord(L.goodColList + 2, y);
-      ram.setWord(L.goodColList + 4, x + 32);
-      ram.setWord(L.goodColList + 6, y + 16);
-      if (moved) {
-        if (e.w(V.axeDelay) !== 10) e.setW(V.axeDelay, e.w(V.axeDelay) + 1);
-      } else {
-        e.setW(V.axeDelay, 0);
-        e.setW(V.axeMove, 0);
-      }
+    // Beim Levelende (Quit_Delay ≠ 0) überspringt das Original den Joystick ($4412 → $449A): Die Eule steht, das
+    // Kollisionsrechteck wird weiter geschrieben. d6 ist dort nicht gelöscht (moveq #0,d6 liegt im übersprungenen
+    // Teil) und hält den Wert des unterbrochenen Hauptprogramms; davon hängen nur Axe_Delay/Axe_Move ab, die bis zum
+    // Exit niemand mehr liest (AXES endet bei Quit_Delay ≠ 0 sofort). Sie bleiben hier unverändert.
+    // Quelle: Ag_Sprites.s, Abschnitt JOYSTICK TEST (tst Quit_Delay(D) / bne .no_up); Abbild $4412
+    const quit = e.w(V.quitDelay) !== 0;
+    const moved = quit ? false : joystick(e);
+    // Kollisionsrechteck ($449A)
+    const x = e.w(V.sorcererX);
+    const y = e.w(V.sorcererY) + 37;
+    ram.setWord(L.goodColList, x);
+    ram.setWord(L.goodColList + 2, y);
+    ram.setWord(L.goodColList + 4, x + 32);
+    ram.setWord(L.goodColList + 6, y + 16);
+    if (quit) {
+      // d6 unbekannt, siehe oben
+    } else if (moved) {
+      if (e.w(V.axeDelay) !== 10) e.setW(V.axeDelay, e.w(V.axeDelay) + 1);
     } else {
-      throw new Error("Level: Levelende (Quit_Delay) ist noch nicht übertragen");
+      e.setW(V.axeDelay, 0);
+      e.setW(V.axeMove, 0);
     }
     // SHAPE ANIM ($44DA): jedes zweite Bild die nächste Phase
     e.setW(V.sorcererDelay, e.w(V.sorcererDelay) ^ 1);
@@ -145,7 +155,11 @@ function sorcerer(e: LevelEngine): boolean {
   off += 4 + 4 * height;
   writeControls(e, left, left2, right, right2, off, e.w(V.axeDownY), 7, ram.word(SHARED.axeDownOn) !== 0 ? e.w(V.axeDownX) - SPR_X : 0);
 
-  // FIRE TEST ($4656): Feuer startet einen Schuss; im Pausenmodus beendet es die Pause
+  // FIRE TEST ($4656): Feuer startet einen Schuss; im Pausenmodus beendet es die Pause. Davor setzt das Original bei
+  // Quit_Delay ≠ 0 Bit 7 von $BFE001 ($4646), um das Feuer zu sperren. Das schreibt aber nur das Ausgaberegister der
+  // CIA-A; Bit 7 (Feuerknopf) ist ein Eingang (DDRA bleibt beim Kickstart-Wert $03, das Spiel ändert ihn nie), gelesen
+  // wird weiter der Knopf. Auch beim Levelende startet Feuer also Schüsse (O-015, gegen das Original noch ungeprüft).
+  // Quelle: Ag_Sprites.s, Abschnitt FIRE TEST (bset #7,JoyFire)
   if (e.fire) {
     if (e.w(V.pause2) !== 0) throw new Error("Level: Pause ist noch nicht übertragen");
     e.setW(V.fireCount, e.w(V.fireCount) + 1);

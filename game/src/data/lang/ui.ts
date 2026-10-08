@@ -12,6 +12,7 @@ export const UI_TEXTS = {
     "ui.tapToStart": "TAP TO START",
     "ui.pause": "PAUSE",
     "ui.levelStub": "LEVEL 1|COMING SOON",
+    "ui.level2Stub": "LEVEL 2|COMING SOON",
     "ui.pressFire": "PRESS FIRE",
   },
   de: {
@@ -24,6 +25,7 @@ export const UI_TEXTS = {
     "ui.tapToStart": "ZUM STARTEN|TIPPEN",
     "ui.pause": "PAUSE",
     "ui.levelStub": "LEVEL 1|KOMMT BALD",
+    "ui.level2Stub": "LEVEL 2|KOMMT BALD",
     "ui.pressFire": "FEUER DRÜCKEN",
   },
 } as const;

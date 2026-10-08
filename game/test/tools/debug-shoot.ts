@@ -13,7 +13,7 @@ const [from, to] = process.argv.slice(2).map(Number) as [number, number];
 const input = SHOOT_RUN;
 const trace = new Trace(process.env.TRACE ?? "level1_shoot");
 const end: Screen = { enter: () => {}, tick: () => {} };
-const level = new LevelScreen(SEA, { gameOver: () => end, unported: () => end });
+const level = new LevelScreen(SEA, { gameOver: () => end, levelDone: () => end, unported: () => end });
 const game = new Game(loadAssets(), { lang: "en" }, level);
 const frame = new InputFrame();
 const e = level.engine, L = SEA;

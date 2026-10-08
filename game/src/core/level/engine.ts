@@ -19,10 +19,9 @@
 // beginnt der nächste mitten im Bild (E-037). Nach dem Levelende (Exit) läuft wie im Original während des Ladens nur
 // noch der Interrupt.
 //
-// Stand: Level 1 mit Scrollen, Angriffswellen, Gegnern mit eigener Routine (soweit übertragen), Kollisionen,
-// Gegnerschüssen, Tod der Eule, Schild und Spielende. Die Engine hält an (`unported`), wenn ein Gegner mit noch nicht
-// übertragener Routine startet; unerwartete Zustände in nicht übertragenen Teilen (Zauber, Pause, Bonus, Levelende mit
-// Leben) lösen einen Fehler aus.
+// Stand: Level 1 mit Scrollen, Angriffswellen, allen Gegner-Routinen, Kollisionen, Gegnerschüssen, Bonus, Tod der
+// Eule, Schild, Spielende und Levelende. Die Engine hält an (`unported`), wenn ein Gegner mit noch nicht übertragener
+// Routine startet; unerwartete Zustände in nicht übertragenen Teilen (Zaubermenü, Pause) lösen einen Fehler aus.
 
 import type { Display } from "../display.ts";
 import { JOY_DOWN, JOY_FIRE, JOY_LEFT, JOY_RIGHT, JOY_UP } from "../input.ts";
@@ -556,15 +555,16 @@ export class LevelEngine {
 
   /**
    * EXIT LEVEL ($3A78): Zauber aus, Stop, Die gelöscht. Ohne Leben lädt das Original danach das Menü (`igt`), sonst
-   * das nächste Ladebild; währenddessen steht das Bild, nur der Copper-Interrupt läuft weiter (Regen, „GAME OVER“).
+   * das Ladebild des nächsten Levels; währenddessen steht das Bild, nur der Copper-Interrupt läuft weiter (Regen,
+   * „GAME OVER“ bzw. die stehende Eule).
    */
   private exitLevel(): void {
     const { V } = this;
     this.setB(V.curentSpell + 1, 0xff);
     this.setB(V.stop + 1, 0xff);
     this.setW(V.die, 0);
-    if (this.ram.word(SHARED.life) !== 0) throw new Error("Level: Levelende mit Leben ist noch nicht übertragen");
-    this.result = "gameOver";
+    // Quelle: Agony_Parent_.s, Label Exit (tst Life / beq Game_Over; Level 1 lädt FILE_2_4 = load_forest)
+    this.result = this.ram.word(SHARED.life) !== 0 ? "levelDone" : "gameOver";
   }
 
   /** UPDATE COPPER LIST SCREEN INFO ($AE4) */
