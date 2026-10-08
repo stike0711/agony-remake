@@ -161,6 +161,8 @@ await AG.profileSave("level1_go");
 - Fehlersuche im Bild: `node test/tools/debug-frames.ts [--model] [--shoot] Bild …` schreibt Nachbau, Original und
   Unterschied als PPM nach `work/debug/` (`--shoot`: Lauf `level1_shoot`). Kollisionsliste und Gegner je Bild im
   Nachbau und im Original: `node test/tools/debug-shoot.ts von bis`.
+- Erkunden, wie weit Level 1 ohne Anhalten läuft (Cloud, kein Vergleich): `node test/tools/explore-level.ts [<letztes
+  Bild>]` (Dauerfeuer, Bewegungsmuster des Planungs-Bots, Leben aufgefüllt; meldet Tode, Routinen, Bonusse, Halt).
 - Eingaben für eine Aufnahme planen (Ablauf C): `node test/tools/plan-bot.ts <letztes Bild>` erzeugt eine Folge mit
   Dauerfeuer und Bewegung und probiert vor jedem Tod der Eule Ausweichbewegungen (im Nachbau mit dem Zeitmodell, gibt
   die Liste `[Bild, Knöpfe]` aus); `node test/tools/plan-shoot.ts <eingaben.json> [<letztes Bild>]` spielt eine Liste

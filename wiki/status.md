@@ -11,8 +11,8 @@ Menümusik → Story-Seite → Ladebild von Level 1 mit Lademusik → Level 1, B
 läuft auf einem Modell der Grafik-Hardware mit dem übertragenen Spielcode (E-032): Angriffswellen, die ersten zwei
 Gegner mit eigener Routine, Tod der Eule, Schild beim Wiedereinstieg und Spielende mit Rückkehr ins Menü; ohne
 Eingabe bis nach dem Spielende pixelgenau wie im Emulator, ebenso ein Lauf mit Dauerfeuer, Abschüssen und Ausweichen.
-Als Nächstes: Bonus, eine Aufnahme über Bild 14.792 hinaus zur Prüfung der übertragenen Gegner-Routinen, Zeitmodell
-bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist eingeplant, sobald ein
+Als Nächstes: Levelende von Level 1, danach Zaubermenü und die nächsten Level; am PC eine Aufnahme über Bild 14.792
+hinaus zur Prüfung von Gegner-Routinen und Bonus, Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist eingeplant, sobald ein
 Mac zur Verfügung steht.
 
 ## Fahrplan und Fortschritt
@@ -71,30 +71,42 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. Start bis Level 1 auf echten Geräten prüfen (iPad/Android-Tablet im Heimnetz): Ton-Freischaltung, Touch (Feuer
-   rechts), Safe Areas, Bildrate, Klang der Musik, Flacker-Trick bei 60/120 Hz (B-001).
-2. **Bonus** (Ablauf B, Effort „hoch“, auch in der Cloud möglich): Mit den Eingaben von `level1_shoot` läuft der
-   Nachbau jetzt bis Bild 15.159; in 15.160 hält er an, weil ein Bonus erscheint (`interrupt.ts`, „Bonus ist noch
-   nicht übertragen“). Ohne Bonus kommt kein Lauf mit Abschüssen weiter, und der Planungs-Bot (`plan-bot.ts`) kann
-   keine Eingaben über 15.160 hinaus planen. Danach Zaubermenü und Levelende mit Leben.
-3. **Aufnahme über Bild 14.792 hinaus** (Ablauf C am PC, nach dem Bonus): Die Gegner-Routinen von Level 1 sind
-   übertragen, aber ungeprüft (08.10.2026, W-022 offen). Empfehlung: vom Schnappschuss `snap_f13100_level1_enter` mit
-   den Eingaben von `SHOOT_RUN` bis 14.790, danach Eingaben vom Planungs-Bot bis zum Levelende (≈ Bild 23.200), Leben
-   per Poke auffüllen wie beim Lauf `level1_music_timing`; Bilder, Spur und Zeitprofil in Abschnitten von höchstens
-   ≈ 2.000 Bildern ab 14.793. Erwartete Starts (Bild ≈ 13.193 + `Level_X`): `R_Transporteur` 14.793,
-   `R_Tir_Etoile` ≈ 16.880, `R_Spectre` ≈ 17.160, `R_Rapide` ≈ 17.350, `R_Bomber` ≈ 19.110, `R_Volant_Grossi`
-   ≈ 20.550, `R_Volant_Missile` ≈ 21.900, `R_Final` ≈ 22.140 (Tode und Pausen verschieben das). Darin auch die ersten
-   Gegnerschüsse im Einsatz (Gespenst, Endgegner, Transporteur-Wellen).
-4. **Zeitmodell bei hoher Last** (E-037, W-021): Versuch vom 08.10.2026 (Cloud, Effort „hoch“) ohne Durchbruch
-   angehalten. Ursache eingegrenzt: Der Objekt-Schritt ist bei großer Blitter-Last (Spinne ganz im Bild) im Original
-   rund 10 Zeilen kürzer, als das Modell rechnet; die Short_Phase-Entscheidungen stimmen mit gemessener Zeitlage bis
-   14792. Vier Erklärungen geprüft und verworfen (W-021). Weiter als eigener Schritt am PC mit Effort „maximal“
-   (Ablauf C + D): im Emulator je Blit des Objektteils messen (Haltepunkte an BLTSIZE und WaitBlit), dann
-   `fit_part1b_timing.py --run level1_go --run level1_shoot` mit dem neuen Posten und `SHOOT_MODEL_LAST` in
-   `level1.test.ts` auf `SHOOT_LAST` (14792) anheben; Detail je Durchlauf mit `node test/tools/detail-timing.ts
-   level1_shoot 14520 14600`.
-5. Ton im Level: Soundeffekte (`Sound.bin`) und die Musik von Jeroen Tel (offene Frage: Treiber portieren oder vorab
-   aufnehmen).
+1. **Levelende mit Leben** (nächster Cloud-Schritt, Ablauf B/E, Effort „hoch“): Mit Dauerfeuer und aufgefüllten
+   Leben läuft Level 1 jetzt durch alle Gegner-Routinen bis zum Endgegner; nach dessen Explosion hält die Engine bei
+   Bild ≈ 23.020 an: „Levelende (Quit_Delay) ist noch nicht übertragen“ (`interrupt.ts`, SORCERER). Prüfen mit
+   `node test/tools/explore-level.ts 26000` (aus `game/`). Danach, was der Lauf als Nächstes braucht (Ladebild
+   Level 2, Zwischenbild); dann Zaubermenü, übrige Zauber, Äxte, Pause.
+2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
+   [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
+
+### Für den PC
+
+Braucht Emulator, Aufnahmen, Messungen oder Geräte (je mit Empfehlung):
+
+- **Geräte-Test** (Effort „mittel“): Start bis Level 1 auf iPad/Android-Tablet im Heimnetz: Ton-Freischaltung, Touch
+  (Feuer rechts), Safe Areas, Bildrate, Klang der Musik, Flacker-Trick bei 60/120 Hz (B-001).
+- **Aufnahme über Bild 14.792 hinaus** (Ablauf C, Effort „hoch“; prüft W-022 und W-023): Gegner-Routinen und Bonus
+  sind übertragen, aber ungeprüft. Vom Schnappschuss `snap_f13100_level1_enter` mit den Eingaben von `SHOOT_RUN` bis
+  14.790, danach Dauerfeuer mit dem Bewegungsmuster des Planungs-Bots (wie `explore-level.ts`), Leben jedes Bild per
+  Poke auffüllen (`if ((wasm_peek16(0x1b8) & 0xff) < 3) wasm_poke(0x1b9, 7)`), bis zum Levelende (≈ Bild 23.100);
+  Bilder, Spur und Zeitprofil in Abschnitten von höchstens ≈ 2.000 Bildern ab 14.793. Starts (Bild ≈ 13.193 +
+  `Level_X`): `R_Transporteur` 14.793, `R_Tir_Etoile` ≈ 16.880, `R_Spectre` ≈ 17.160, `R_Rapide` ≈ 17.350,
+  `R_Bomber` ≈ 19.110, `R_Volant_Grossi` ≈ 20.550, `R_Volant_Missile` ≈ 21.900, `R_Final` ≈ 22.140; erster Bonus
+  im Nachbau bei ≈ 15.160. Darin auch die ersten Gegnerschüsse im Einsatz. Der Nachbau muss dieselbe Lebens-Auffüllung
+  nachspielen (Test wie `explore-level.ts`). Den Planungs-Bot über so lange Strecken nicht verwenden (rechnet für
+  jeden Ausweichversuch den ganzen Lauf neu, zu langsam).
+- **Dauer des Bonus im Copper-Interrupt** (mit derselben Aufnahme, Ablauf D): Das Zeitmodell kennt den Bonus-Teil
+  nicht (`IRQ_COST`); aus dem Zeitprofil nachmessen.
+- **Zeitmodell bei hoher Last** (E-037, W-021, Ablauf C + D, Effort „maximal“): Der Objekt-Schritt ist bei großer
+  Blitter-Last (Spinne ganz im Bild) im Original rund 10 Zeilen kürzer als gerechnet. Im Emulator je Blit des
+  Objektteils messen (Haltepunkte an BLTSIZE und WaitBlit), dann `fit_part1b_timing.py --run level1_go --run
+  level1_shoot` mit dem neuen Posten und `SHOOT_MODEL_LAST` in `level1.test.ts` auf `SHOOT_LAST` (14792) anheben;
+  Detail je Durchlauf mit `node test/tools/detail-timing.ts level1_shoot 14520 14600`.
+
+Für den Nutzer zu entscheiden:
+
+- Ton im Level: Soundeffekte (`Sound.bin`) und die Musik von Jeroen Tel (offene Frage: Treiber portieren oder vorab
+  aufnehmen).
 
 Kleinere Restpunkte: Klang (Mixer-Ausgabe) mit einer Audio-Aufnahme des Emulators abgleichen – der Mixer tastet
 derzeit ohne Bandbegrenzung ab (Aliasing, klingt härter und „metallischer“ als ein Amiga), trennt die Kanäle hart
@@ -138,9 +150,18 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 08.10.2026 | Stand vor dem nächsten Schritt | – | 96 % (Reset 11.10. ~03:00) | 3 % | Ausgangswert; Abschluss von Schritt 2 und Fragen ≈ 3 % des 5-h-Fensters |
 | 08.10.2026 | Zeitmodell bei hoher Last (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar (kein `get_usage`); Cloud-Guthaben statt Plan-Limit; 1 Sitzung, kein Compact |
 | 08.10.2026 | Gegner-Routinen Level 1 (Cloud-Session) | hoch | – | – | wie oben; dieselbe Sitzung wie der Schritt davor, kein Compact |
+| 08.10.2026 | Bonus (Cloud-Session) | hoch | – | – | wie oben; dieselbe Sitzung |
 
 ## Verlauf
 
+- **08.10.2026 (Bonus, Cloud-Session)** – BONUS aus dem Copper-Interrupt (`$56BA`, `Ag_Sprites.s`) übertragen und
+  gegen die Disassembly abgeglichen: Auswahl nach 2000 Bildern (Waffe, Geld, Äxte, nächster fehlender Zauber nach
+  `Spell_Pri`), Regen aus, Fallen und Rollen, Anzeige mit Sprite 6/7, Einsammeln. Gegen das Original noch ungeprüft
+  (W-023). Eigenheit nachgebildet: Beim Schließen schreibt das Original `Spr6pt`/`Spr7pt` relativ zu a5 in den
+  Speicher statt in die Custom-Register. Neu: Kern-Test `test/bonus.test.ts`, Erkundungs-Werkzeug
+  `test/tools/explore-level.ts` (Dauerfeuer, Leben aufgefüllt): Level 1 läuft damit bis ≈ Bild 23.020 durch alle
+  Gegner-Routinen samt Endgegner; nächste Lücke ist das Levelende (`Quit_Delay`). Arbeitsweise für Cloud-Aufträge in
+  `arbeitsablauf.md` festgehalten. 51 Tests.
 - **08.10.2026 (Gegner-Routinen von Level 1, Cloud-Session)** – Ablauf B ohne Bildvergleich: `R_Transporteur`,
   `R_Tir_Etoile`, `R_Spectre`, `R_Rapide`, `R_Bomber`, `R_Volant_Grossi`, `R_Jumper`, `R_Volant_Missile` und
   `R_Final` aus `Ag_Game_LMER.s` übertragen, Befehl für Befehl gegen das Abbild abgeglichen (Disassembly neu mit

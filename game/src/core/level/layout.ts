@@ -120,6 +120,19 @@ export interface LevelVars {
   rFAwoPtr1: number;
   rFAwoPtr2: number;
   rFAwoPtr3: number;
+  /** Bonus_Anim, Bonus_Num (Bonus_Mode/_Delay/_X/_Y stehen oben) */
+  bonusAnim: number;
+  bonusNum: number;
+  /** Spell_Pri (8 Wörter), Bonus_Shape (4 Wörter, Versatz in Bonus_Spr), Bonus_Image (4 Wörter) */
+  spellPri: number;
+  bonusShape: number;
+  bonusImage: number;
+  /**
+   * „Spr6pt(D)“/„Spr7pt(D)“: Im Quelltext Versätze der Custom-Register SPR6PT/SPR7PT ($DFF138/$13C), beim Schließen
+   * des Bonus aber relativ zu a5 geschrieben – das Original schreibt dort in den Speicher (Eigenheit, nachgebildet)
+   */
+  spr6pt: number;
+  spr7pt: number;
 }
 
 export interface LevelLayout {
@@ -139,6 +152,8 @@ export interface LevelLayout {
   sorcerer2Dat: number;
   sorcererPal: number;
   emptySpr: number;
+  /** Bonus_Spr: Sprites der Bonusse (Bonusses.bin), je Bild zwei Sprites à 200 Byte, zweites Animationsbild +400 */
+  bonusSpr: number;
   /** Tod der Eule: 8 Wortversätze auf Bahnen (Bytepaare dx, dy, Ende $80), Zeiger je Teil, 8 Sprites à 33 Langwörter */
   dieTable: number;
   dieDynPtr: number;
@@ -254,6 +269,10 @@ export const SHARED = {
   axeDownOn: 0x1bc,
   fwFireWeapon: 0x1be,
   extraLife: 0x1c0,
+  /** Spell_Advailable: 8 Wörter, ≠ 0 = Zauber vorhanden (Bonus, Zaubermenü) */
+  spellAdvailable: 0x1c4,
+  /** Spell_Next_Bonus: nächster Eintrag von Spell_Pri, den ein Bonus prüft (0–7) */
+  spellNextBonus: 0x1d4,
   curentCl: 0x1da,
   menuMode: 0x1e2,
 } as const;
@@ -286,12 +305,17 @@ export const SEA: LevelLayout = {
     quitDelay: 0x7cca, afOff: 0x7ccc, beginToStart: 0x7cdc, btsDelay: 0x7cde, cleanUp: 0x7ce0,
     // $4FCAC/$4FD44/$4FDDC: move.l a2,$7CD0/$7CD4/$7CD8(a5)
     rFAwoPtr1: 0x7cd0, rFAwoPtr2: 0x7cd4, rFAwoPtr3: 0x7cd8,
+    // BONUS ($56BA–$59D6): Bonus_Anim $7C90, Bonus_Num $7C9A, Spell_Pri −$1C08, Bonus_Shape −$1AE6, Bonus_Image −$1ADE,
+    // Spr6pt/Spr7pt $138/$13C (relativ zu a5, siehe oben)
+    bonusAnim: 0x7c90, bonusNum: 0x7c9a, spellPri: -0x1c08, bonusShape: -0x1ae6, bonusImage: -0x1ade, spr6pt: 0x138,
+    spr7pt: 0x13c,
   },
 
   sorcererDat: 0x178c0, // $4500
   sorcerer2Dat: 0x1b8f0, // $52E8
   sorcererPal: 0x55afa, // $7C6: lea -$2FD4(a5)
   emptySpr: 0x55b22, // $4724: lea -$2FAC(a5)
+  bonusSpr: 0x1f35c, // $5968: lea $1F35C,a0
   dieTable: 0x5aac6, // $5522: lea $1FF8(a5)
   dieDynPtr: 0x5b0b2, // $5526: lea $25E4(a5)
   dieSpr: 0x20190, // $55A8

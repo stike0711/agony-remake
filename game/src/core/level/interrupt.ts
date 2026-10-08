@@ -1,8 +1,8 @@
 // Copper-Interrupt am Ende der Copperliste (sea $43C6–$5BC4; Quelle: Agony_Parent_.s „Copper_Int3“, Ag_Sprites.s).
 // Läuft in jedem Bild: 25-Hz-Takt der Hauptschleife, Eule (Joystick, Flügelschlag, Sprite-Listen), Äxte, Schüsse,
 // Zauber, Tod der Eule, Bonus, Sprite-Zeiger in der Copperliste, Verzögerung des vorderen Playfields und Regen
-// (Level 1). Übertragen sind der Weg ohne Zauber, der Schild nach dem Wiedereinstieg (Zauber 6) und der Tod; Zaubermenü,
-// übrige Zauber, Äxte, Bonus und Pause lösen einen Fehler aus.
+// (Level 1). Übertragen sind der Weg ohne Zauber, der Schild nach dem Wiedereinstieg (Zauber 6), der Tod und der Bonus
+// (gegen das Original noch ungeprüft); Zaubermenü, übrige Zauber, Äxte und Pause lösen einen Fehler aus.
 
 import { DMACON } from "../amiga/video.ts";
 import type { LevelEngine } from "./engine.ts";
@@ -435,17 +435,124 @@ function dieParts(e: LevelEngine): void {
   for (let i = 0; i < 16; i++) e.video.write(COLOR16 + 2 * i, ram.word(L.sorcererPal + 2 * i));
 }
 
-/** BONUS ($56BA): zählt im Spiel bis 2000 Bilder, dann erscheint ein Bonus */
+/**
+ * BONUS ($56BA–$59D6; Quelle: Ag_Sprites.s „BONUS“). Bonus_Mode 0: zählt im Spiel (nicht bei Stop2) bis über 2000
+ * Bilder; dann (nicht beim Tod, nicht während eines Zaubers) wählt er, was der nächste Bonus bringt (Bonus_Num) und
+ * schaltet den Regen ab. Modus 1 wartet, bis ein Gegner explodiert (DRAW OBJECT setzt dort Modus 2 und die Position,
+ * objects.ts). Modus 2: der Bonus fällt (x − 1, y + 2 je Bild) bis y 256 + 166, Modus 3 rollt am Boden nach links;
+ * ab x ≤ 240 verschwindet er. Berührt ihn die Eule, gibt es 600 Punkte und je nach Bonus_Num: 0 obere Axt, 11 untere
+ * Axt, 1 Geld (Point $20000), 2 eine Waffenstufe (höchstens 3), sonst den Zauber Bonus_Num − 3. Angezeigt wird er mit
+ * Sprite 6 und 7 (Farben 29–31), alle 8 Bilder im Wechsel zweier Bilder.
+ */
 function bonus(e: LevelEngine): void {
-  const { V } = e;
+  const { V, L, ram } = e;
   if ((e.b(V.curentSpell + 1) & 0x80) === 0) e.setW(V.bonusMode, 0);
-  if (e.w(V.bonusMode) !== 0) throw new Error("Level: Bonus ist noch nicht übertragen");
+  const mode = e.w(V.bonusMode);
+  if (mode === 0) {
+    bonusStart(e);
+    return;
+  }
+  if (mode !== 2 && mode !== 3) return;
+  const paused = e.w(V.pause2) !== 0;
+  if (!paused) e.setW(V.bonusX, e.w(V.bonusX) - 1);
+  const x = e.sw(V.bonusX);
+  if (x <= 240) {
+    bonusClose(e);
+    return;
+  }
+  let y = 256 + 166;
+  if (mode === 2) {
+    if (!paused) e.setW(V.bonusY, e.w(V.bonusY) + 2);
+    y = e.sw(V.bonusY);
+    if (y >= 256 + 166) e.setW(V.bonusMode, 3);
+  }
+  // Berührt die Eule den Bonus? Rechteck Sorcerer_X − 16 … + 50, Sorcerer_Y + 40 − 50 … + 30
+  const sx = e.sw(V.sorcererX);
+  const sy = s16(e.w(V.sorcererY) + 40);
+  if (x <= s16(sx + 50) && x >= s16(sx - 16) && y <= s16(sy + 30) && y >= s16(sy - 50)) {
+    // Bonus attribution
+    soundStart(e, 0, 63);
+    e.setL(V.point, 0x258);
+    const num = e.w(V.bonusNum);
+    if (num === 0 || num === 11) {
+      ram.setByte(num === 0 ? SHARED.axeUpOn : SHARED.axeDownOn, 0xff);
+      e.setW(V.axeDownX, e.w(V.sorcererX));
+      e.setW(V.axeUpX, e.w(V.sorcererX));
+    } else if (num === 1) {
+      e.setL(V.point, 0x20000);
+    } else if (num === 2) {
+      const weapon = ram.word(SHARED.fwFireWeapon);
+      if (weapon !== 3) ram.setWord(SHARED.fwFireWeapon, weapon + 1);
+    } else {
+      ram.setWord(SHARED.spellAdvailable + s16(((num - 3) * 2) & 0xffff), 1);
+    }
+    bonusClose(e);
+    return;
+  }
+  // Anzeige: Bild nach Bonus_Image[Bonus_Num] (bei Bonus_Num > 3 liest das Original hinter der Tabelle weiter)
+  const image = e.w(V.bonusImage + s16((e.w(V.bonusNum) * 2) & 0xffff));
+  e.video.write(COLOR29, 0xf00);
+  const c = image === 0 ? 0x0bbb0888 : image === 1 ? 0x0e920b72 : image === 2 ? 0x00500070 : 0x0a860753;
+  e.video.write(COLOR29 + 2, c >>> 16);
+  e.video.write(COLOR31, c & 0xffff);
+  let a0 = (L.bonusSpr + e.sw(V.bonusShape + s16((image * 2) & 0xffff))) >>> 0;
+  const anim = (e.w(V.bonusAnim) + 1) & 0xffff;
+  e.setW(V.bonusAnim, anim);
+  if (anim & 8 && !paused) a0 += 400;
+  const a1 = a0 + 200;
+  e.setL(V.sprPtrB + 6 * 4, a0);
+  e.setL(V.sprPtrB + 7 * 4, a1);
+  const d0 = (x - 0x80) & 0xffff;
+  const v = ((y - 0xd6) << 8) & 0xffff;
+  const ctl = ((v + 0x3080) & 0xffff) | (d0 & 1);
+  const pos = v | (d0 >>> 1);
+  ram.setWord(a0, pos);
+  ram.setWord(a0 + 2, ctl);
+  ram.setWord(a1, pos);
+  ram.setWord(a1 + 2, ctl);
+}
+
+/** Bonus Start: nach 2000 Bildern wählen, was der Bonus bringt (Bonus_Num) */
+function bonusStart(e: LevelEngine): void {
+  const { V, ram } = e;
   if (e.w(V.stop2) !== 0) return;
   e.setW(V.bonusDelay, e.w(V.bonusDelay) + 1);
   if (e.sw(V.bonusDelay) <= 2000) return;
   // nicht während des Todes und nicht während eines Zaubers; Bonus_Delay zählt weiter
-  if (e.w(V.die) !== 0 || (e.b(V.curentSpell + 1) & 0x80) === 0) return;
-  throw new Error("Level: Bonus ist noch nicht übertragen");
+  if (e.w(V.die) !== 0 || (e.b(V.curentSpell + 1) & 0x80) === 0 || e.w(V.stop2) !== 0) return;
+  e.setW(V.bonusMode, 1);
+  e.setW(V.rainOn, 0);
+  e.setW(V.bonusDelay, 0);
+  let num: number;
+  if (ram.sword(SHARED.fwFireWeapon) <= 1) num = 2;
+  else if (ram.sword(SHARED.life) <= 1 && (ram.long(SHARED.extraLife) | 0) >= 0x40000) num = 1;
+  else if (ram.word(SHARED.axeUpOn) === 0) num = 0;
+  else if (ram.word(SHARED.fwFireWeapon) === 2) num = 2;
+  else if (ram.word(SHARED.axeDownOn) === 0) num = 11;
+  else {
+    // nächster Zauber in der Reihenfolge Spell_Pri, den die Eule noch nicht hat; sonst Geld
+    num = 1;
+    for (let tries = 0; tries < 9; tries++) {
+      const next = ram.word(SHARED.spellNextBonus);
+      ram.setWord(SHARED.spellNextBonus, (next + 1) & 7);
+      const spell = e.w(V.spellPri + s16((next * 2) & 0xffff));
+      if (ram.word(SHARED.spellAdvailable + s16((spell * 2) & 0xffff)) === 0) {
+        num = (spell + 3) & 0xffff;
+        break;
+      }
+    }
+  }
+  e.setW(V.bonusNum, num);
+}
+
+/** .close: Sprites 6 und 7 leer, Bonus_Mode 0 */
+function bonusClose(e: LevelEngine): void {
+  const { V, L } = e;
+  e.setL(V.sprPtrB + 6 * 4, L.emptySpr);
+  e.setL(V.sprPtrB + 7 * 4, L.emptySpr);
+  e.setL(V.spr6pt, L.emptySpr);
+  e.setL(V.spr7pt, L.emptySpr);
+  e.setW(V.bonusMode, 0);
 }
 
 /** ALIEN FIRE X DEC ($59D6): Gegnerschüsse wandern mit dem Scrollen nach links */

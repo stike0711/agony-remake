@@ -207,6 +207,12 @@ Vorlage für neue Einträge:
   (`test/routines.test.ts`). Nicht im Test: Zusammenspiel mit Kollisionen, Explosionen, Gegnerschüssen und Paletten,
   Zeitlage.
 
+### W-023 Bonus ungeprüft
+- Status: offen (wartet auf eine Aufnahme über Bild 14.792 hinaus, status.md „Für den PC“)
+- Seit 08.10.2026: BONUS (`$56BA`) aus dem Quelltext übertragen, gegen die Disassembly abgeglichen, Kern-Test
+  `test/bonus.test.ts`. Ungeprüft gegen den Emulator; im Zeitmodell fehlt die Dauer des Bonus-Teils im
+  Copper-Interrupt.
+
 ## Eigenheiten und Fehler des Originals
 
 Grundsatz in Phase 1: originalgetreu, also nachbilden. Beheben erst als zuschaltbare Option (E1, siehe
@@ -214,6 +220,8 @@ Grundsatz in Phase 1: originalgetreu, also nachbilden. Beheben erst als zuschalt
 
 ### Aus Code und Daten belegt ✔
 
+- BONUS schreibt beim Schließen `Empty_Spr` nach `Spr6pt(D)`/`Spr7pt(D)`, also nach a5 + `$138`/`$13C` in den
+  Speicher statt in die Custom-Register SPR6PT/SPR7PT (`$DFF138`); nachgebildet (`interrupt.ts`, 08.10.2026).
 | Nr. | Wo | Eigenheit | Sichtbar/hörbar | Phase 1 |
 |---|---|---|---|---|
 | O-001 | Ladebilder (`load_sea`, `…marshes`, `…mountains`, `…highlands`) | `mt_init` des ProTracker-Abspielers löscht das erste Langwort hinter dem Modul = die ersten 4 Byte des Bilds | ja, wenige Pixel oben links in der ersten Bildzeile | nachgebildet (Pipeline wendet den Effekt aufs Bild an; im Sample-Speicher löscht der Abspieler selbst) |

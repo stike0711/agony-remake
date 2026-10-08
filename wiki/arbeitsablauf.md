@@ -20,6 +20,23 @@ an der Stelle sinnvoll ist; dann im Abschlussbericht in einem Satz sagen, warum.
 - **Übergabe:** Am Ende steht in [Status](status.md#nächste-schritte), was als Nächstes kommt, mit dem Ablauf, der
   dafür gilt. Danach eine neue Sitzung starten (oder `/compact`); lange Sitzungen kosten bei jeder Antwort mehr.
 
+## Cloud-Aufträge
+
+Auf ausdrücklichen Wunsch des Nutzers (08.10.2026) gilt für Aufträge an eine Cloud-Session (claude.ai/code, Git-Zweig
+`claude/…`, E-041) abweichend von „nach jedem Schritt anhalten“ (CLAUDE.md):
+
+- So viel wie möglich Schritt für Schritt erledigen, ohne nach jedem Schritt auf eine Antwort zu warten; erst anhalten,
+  wenn nichts mehr ohne PC oder Emulator geht.
+- Je Schritt den passenden Ablauf unten, dann Abschluss nach Ablauf F (Tests, Build, Wiki) und **ein Commit je
+  Schritt**, sofort gepusht.
+- Überspringen und unter „Für den PC“ in [Status](status.md) notieren (mit Empfehlung: welche Aufnahme ab welchem
+  Bild, welche Eingaben, welcher Effort), statt zu raten oder selbst zu entscheiden: alles, was Emulator, Aufnahmen
+  oder Messungen braucht; alles, was eine Entscheidung des Nutzers braucht; alles, was nach zwei Versuchen ungeklärt
+  bleibt.
+- Ungeprüftes als „gegen das Original noch ungeprüft“ kennzeichnen. Wird der Kontext knapp: Stand in Status übergeben,
+  committen, weiter.
+- Zum Schluss eine kurze Zusammenfassung: fertig, ungeprüft, „Für den PC“, Fragen an den Nutzer.
+
 ## Effort
 
 | Einstellung | Wofür |
