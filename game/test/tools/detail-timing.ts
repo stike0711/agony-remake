@@ -39,6 +39,8 @@ const pm: Placement = { at: 0, line: 0, h: 0 };
 let k = -1;
 let f = 13112;
 let base = 0;
+/** Bild, in dem der Durchlauf begann (Auswahl und Beschriftung) */
+let startFrame = 0;
 let row = "";
 const fmt = (t: number | undefined): string => {
   if (t === undefined) return "    -   ";
@@ -51,6 +53,7 @@ const timing: LoopTiming = {
     model.begin(en);
     k++;
     base = Math.floor(starts[k]! / FRAME) * FRAME;
+    startFrame = f;
     const L = loops[k]!;
     row = `B${f} #${k} start M${fmt(en.loopWork.loopStart)} G${fmt(starts[k]! - base)} sp M${fmt(shortPhaseTime(en))} G${fmt(L.has(0x147c) ? L.get(0x147c)! - base : undefined)}`;
   },
@@ -71,7 +74,7 @@ const timing: LoopTiming = {
     real.part2End(en, out);
     model.part2End(en, pm);
     row += ` | end M${fmt(model.t)} G${fmt(starts[k + 1] === undefined ? undefined : starts[k + 1]! - base)}`;
-    if (f >= from && f <= to) console.log(row);
+    if (startFrame >= from && startFrame <= to) console.log(row);
   },
 };
 e.timing = timing;
