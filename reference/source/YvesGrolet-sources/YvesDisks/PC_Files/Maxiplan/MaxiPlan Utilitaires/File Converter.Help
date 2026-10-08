@@ -1,0 +1,26 @@
+                 OXXI File Conversion Utility for MaxiPlan
+                          by James H. H. Lampert
+
+    This is a very simple utility program, written in AmigaBASIC, for
+converting database TEXT files from one format to another.  In order to
+use the program, you must supply it with the AmigaBASIC interpreter
+that came with your computer.
+    When File Converter is run, there is a slight delay, while the menus
+and windows are set up.  A welcome message appears, giving summary
+instructions.  At this point, the program is entirely under menu control.
+The "File" menu has the options "Perform Conversion" (self explanatory),
+"Help" (see this file), and "Quit" (return to the system).  The "Input
+File Format" and "Output File Format" menus allow you to select the Input
+and Output file formats. (Input defaults to MaxiPlan "Save Data as Text"
+format; Output has no default value, and MUST be entered before "Perform
+Conversion" is enabled!)
+    Once the output file format has been selected (BOTH selected input and
+output formats are indicated with a check mark on the menu), you may
+select "Perform Conversion."  You will then be asked to type in filenames,
+which may include pathnames of any length, for both files; the program
+will then process them, and return control to the menus.
+    The option, "RRDS format" on the Input and Output file format menus
+allows you to convert files to and from Relative Record format.  If it is 
+selected, you will be prompted, after you enter the filenames, to enter
+the record and field lengths for the file(s)
+

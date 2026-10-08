@@ -1,0 +1,11 @@
+{
+  // Asset-Pipeline (tools/pipeline, läuft direkt in Node), Tests (Vitest) und Vite-Konfiguration.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "types": ["node"]
+  },
+  "include": ["../tools/pipeline/**/*.ts", "../tools/emulator/*.ts", "test/**/*.ts", "vite.config.ts"]
+}

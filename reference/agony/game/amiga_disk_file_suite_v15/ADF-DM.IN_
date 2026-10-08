@@ -1,0 +1,55 @@
+; 
+; Amiga Disk File Manager V1.50 INI File.
+; 
+; This file is require by all version of ADF-DM V1.45 or later. If this file is
+; changed, corrupt or damaged then ADF-DM may fail to start and will need re-installed
+; DO NOT CHANGE ANY VALUES IN THIS FILE, IT YOU DO WANT TO - THEN BACK IT UP FIRST..
+; 
+[VersionInfo]
+Version=1.50
+Registered=False
+
+[Registration]
+Name=Not Registered
+Number=Not Registered
+KeyCode=0
+
+[Converter]
+Bitmap=False
+Read=False
+Write=False
+
+[Prefs]
+StatusBar=True
+
+[ToolBar]
+Icon1=OpenADF
+Icon2=CloseADF
+Icon3=Space
+Icon4=NewADF
+Icon5=NewFolder
+Icon6=Space
+Icon7=NormalTest
+Icon8=CompTest
+Icon9=Space
+Icon10=StatusBar
+Icon11=FindFile
+Icon12=FindFolder
+Icon13=FileRecovery
+Icon14=Space
+Icon15=LaunchZap
+Icon16=Prefs
+Icon17=Help
+Icon18=Space
+Icon19=Space
+Icon20=Space
+
+[Window]
+AutoResize=True
+ChildResize=True
+
+[Locations]
+ADFLoc=C:\AMIGA
+ADFZap=C:\ADFSUITE\ADF-ZAP
+Reports=C:\
+Pattern=*.*

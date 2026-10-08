@@ -1,0 +1,120 @@
+Short:        sourcecode for Psygnosis' Agony (+more)
+Author:       Yves Grolet
+Uploader:     aminet aminet net
+Type:         game/shoot
+Architecture: generic
+
+Yves Grolet has released a backup of his last Amiga hard drive to the public,
+as explained here:
+
+https://www.facebook.com/yves.grolet/posts/10222868958655944
+
+License (quoting from the above announcement): "You can do whatever you want
+with those sources excepting commercial use".
+
+The archive contains the sources for his commercial Amiga game 'Agony', as 
+well as a bunch of other, smaller  projects and prototypes.
+
+Since the original release was a whopping 164 MB and contained a whole bunch 
+of copyrighted files, we removed everything not directly related to to Yves' 
+work.
+
+Removed files
+-------------
+
+This directory and its contents were removed since the files just documented 
+the progress of backing up Yves' harddrive:
+
+
+Restoration images & videos (thanks Franck)/
+	FileServerReadyInDF0.jpg
+	FileTransferFailure.mp4
+	FileTransferOK.mp4
+	InstallingGotekWithFileServer01.jpg
+
+
+The following files were removed because they are copyrighted material, or
+their legal status was unclear:
+
+
+Corupted system HDD partition partialy restored/
+	c/
+		AddBuffers
+		Ask
+		copy
+		Dir
+		RemRAD
+		Rename
+		Resident
+		Run
+		Search
+		SetClock
+		SetDate
+		SetEnv
+		SetKey
+		SetMap
+		SetPatch
+		Show
+		Skip
+		Sort
+		Stack
+		Status
+		Type
+		undelete
+		Version
+		VirusChecker
+		VirusX
+		Wait
+		Which
+		Why
+	devs/
+		clipboard.device
+		keymaps/
+			f
+		MountList
+		narrator.device
+		parallel.device
+		printer.device
+		printers/
+			Brother_HR-15XL
+			CalComp_ColorMaster
+			CBM_MPS1000
+			Diablo_630
+			Diablo_C-150
+			EpsonQ
+			generic
+			HP_ThinkJet
+			ImagewriterII
+			Okidata_293I
+			Qume_LetterPro_20
+			Toshiba_P351C
+			Xerox_4020
+		serial.device
+	dev_util/
+		ads
+		Devpac/
+			monam.libfile
+			ReadMe
+		disk_util/
+		gfabasic/
+			GfaLib
+		mon
+		packer/
+			PowerPacker
+		seka
+		seka.doc
+	libs/
+		arp.library
+		asdg-low-mem.library
+		diskfont.library
+		icon.library
+		info.library
+		mathieeedoubbas.library
+		mathtrans.library
+		Powerpacker.library
+		translator.library
+		version.library
+		wp.library
+		XPRZmodem.library
+	Sound_Util/
+		pt

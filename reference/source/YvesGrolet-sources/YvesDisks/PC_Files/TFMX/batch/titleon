@@ -1,0 +1,4 @@
+if exists sys:title/off
+rename sys:title/off to sys:title/on
+endif
+

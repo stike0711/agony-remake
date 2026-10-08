@@ -1,0 +1,1228 @@
+*****************************************************************************
+                       Amiga Disk File Manager V1.5c                  21/4/97
+*****************************************************************************
+
+    KMus@Geocities.Com      WWW.Geocities.Com/SiliconValley/Lakes/7904
+
+Introduction  .....................................................  Page  1
+  + Who am I
+  + Details on ADF-DM
+ADF-DM Interface  .................................................  Page  2
+  + Overview
+  + Tool bars
+  + Status Bar
+  + Pop-up Menus
+Drap And Dropping  ................................................  Page  3
+  + How to d`n`d
+  + Multiple d`n`d
+Opening a ADF file  ...............................................  Page  4
+  + Hard File Support
+Moving around ADF/DOS  ............................................  Page  5
+Your First Copy  ..................................................  Page  6
+Testing An ADF  ...................................................  Page  7
+  + Light test
+  + Normal Test
+  + Comprehensive Test
+Analysing ADF's  ..................................................  Page  8
+  + ADF analysis
+  + Bootblock analysis
+Chaning The Name Of Your ADF's ....................................  Page  9
+Creating Formatted ADF's  .........................................  Page 10
+  + Options and settings
+  + Make it AmigaDOS Ready
+Creating New Directories  .........................................  Page 11
+  + DOS Directories
+  + ADF Directories
+Viewing Settings  .................................................  Page 12
+Searching For File/Folders  .......................................  Page 13
+  + Searching via the Combo
+  + Typing in your searches
+ADF-DM Preferences  ...............................................  Page 14
+  + Preference window
+  + Settings
+  + Saving
+  + Applying
+TOOLS For Your ADFs ...............................................  Page 15
+  + Loading ADF-ZAP direct
+  + Deleted File Recovery
+  + Track Dumping
+Known Bugs (fixes) and Workarounds  ...............................  Page 16
+  + Version bugs and workaround
+  + Bug fixes
+Terms, Reference  .................................................  Page 17
+Credits / Support  ................................................  Page 18
+  + Contacting the author
+  + HOME PAGE
+REGISTERATION  ....................................................  Page 19
+  + How To Register
+  + More Information
+TroubleShooting ...................................................  Page 20
+  + Things you can do (before you e-mail me)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    -1-
+*****************************************************************************
+                           Introduction to ADF-DM
+*****************************************************************************
+
+Who Am I?
+---------
+
+I`m a 20 year old programmer who lives in Northern Ireland, and am currently
+working at a software house and am working my way to become a chief software
+engineer. I`ve been with the amiga since the age of 13, with the Batman A500
+pack, and from this to the A1200 where I did lots of assembly programming
+and demo coding. I have about zero free hours a week to work on my personal
+projects, so you may guess that ADF-DM was worked on quite hard. Anyway,
+enjoy the program and any comments would be thankfully received..
+
+Amiga Disk File Manager
+-----------------------
+
+This came from an my own idea, plus a past project for a person called
+Dallas. ADF-ZAP a ADF specific hex-editor was developed to allow me to
+view a ADF like DiskX would. With this I encluded a `Go To Start Of File`,
+this required me reading the ADF and find data inside it, ADF-ZAP make this
+easy as I could view any blocks. ADF-DM is a large extension of this, where
+it can work with ALL the different data blocks that a AmigaDOS has, it
+could read and create the blocks as needed. The program was designed to be
+user friendly where you could drap`n`drop files between DOS and the ADF
+files. ADF-DM can do more than just copy files from one format to another,
+it can test the ADF to see if its compatible and further do a `Disc Doctor`
+test on it, though repairing will be done using a future program called
+`ADF Doctor` (funny enough!).
+
+Comments, Bugs or Suggestions
+-----------------------------
+
+Comments: are very welcome, even if you just say `Downloaded your program
+and thought it was good/OK/Shite`, the more feedback the better.
+
+This Version
+------------
+
+V1.5c is the first hardfile supporting version of ADF-DM. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    -2-
+*****************************************************************************
+                             ADF-DM Interface
+*****************************************************************************
+
+First Impressions
+-----------------
+
+ADF-DM was designed to keep most windows users `at-home` with the file manager
+style program. It includes the drap and drop interface, the copying progress
+bar and other `File Manager` styles.
+
+The Main Layout
+---------------
+
+The screen is divided into 5 parts. The two main parts which you will use
+the most are the ADF directory/file section and the DOS directory/file
+secton. When you open an ADF file, its directories and files appear in the
+left boxes, when accessing DOS files they appear in the right list boxes.
+The third item is the menu, where you can access other `advanced` options,
+which can do anything from create a new formatted ADF disk file to test
+the current ADF file open. The status bar at the bottom (which can be turned
+on or off) displays, what is going on and if any errors have occured, and
+finally the tool bar.
+
+The Tool Bar
+------------
+
+The tool bar is a newer addition to ADF-DM, allowing you to directly
+open/close, format, etc. ADF files without having to touch the menu. The
+toolbar's icons and there functions are described below, from left to right.
+
+Open ADF - The first icon opens an ADF, exactly the same as a normal menu
+           open.
+Close ADF - Close an ADF, because ADF is fully user friendly, you don`t have
+            to close and existing ADF before you need to open another one.
+            Just use the Open ADF Button, or menu item!
+
+New ADF - This brings up the new adf window, where you can create new DOS
+          formatted ADF's for use with UAE and ADF-DM.
+
+New Folder - The four button allows you to create a ADF directory. From here
+             you will be presented with a window to select a directory name
+             and where you would the dir put.
+
+Normal Test - Use this to do a normal test on the ADF, this will make sure
+              the ADF is OK for ADF-DM to read, and that the file's main
+              information bits are correct.
+
+Comprehensive Test - Like Normal test, except it does deep testing making
+                     sure all bits of every file are correct.
+
+Status Bar Toggle - You can select whether you want to view the status bar
+                    from here. This button will also toggle the menu items
+                    `tick`.
+
+Find File - This will allow you to find a file in the current ADF.
+
+Find Folder - Similar to find file, except for folders.
+
+Launch ADF-ZAP - This will directly launch ADF-ZAP V1.0e, as supplied
+
+Prefs - Shows the preference window.
+
+Launch Help - Will show this file :)
+
+
+The Status Bar
+--------------
+
+The status bar will give you current information as well as some information
+about icons. Its divided into 4 sections..
+
+The first shows how many files are selected in the current ADF, next is
+a info box which shows you whats happening (or what an icon does), the
+third tells you the size of the ADF, and finally the four box shows you
+if its a new or old ADF (FFS - New, OFS - Older)
+
+
+Pop-Up Menus
+------------
+
+The pop-ups menus (Accessed by right-clicking on the ADF or DOS Windows)
+gives you easy and fast access to functions like `Delete File`,`Rename File`
+or `View File!`
+
+
+
+
+
+
+
+
+
+
+                                    -3-
+*****************************************************************************
+                          Drapping and dropping
+*****************************************************************************
+
+
+General D`n`D
+-------------
+
+Generally Drapping and Dropping is preformed exactly the same as any other
+window-based program. You move the pointer over the file you wish to drag,
+and hold down the left mouse button on it. Now, start drapping after you
+mouse has moved a few pixels (about 1 millimeter on screen), it will change
+to a picture of a file - The dragging process has started. Dropping is just
+a matter of lifting the file over to the opposite box and letting go of the
+left mouse.
+
+Disk Manager D`n`D
+------------------
+
+With ADF-DM you can only drag files and not directories. ADF-DM will not
+allow you to do any `illegal` drag`n`dropping, so you don`t have to worry
+about this.
+
+Multiple D`n`D
+--------------
+
+ADF-DM from V1.41 onward supports dragging more than one file at one time.
+This is simple, just hold down shift to select more than one file by running
+down the list (while holding the left mouse button), when you have finished
+simply move the mouse pointer over the last entry and the mouse pointer will
+change to a drag pointer, and this must be placed into the opposite directory.
+ADF-DM supports extended multiple selection on the lists.
+
+Known Bugs
+----------
+
+There is only one known bug with drag`n`dropping and this is more a problem
+with Window's and not ADF-DM. When running some Microsoft program's (such
+as Word or Excel) you may file that switching between programs and ADF-DM
+will disable the drag`n`dropping and you must close and re-open ADF-DM.
+This happens will all external drag`n`dropping programs! Someday, microsoft
+will start how to learn how to program a good OS.
+
+
+
+
+
+
+
+
+
+
+
+
+                                    -4-
+*****************************************************************************
+                             Opening a ADF file        
+*****************************************************************************
+
+
+Selecting Your File
+-------------------
+
+To open your AmigaDOS ADF file, move your pointer up to the menu and select
+the main `File` menu. A sub-menu will appear, with a number of options below
+it. Select `Open ADF File` and a file requester dialog box will open. You
+can also select the first toolbar button, to get the same file requester.From
+here, locate your ADF file and click `Open`.
+
+Note : If you have already opened an ADF file don`t worry about closing it
+first, ADF-DM will do this automatically when you select `Open ADF File`.
+
+What happens next
+-----------------
+
+ADF-DM needs to know what files and directories there are on disk. So at
+this point will will look for them. After it has retreived all the files
+(including ones in sub-dirs), it will then read in what free space there
+is on disk.
+
+Next Step
+---------
+
+When ADF-DM has finished processing the ADF it will display the files
+and directories in the left two windows.
+
+HARD FILE Support
+-----------------
+
+ADF Disk Manager supports hard file upto 16.5Mb in size (which is large
+enough for most users). Users should note that due to the larger data
+structures for a hard file, some operations (such as bitmap reading/writing)
+may take a little longer! 
+
+
+
+
+
+
+
+
+
+
+                                    -5-
+*****************************************************************************
+                           Moving around ADF/DOS
+*****************************************************************************
+
+Moving around DOS
+-----------------
+
+Moving around DOS is similar to file manager, except that files and dirs are
+keep seperate. The top right box contains directories and double-clicking on
+one will show you its contents.
+
+Moving around ADF
+-----------------
+
+Is similar to DOS except that you have two extra items at the top of the
+ADF directory list. The `.` brings you up a sub-directory while the `..`
+brings you back to the main root directory.
+
+
+
+
+
+
+
+
+
+
+
+
+                                    -6-
+*****************************************************************************
+                              Your First Copy
+*****************************************************************************
+
+Open an ADF file
+----------------
+
+Open an ADF file, preparably a empty formatted one (See below). Now find an
+amiga file you want to put on the ADF file, by moving through the DOS boxes
+until it appears in the DOS file list. Now, pick up and drag the file onto
+the where the files in the ADF appear, and the copy program will commence.
+
+Whats Happening
+---------------
+
+ADF-DM is looking now for free space to put your file, it will split you
+file across the disk if there is not enough continous space. When ADF
+has found the space, it will copy over the file. The progress bar and the
+label will keep you informed about who much has been transfered.
+
+Warning
+-------
+
+Do not Reset, Shut-Down, Close ADF-DM or in anyway interrupt this copy
+process. Its like a real amiga, you interrupt the copying and it might well
+invalid the file, and possible corrupt your ADF!
+
+
+
+
+
+
+
+
+
+
+
+
+                                    -7-
+*****************************************************************************
+                               Testing An ADF 
+*****************************************************************************
+
+How To Test An AmigaDOS ADF
+---------------------------
+
+ADF-DM comes with 3 test to see if your AmigaDOS ADF is OK. Each test is more
+advanced that the last one, and will take longer.
+
+Light Test
+----------
+
+The light test will allow you to see if an ADF is compatable with ADF-DM, this
+checks its AmigaDOS headers and see's if it can spot any obvious problems.
+Most Demos/Games will have about 5 errors, if you get this many you will not
+be able to run the Normal Or Comprehensive Test (These will automatically
+run the Light Test first).
+
+Normal Test
+-----------
+
+This will further test the disk and each file on the disk. It will run
+through each file making sure that its is valid and can be read (Only headers
+not the actual data).
+
+Comprehensive Test
+------------------
+
+In addition to the Normal Test, every data block belonging to a file is
+tested and evaluated. It any errors are found, they will be reported to
+yourself.
+
+Aborting A Test
+---------------
+
+To abort a test, simply click the abort button or press return. This will
+stop ADF and prompt you with a `Are You Sure` box. NO Damage to your ADF
+will result in you selecting Yes Or No, as ADF-DM is only read data not
+writting.
+
+At the end of a Test
+--------------------
+
+At the end of a test you can select to save a report. This report is saved
+on your main C drive, the exact path is given to you by the program.
+
+Help Me To Help You
+-------------------
+
+If you get an AmigaDOS ADF file which behaves funny, then please do a
+comprehensive test and save a report. Then please e-mail me a ZIP of your
+ADF file and report, this will allow me to see (and maybe fix) your ADF.
+
+
+
+
+
+
+
+
+
+
+
+
+                                    -8-
+*****************************************************************************
+                               Analysing ADF's
+*****************************************************************************
+
+
+Analysing
+-----------
+
+ADF-DM comes complete with a analysing tool to report different information
+about the ADF. You can use these for example to see how much space you have
+free.
+
+Bootblock Analysing
+-------------------
+
+This will report 3 facts about the boot block which are most important, the
+DOS Version, the CheckSum (and if its correct), and the root block position.
+NOTE: The root block position should be 880, the amiga supports `flooting`
+root blocks (Ie. they don`t have to be at 880), but as 99.99% of AmigaDOS
+disks contain it here, I have set this in the code and this will report if
+the root block is invalid (and thus inusuable)..
+
+ADF Analysing
+-------------
+
+This reports details on the ADF itself, this includes block free, used, bad
+and also the disk space free. Users should note that this space free is not
+an estimate (like AmigaDOS gives) but a true value. If its says 100K free,
+AmigaDOS might say 99K or even 98K free. This is because AmigaDOS estimate
+that a file off 100K needs 1K or 2K overhead, and so brings this down.
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    -9-
+*****************************************************************************
+                              Renaming your ADF
+*****************************************************************************
+
+Renaming
+--------
+
+Before you start thinking, why not just go to MS-DOS and use the rename
+command to do this? Stop. This doesn`t rename the ADF's MS-DOS name, but
+the name that AmigaDOS will see and use. This name is stored internally
+and is usually set when you first format the ADF or if you are in workbench
+and select the disk icon and rename.
+
+Simple!
+-------
+
+Just open your ADF, go to the `Amiga Disk File` menu and select from the
+sub-menu `Rename ADF (Root)`. A small window will appear with the existing
+name and the a space for you to provide your new name.
+When you have entered the new name, select `Rename` .The ADF will be renamed,
+and you will be returned to the main ADF-DM window. If you don`t want to
+rename the file, simply click `Cancel` or close the window.
+
+
+
+
+
+
+
+
+                                    -10-
+*****************************************************************************
+                         Creating Formatted ADF's
+*****************************************************************************
+
+ADF-DM comes with the facility to created formatted or unformatted ADF disk
+files. The main advantage being that you do not need to go to DOS and use
+MakeDisk to create your ADF, and then let UAE (slowly) format your ADF file.
+ADF-DM will create AND format you ADF in 2 seconds (P133 32Mb).
+
+Opening The Creation Window
+---------------------------
+
+Move to the `New` main menu, and move down to the `New Image` sub menu.
+Currently only one option exists here, and thats for a `ADF (Formatted)`.
+Select this, and a window appears, where you can select the type of format,
+along with the ADF's name and a few other details..
+
+General Info About Creation
+---------------------------
+
+Creation requires only one main item, and thats what you want to call the
+ADF file when its created. This is defaulted to `C:\AMIGA\CREATED.ADF`, this
+is changable *BUT* will be defaulted to everything you close and re-open the
+window.
+
+Options
+-------
+
+Options for creation includes..
+
+Disk Name : You can change the disk name (upto 28 characters) and this can
+            include spaces and most alphanumber characters. ADF-DM will place
+            onto the ADF whatever name you want, even if AmigaDOS will not
+            allow you to (IE. AmigaDOS doesn`t allow colon's but ADF-DM
+            does - though I don`t recommend :-)
+
+Dos Path : Where you want to place the file when its created. This can be
+           anywhere on any drive. Just remember that ADF-DM does not check
+           for free space, so if you doesn`t have enough space.. Except a
+           UAE [ Unrecoverable Application Error! ;-( ]
+
+Quick Format : NOT ENABLED - When enabled quick format will not format each
+               track similar to DOS. It will just create a file with crap in
+               it (like MakeDisk). When not running in Quick Mode formatting
+               can take much longer - This is due for inclusion in later
+               versions, but it makes little sense to use it.
+
+Inc. DOS : (Include DOS) This will allow you to actually `Format` Or
+           `Initailise` the ADF so that UAE can see it. This will create and
+           format the ADF with the name and type supplied.
+
+DOS Type : A combo is used to select whether you want FFS or OFS. They both
+           have advantages over each other. FFS is faster, and allow more
+           files to be put on a disk. OFS is more secure and will find errors
+           better, its up to you. (Personally, FFS is best as its keeps UAE's
+           speed up)
+
+Creating Your ADF
+-----------------
+
+Once you have your entered your settings, its time to actually create your
+ADF. ADF-DM will process to create and then (if enabled) format and prepare
+you ADF for use. Creation takes less than a second, and formatting not much
+longer (P133 32Mb). If the file exists, or there is a problem you will be
+informed, and you should take action to correct this!
+
+Please Note
+-----------
+
+ADF files created by ADF-DM are one byte longer than normal ADF's. Don`t
+worry this is a problem with the language user to create ADF-DM, and UAE
+doesn`t worry in the slightest.
+
+
+
+
+
+
+
+
+
+
+
+                                    -11-
+*****************************************************************************
+                         Creating New Directories..
+*****************************************************************************
+
+Creating New Directories
+------------------------
+
+To create sub-directories in DOS or ADF files is easy. Simply select from
+the `New` menu, `New Folder` and then what sort of folder a DOS one, or a
+folder in a ADF file.
+
+General Usage
+-------------
+
+You will then be presented with a window where you enter the directory name
+and where you would like the directory placed. This can be either the main
+root or the current sub-directory. Once you have enter the details and
+selected the destination, click `Make Dir` to create the directory..
+
+DOS directories
+---------------
+
+Are created the same as window or dos would create the directory. The dir
+does not appear instantly, you must reselect the dir (or review it) by
+clicking (double-clicking) on the parent directory.
+
+ADF directories
+---------------
+
+ADF directories take a little longer to generate, but is about 25 times
+fast than Workbench's MakeDir command (running via UAE). It will also update
+the bitmap so that no other files will overwrite the directories. ADF Dirs
+appear automatically when created.
+
+
+
+
+
+
+
+
+
+
+                                    -12-
+*****************************************************************************
+                              Viewing Settings
+*****************************************************************************
+
+Settings
+--------
+
+Under the View menu, there are a number of options available to you. These
+change the way ADF-DM looks and acts, most of them are implemented and so
+this section needs to be expanded.
+
+Status Bar
+----------
+
+The status bar shows the current process in a scroll type manar, its also
+shows errors. To disable the status bar, simply move the pointer over it
+and leave go, the bar will disappear and the lists will resize to take up
+its space. To show it again, simply repeat the process.
+
+Auto Refresh
+------------
+
+Auto refresh works the same as the status bar, in the sense of how to hide
+or show it. The function itself, doesn`t. The program will auto-refresh
+the ADF window not matter what is selected here, so you can leave it alone.
+
+F.A.T
+-----
+
+The File Allocation Table (What MS-DOS calls it) or Block Bitmap (What
+AmigaDOS calls it), is a list of free blocks. This view option allows you to
+see whats in the F.A.T. - Red blocks are used, and green are free. The FAT
+window also displays block and bytes free on your ADF.
+
+NOTE: When you format an ADF and do this, there are always 3 blocks used,
+these hold the start off the operating system and file system so don`t worry.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    -13-
+*****************************************************************************
+                         Finding Files Or Folders
+*****************************************************************************
+
+Finding Files Or Folders
+------------------------
+
+Is done, via the tools menu. From there selected the sub-menu `Find` and
+then select whether its a file or folder you want to file. A window will
+appear with a combo box, containing all files or folders. Select a file
+or folder from that list and its full path will appear below in the label.
+
+Type Your Own Searches
+----------------------
+
+With newer versions you can type your file name directly into the combo and
+ADF-DM will look up the location of the file/folder when you press return.
+This is not case-sensitive.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    -14-
+*****************************************************************************
+ *NEW*                           Preferences                           *NEW*
+*****************************************************************************
+
+Preferences
+-----------
+
+Preferences is a new part of amiga disk file manager and now you`ll find its
+even more configurable.
+
+Preferences window
+------------------
+
+The main preferences window is divided into 3 sections. The left frame holds
+the currently displayed `sub-preference`. The second section is where you
+can gain access (via button) to different sub-preferences such as the toolbar,
+window settings, etc.. The third section is the save and applying section.
+
+
+REGISTER PREFS
+**************
+
+Versiof V1.45 and above of ADF-DM are now shareware. This means that you get
+the full program, free of charge, but are required to pay a small amount for
+the program. This prefs holds the current registration details and is where
+you will go if you require technical support, help or version updates. Using
+your user name and registration number you can log-onto the ADF-Suite
+homepage and request/receive information on any part of ADF-Suite. This
+section tells you how to register
+
+
+CONVERTER PREFS
+***************
+
+The converter for most of ADF-DM functions is fast enough to run on a P75 and
+above. Lower end machines will require the disabling of task switching during
+read/write or bitmap operations.
+If you think ADF-DM is too slow converting, try click these buttons and then
+applying the settings. ADF-DM will now not allow Window's to interrupt it
+when converting, read or writing to the ADF or using the ADF's bitmap.
+
+NOTES: This disables task switching temporarly. P90 and above will probably
+notice no difference.
+
+WARNINGS: This will prevent other tasks (including communication programs)
+from getting access to the system. If you are using a LAN you may lose packets
+if on the InterNet you will again lose packets. You have been warned..
+
+
+TOOL BAR PREFS
+**************
+
+The tool bar is now fully configurable. You can change the tool bar to what
+ever you want, and include or remove what buttons you don`t want.
+
+Start afresh!
+-------------
+
+Click on the `< X` button to clear the existing tool box. This will allow
+you to build your new tool bar from scratch.
+
+Adding buttons
+--------------
+
+Click on the right list of available buttons, and then click on the `<` button
+to put the button on the tool bar. The new button will go in after the current
+selection in the current list.
+
+Removing buttons
+----------------
+
+Simply click on the button you want to remove (the left list), and then
+click on the `>` icon. It will be removed and placed in the available list.
+
+Spacing
+-------
+
+There is no limit to the amount of spacing you can put between to icons as
+long as the number of icons in the whole toolbar is less than or equal to
+20. The `Space` button always exists in the available list.
+
+Auto Update Main Form
+---------------------
+
+This check box beneath the main lists is used to update the tool bar as soon
+as something is added or deleted. This is handly to see your new tool bar
+without having to click on apply.
+
+Apply Button
+------------
+
+If you chose not to auto apply your toolbar, then use this button to make
+your new tool bar.
+
+Reset To Defaults
+-----------------
+
+Screw up with the tool bar? This is automatically rebuild the toolbar using
+the internal default values. This is handy if you want to make only mild
+changes or get fed up!
+
+
+WINDOW PREFS
+************
+
+The window preferences tell ADF-DM how to resize and control the DOS and
+ADF windows. There are 3 options here, to control the autoresizing and
+status bar.
+
+Auto Resize DOS/ADF windows within main window
+----------------------------------------------
+
+This option will allow you to toggle whether ADF-DM will auto-resize the
+DOS and ADF window inside the main ADF-DM window. The DOS/ADF windows take
+up half of the space each and are automatically reposition and scaled when
+you change the size of the main window. Toggling this off means that the
+DOS/ADF windows will stay the same size, no matter what happens to the main
+window.
+
+Auto Resize dir/file lists within the sub-windows
+-------------------------------------------------
+
+This toggles whether the lists inside each of the DOS and ADF files are
+auto-resized when the size of the DOS/ADF window changes. There will be
+few people who will set this to off :-)
+
+Display StatusBar on startup
+----------------------------
+
+Toggles whether the startbar is on/off when the program is started. By
+default the statusbar is on, but you can take it off here.
+
+
+FILE LOCATIONS
+**************
+
+This is used to set a few default places for ADF-DM to look for ADF's and
+important files.
+
+Default Location Of ADF's
+-------------------------
+
+This stores the default location of ADF's. My personal preferences is C:\AMIGA
+but this can be anything you want it to be! When you first open the File
+Dialog this directly is the current one.
+
+ADF-Zap EXE Location
+--------------------
+
+This is ignored, and not implemented.
+
+Generated Reports Path
+----------------------
+
+This is ignored, and not implemented
+
+Pattern used in DOS File List
+-----------------------------
+
+If you want a certain type of file to be displayed in the DOS File List then
+select it here. The default is *.* (all files), but for example if you just
+want text files enter *.TXT or ADF files *.ADF.
+
+
+APPLY AND SAVING YOUR SETTINGS
+******************************
+
+Save and apply button
+---------------------
+
+
+
+
+                                    -15-
+*****************************************************************************
+                           Tools For Your ADF..
+*****************************************************************************
+
+Loading ADF-ZAP Directly from ADF-DM
+------------------------------------
+
+This feature is used to run ADF-ZAP directly from ADF-DM without first
+having to close it down. This feature is accessed from the `Tools` menu and
+requires that you have ran the setup program and its has completed correctly,
+and ADF-ZAP is in the correct directory.
+
+Deleted File Recovery
+---------------------
+
+A very handy feature if you delete files by mistake! It will search your
+ADF's to find out if there are any deleted files on it, if there are any
+found you can un-delete them, copy them to dos or have a look at them!
+
+Select from the `Tools` menu, `File Recovery`. This will bring up the file
+recovery menu and start ADF-DM reading the disk. This process is very fast,
+it is many times faster than other Amiga Products and will track down files
+alot harder! Once the process has finished, you will see your files along
+with their condition (Sorry, not implemented yet!).
+
+UnDelete File - This will try and re-instate the link between the file and
+                its parent directory. Be careful! Files have to links, a
+                forward and backward link. The backward says who its parent
+                is (and if the directories doesn`t exist, it won`t undelete)
+                and a forward link (to the next file in the chain). If the
+                forward link points to a file thats deleted, or somewhere
+                else you could be in for fun. BUT remember if you have just
+                deleted a file, undeleting will be safe!
+Copy To Dos - Is used to copy a file to dos, if undelete doesn`t work. This
+              sometimes doesn`t work because of the complexity of AmigaDOS,
+              and just telling AmigaDOS thats its there does work!
+              Files will be copied as they are named directly to the current
+              DOS directory.
+View Hex/Ascii - This allows you to view the file prior to dumping it out!
+                 You can see if the data is still there, and how much
+                 damage has been done by new files overwritting it..
+
+
+Track Dumping
+-------------
+
+This allows you to dump tracks directly from an ADF to anywhere on the your
+PC's hard disk. Handy for people wanting to get text/graphics/code from
+trackloading ADF's!
+
+Select the start and end tracks, enter the file name (including path) and
+then select `dump`. ADF-DM automatically assigns a file name, as being
+the ADF's name + `.DMP`... Its up to you to change this..
+
+If anyone needs to feature of Block output (There are 22 blocks in a track)
+then please let me know..
+
+
+
+
+
+
+
+
+                                    -16-
+*****************************************************************************
+                     Known Bugs (fixes) and Workarounds
+*****************************************************************************
+
+ADF-DM - Known Bugs
+-=-=-=-=-=-=-=-=-=-
+
+Bug> During Comprehensive Tests on OFS files sometimes the filename is not
+     displayed during the block test.
+
+ADF-DM - Bug Fixes!    (Version indicates where the bug came from..)
+-=-=-=-=-=-=-=-=-=-
+
+Bug> (V1.1)  File over 20 characters would appear (truncated) and would cause
+             ADF-DM to crash if converter..
+Bug> (V1.1a) File creation routine very bugy, and was removed.
+Bug> (V1.0)  The ADF analysis returned incorrect results with block free/used
+Bug> (V1.0)  When showing external programs (Help, ADF-ZAP) they were run in
+             minimised form.
+Bug> (V1.0)  ADF-DM will not accept amiga files with non-standard characters
+Bug> (V1.41) When a different directory was chosen to install ADF-DM, the
+             ZAP and HELP launched still looked in a set place.
+Bug> (V1.41) The boot file was not copied to the correct dir when installing
+             ADFSuite in a non-standard dir.
+Bug> (V1.41) Delete an ADF file would not work right for two reasons. The
+             first is that it would not redo the checksum on the FHB and it
+             would not free up the space taken by the file :(
+Bug> (V1.45) Rename Root, didn`t change the name of the ADF at run-time.
+
+
+ADF-ZAP - Known Bugs
+-=-=-=-=-=-=-=-=-=-
+
+Bug> Single character files cannot be used correctly. You can not move to the
+     start of a file. ADF-DM doesn`t suffer from this.
+Temp>No not use single character files.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    -17-
+*****************************************************************************
+                            Terms And Reference
+*****************************************************************************
+
+ADF-DM is generally going to be off use to only a few people who have been
+working with amiga emulators and require getting external programs and files
+directly onto ADF's without using an amiga or going near TransDisk. This
+reference section is generally for people who do not know Amiga words or
+phrases..
+
+Boot Block - The first 2 blocks on a disk, where the boot strap code lies.
+Root Block - The root block is where the main (root) directories starts and
+             all files exist (via links) to this dir.
+Block      - A 512 byte section of disk, the amiga has 1760 block per disk.
+Checksum   - A value used to verify that data in a block is correct and hasn't
+             been chanced (or corrupt)
+
+ [If there a word you would like to know what it means then please e-mail me]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    -18-
+*****************************************************************************
+                             Credits And Support
+*****************************************************************************
+
+                  Program Design And Coding - James Hunter
+
+                 Ideas - Dallas McNally <lore@iinet.net.au>
+               Bitmap Help - Thomas Kessler <tkessler@abo.fi>
+
+
+                              Additional Thanks
+                              -----------------
+
+                     Gustavo Geodert <ggeodert@usa.net>
+
+             Stefan Reinauer <Reinauer@krz10.ukl.uni-freiburg.de>
+          (Giving me some Web space to but my programs in! Thanks!)
+
+
+
+Contacting Myself
+-----------------
+
+If you want to contact me for any reason, please do so by e-mail. My current
+address is KMus@Geocities.com, this may however change.
+
+You can usually find a message posted on the UAE Discussion board, and
+sometimes on the #Amiga channel on UnderNet's IRC, using the Nick-Name
+`K-MUS`.
+
+Enjoy the program.
+
+                   Live long, and die in a beautiful way...
+                                                                        James
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    -19-
+*****************************************************************************
+                           Registeration Information
+*****************************************************************************
+
+How To Register
+---------------
+
+Its easy, by cheque/eurocheque/sterling notes or even your local currency !!
+And it costs very little by todays standards!
+
+More Information
+----------------
+
+Like all registeration processes it always changing, but if you have the
+current version of ADF Disk Manager, then there is a document called..
+`REG.TXT` in the main directory of `ADF Suite`. This contains current
+prices and mailing information.
+
+For EXACT up-to-date prices, please check out the ADF-Suite HomePage on..
+
+             `WWW.Geocities.Com/SiliconValley/Lakes/7904/'
+
+
+
+
+
+
+
+
+
+
+
+                                    -20-
+*****************************************************************************
+                              Trouble Shooting
+*****************************************************************************
+
+Hi,
+
+This is a quick and painless FAQ about ADF-DM, it will try and help you, if
+you have a question please e-mail me, I`m a nice person and like people to
+give me questions for this FAQ!
+
+Q. I can create and view an ADF in ADF-DM, but UAE doesn`t like it!
+
+A1. ADF-DM is Powerful, it can read disks that a real amiga wouldn`t touch,
+    it doesn`t check data (so you won`t get any checksum errors), it just
+    rips the data off. So any corrupt files are easily recovered.
+A2. If you have TWO ADF's with the same name, then you can`t read any
+    of them. UAE (AmigaDOS) will refuse to read it! Its not my fault, so
+    simply rename the ADF's Root name.. This includes hard ADF's as well as
+    disk based ones..
+
+Q. I enter a file name into the file open dialog box, but ADF-DM just brings
+   up an `empty` list of files/dirs..
+
+A. Make sure the file really exists, because of the way ADF-DM is programmed
+   it will `attempt` to open ANY file. If it doesn`t exist then ADF-DM will
+   continue to read the ADF (but receive null data), this is a shortsight
+   on me and will be corrected sometime..
+
+Q. I upgraded from V1.50 to V1.5x and I get a `Type Mismatch error` when I
+   try to run the new version.
+
+A. Please contact myself via e-mail/snail mail to receive a `patch` program.
+   Alternatively, backup all your file, format your HD and reinstall every
+   thing including your new version of ADF-Suite..
+
+Q. The icons along the top of the screen are all different sizes (big and
+   small), and the drive selection (for DOS files) is all the screen
+   slightly.
+
+A. You are using `Large Fonts` most program don`t use large fonts as they
+   assume your not blind. Change the setting to small fonts.
+
+
+
+*END OF FILE

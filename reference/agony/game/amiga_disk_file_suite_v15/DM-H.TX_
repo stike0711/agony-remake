@@ -1,0 +1,775 @@
+*****************************************************************************
+                    Amiga Disk File Manager (ADF-DM) V1.5c
+*****************************************************************************
+
+                         >>-History Documentation-<<
+
+
+*****************
+ Version History                (R before version needs it was released)
+*****************
+       
+V0.91  - Pre-release alpha test. Worked (just).
+V1.0a  - First release, available only to the Stefan Reinauer
+RV1.1  - Optimized version of V1.0.
+RV1.1a - Fixed bug so that files greater than 20 chars can be accessed.
+RV1.2  - Allow users to create DOS and ADF directories (inc. sub-dirs)
+         Fixed bug where external program's started mininised
+         ADF analysis return incorrect results for used/free blocks.
+V1.21  - Find combo_box now accepts typed searches.
+V1.25  - Optimized bitmap reading and writing.
+V1.31  - Now has a toolbar, with buttons for shortcuts. Status Bar toggle
+         button added.
+V1.35  - MDI interface being added. Modulization of code and support routines.
+V1.37  - Simple multiple drag`n`dropping added.
+V1.37a - Extended to `complex drag`n`dropping`
+V1.38  - Fixed the flickering of multiple d`n`d
+V1.39  - Speeded up DOS->ADF multiple d`n`d, by writing the bitmap only once
+         at the end of the run.
+V1.40  - MDI bug fixed, and auto-resizing.
+RV1.41 - MDI interface release.
+V1.42  - DOS and ADF files can be renamed.
+V1.425 - ADF files can be deleted.
+V1.43  - PopUp menus added.
+V1.44  - Preferences added.
+RV1.45 - Released.
+V1.45a - Fixed the bug in the Deleting of ADF files.
+V1.45b - Fixed a bug in the deletion of ADF files. (again!).
+         The make directory routine didn`t work down file/dir chains.
+         Rename bugs found (not fixed yet).
+V1.45c - Basic hardfile support added (Full read, 1Mb writting).
+         Hardfile size limited to 100Mb (Approx).
+V1.49  - This is the first build of V1.50.
+V1.49a - Fixed bug in hardfile support of ADFs.
+V1.491 - Registeration system working.
+V1.492 - Hard file support fully implemented upto 16.5 Mb.
+         Numerous bug fixes in hard file support.
+         File recovery implemented.
+V1.494 - Fixed bug in File Recovery system.
+         Delete file bug fixed (3rd Time!?!)
+         Viewing of deleted files allowed (Hex and Ascii)
+         Undelete bug fixed.
+V1.495 - Setup engine refined for registeration system and INI files
+         Full hard drive creation completed.
+V1.494 - View (any) files in hex/ascii implemented.
+V1.499 - Track dumping..
+         Make renaming ADF root work better.
+RV1.50 - Released.
+RV1.5a - Minor bug fix with registeration system, DLL missing.
+RV1.5b - Minor bug fixed with foreign dates in registeration system.
+RV1.5c - ADF Creation window wrongly showed.
+
+
+*************************************
+ Limitations and future improvements
+*************************************
+
+Things I know about and need to be done..
+
+Improvements.
+
++ `STOP` button on multiple copies..
++ Disable task switching on F.A.T. viewing
++ Format window disappears after format
++ Encoding of ADF's
++ Bar at bottom of MDI child windows, giving.. `Files selected`,`Total size of
+  files selected`..
++ Multiple Bootblock library
+
+Limitations.
+
+* If a file exists in an ADF and you put another file (same name) anywhere in
+  the ADF, ADF-DM will not allow you.
+* Hard files are limited to 16.5Mb.
+
+
+***************
+ Diary History
+***************
+
+Thursday, 16th January
+----------------------
+
+Having worked hard at DM, I forgot to start the history so this is a little
+late. Currently, DM can read off Amiga files and stick then in any MS-DOS
+directory. This works for both OFS and FFS disk :). I am currently working
+on putting DOS files onto ADF images, which will be harder as I have to
+create loads of blocks and things. I have wrote a hash computing algorithm
+which looks like it works (to an extend), and I am testing this now. The
+interface is set-up (almost completely, including auto-resizing), it looks
+nice and is easy to us (like File manager or Explorer in windows).
+
+Wednesday, 22nd January
+------------------------
+
+Hmm, hit a problem that has been `bugging` me for about 4 days now. I have
+a defination of the bitmap block (to find free blocks), this is for
+OFS/FFS disks. The problem is that this does not match with what is actually
+free, it may be a problems with the way I am reading the bitmap or the
+way it is stored, but no matter what way they do not match up. So I may
+develope a special `fix`, which will move through all files looking for
+used blocks, any not-used will be entered into a table, and this will be
+used :), slower but it will work :)
+
+Thursday 23rd January
+----------------------
+
+The problem with the bitmap problems has been resolved using a method that
+may be better than the bitmap reading. It will process *EVERY* file and
+directory on disk and list all un-used blocks, this has an disadvantage and
+a advantage too. This is that non-dos tracks will show up as empty (even
+if they are not), like demos which are stupid enough to put DOS root blocks,
+etc. on disks. The advantage is that BAD tracks which are mapped out in the
+bitmap block (which cannot be bad anymore as its a ADF file and not physical
+media) can be reused. Later : Found another bug which made the above not
+work (correctly) and made files and directories disappear, it was in the
+routine to process blocks owned by files, it needed to return the same number
+as it receive, which it didn`t. The next process is creating file header,
+and data blocks and linking them to the hash entry of the correct DIR, for
+the start this will have NO extension blocks (file size thus limited too..
+71 * 512 = 36K), and only on main root dir (Just to test), once this is done
+I can work on the OFS version which should be identical except for data block
+makeup.
+
+Monday 27th January
+--------------------
+
+The problem with programming is that were is always a problem. This time its
+to do with the checksum, no matter what I do AmigaDOS tells me I have a
+check-sum error on track 880 (root), my first thoughts were that the checksum
+algorithm called GetCheckSum(BlockNumber) wasn`t working right, but it seems
+to be. I am also wondering about my GetHash(FileName) routine, is this also
+a bit fucked?
+Later (Much!) : The checksum algorithm now works (though I still am having
+trouble understanding how I fixed it!), the Hash algorithm does work,
+AmigaDOS sees the file OK, its size, date, etc, but when you try to open or
+read the file it says `File not found`, (well, `Object not found` to be
+exact), this is because (I guess) the hash entry is wrong. Time to fix it!
+Very Late : Hmm, The hash entry wasn`t right, so I correct this and I can
+now see the files, this worked for one file but the FAT went nuts when I
+added more than one file at a session - probably a array.
+Way Past My Bed-Time : Yawn.. Yes, it was an array not erased properly, infact
+it was two arrays.. It now works.
+
+Tuesday 28th January
+---------------------
+
+Most of the problems have been corrected. I managed to get the routine worked
+that also creates extension blocks so the program can make unlimited sized
+files (not 36K anymore), I tried this with a few >38K demos (most over 100K
+and they all ran fine). There is how-ever a small bug in the routine which
+gathers free blocks, its happened to think some of the trashcan.info was
+empty and used its last block (nothing major), but this could have been an
+executable and the damage would have been great :( Also upgraded the F.A.T.
+viewer which is *ALOT* faster (about 1 second, compared to 30 seconds). Found
+and fixed the bug, its was a pointer that wasn`t correctly imcremented :) So
+thats full FFS *ANY SIZE* working, now different directories is needed :)
+Worked on the changing size of the ADF-DM window, a few problems occured if
+you tried to make it too small, this was corrected. The about window has also
+been put in, which is just a bit of info, created by my custom VB build
+engine..
+
+Wednesday 29th January
+-----------------------
+
+Created and got working the routine for placing files into any directory on
+the ADF file. Also got in and working the OFS side of the DOS -> ADF routines,
+it tock about 30 minutes which was very suprising. I haven`t tested if it
+supports sub-dirs but its should :-) The programs `main` functions are now
+complete, anything else is there for show or information.
+
+Thursday 30th January
+----------------------
+
+My existing e-mail address runs out today. My current main goal is to get the
+all the main functions and menu working for release. The once it is out I
+can get around to writing things like Deleting amiga files off the ADF
+file. Found a bug where the main program would not `close`, when you closed
+the progam only the window closed and not the program, fixed this :) Started
+into the test algorithms, the lightest one does a simple test to make sure
+you can use the ADF with ADF-DM, the comprehensive run will check everything
+including the files and directories on the disk.
+End Of Day: The light test works and looks nice, it test the file enough
+to make sure ADF-DM would complain (much) until you access the files. Normal
+is currently being done, and is only started..
+
+Friday 31st January
+--------------------
+
+The testing code is all in and works, the deepest will test down to what
+block belong to a file (FFS) and with OFS it also checks the checksum of
+each block. I am working on the create file, the DOS part will be simple
+enough, and the ADF not much harder BECAUSE.. If the user wants to create
+an ADF file, ADF-DM will create a DOS file and then run its through the
+DOS->ADF converter and out will pop a Amiga file on the ADF disk :) The
+wonders of seperate converter modules. I currently think creating ADF
+directories will be interesting an I might leave it. The file creation
+for DOS is in and its works (to a level), there are loads of bugs in it
+which I probably won`t fix before V1.0 main release, because *VERY* few
+people will use it.. 
+
+Monday 3rd Feburary
+-------------------
+
+Decided to leave the DOS creation bit until a future release, its time
+to get ADF-DM out and see the response... Worked on final bits, the
+only bits left are the analysis and help docs. The analysis just gives
+a few bits of imformation about the ADF. I didn`t get much work on ADF-DM
+done today..          
+
+Tuesday 4th Feburary
+--------------------
+
+Got the Analysis routines in and working they return enough info for release,
+and can be expanded later... The setup program is near completion and only
+this document and the help file need to be included..
+
+Wednesday 5th Feburary
+----------------------
+
+Program was cleaned up and links included, the setup program took most of
+today to perfect, now it works. I e-mailed V1.0 to stefan (owner of UAE
+homepage) to see if it worked and if he liked it. Also receive info on
+the bitmap blocks from Paul Kientiz (thanks)
+
+V1.0 - Released, only to stefan..
+
+Thursday 6th Feburary
+---------------------
+
+Implemented the new code for the bitmap blocks, this was *Much* Faster.
+Devpac opened with 3 seconds, compared to the usual 45 seconds (approx),
+and writing was faster too. The bitmap must be updated after every write
+(or at the closing of a disk), and so this takes a little longer. Had
+a few problem with writting to the bitmap, as I was using a pointer that
+was not correct ( moving 32->1 was incorrect, it should have been 31->0 ),
+this made blocks that were free appear used, and files would be split.
+Fixed and it works :)
+
+Friday 7th Feburary
+-------------------
+
+After much fun with the bitmaps, (generally with writting) I got it to
+work with a HUGH speed increase. Currently, increasing the speed of
+copying, it is too slow and show be much faster, will remove `Byte-Copy`
+and change it to `Block-Copy`. A bug with this, made it not work at
+first, but this has been correct and now it works. The program is now
+around 10 - 30 times faster than the original, this makes it a better
+program - as people hate waiting..
+
+V1.1 - Released..
+
+Tuesday 11th Feburary
+---------------------
+
+Got an e-mail about a ADF that didn`t work, true it didn`t work, that was
+the fault of the interface not the conversion routines. The interface would
+only show files upto 20 chars, this file was 21.. So now the limit is 28
+characters (and this is AmigaDOS's limit, not mine) so this error should not
+occur again. [* V1.1a bug fix *] Started work on the MakeDir command (ie.
+create new folder), this creates the blocks but there is an error somewhere
+(as I`m getting non-dos disk - which means I`m writing where I should not
+be).
+
+Wednesday 12th Feburary
+-----------------------
+
+Located and corrected the problem with the MakeDir routines, the checksum
+for the main root block was not written to the write place (it was one byte
+short, and so overwrote a NULL entry, causing the Non-DOS disk), it now
+work and well. You can creates dirs (sub-dirs), put files in them, etc..
+And UAE likes them as I`ve tried reading text files from when. This is for
+FFS only, OFS disk .. Well, the DIR structure was from an OFS book so it
+should work :) , here hoping anyway. 
+
+Friday 14th Feburary
+--------------------
+
+After spending œ80 pounds on Valentines day (plus another œ60 on a week-end
+away - Nuff said :-) I well it's time for V1.2 to get onto the Web :)
+
+V1.2 - Released
+
+Monday 17th Feburary
+--------------------
+
+Receive a e-mail about a bug in the conversion of 30 char amiga filenames to
+8.3 dos filenames, the routine would not correctly convert some files. I`m
+waiting on return mail to fix this. Changed the find files/folders so that
+it will allow you to try the name into the combo and find it for you, and
+tell you if it doesn`t exist. Makes life easier. I am also considering adding
+a toolbar. I am also getting rid of the `original` list boxes, and adding
+XList custom control as its much better. Err.. that didn`t work, the Drag
+and Drop icon was not allowed in XList control and so you dragged the list
+and not a mouse icon :(
+
+Wednesday 19th Feburary
+-----------------------
+
+Added in a toobar with icons, this requires another VBX, but who cares it
+auto-installs. This allows short-cuts to key-operations. I have also killed
+the scroll text, in favour of a single line status label with a timer to
+erase the contents after 5 seconds, to the `welcome` text. I am still waiting
+on the bug e-mail, my resend my e-mail to him. Currently, I need to optimize
+the reading and writing of OFS files and the writing to FFS files. Pulling
+files of FFS is very fast compared to OFS and this is because FFS reading
+grabs 512 byte block and not single bytes.
+
+Thursday 20th Feburary
+----------------------
+
+Total changed to install/setup program to work with NT and to be able to
+handle floating windows and system directories. AS well as being able to
+put ADF-Suite anywhere in the world (err. harddisk). It has been test and
+works :)
+
+V1.31 - Released
+
+Friday 21th Feburary
+--------------------
+
+Was going to release V1.31 but has decided not to. The toolbar system works
+well, but doesn`t look right if the window colour scheme is non-standard. I
+use a brick coloured scheme, and it looked OK, until I switched to normal
+windows scheme and my tool buttons turned black (ARGGH), currently the
+MDI system works and looks well. The Form_Autosize() needs changed to work
+with MDI but this update will be out soon. I am about to update the 30 char
+to 8.3 converter, have found a few bugs in it. Found the bug in the
+converter, it was nothing to do with the converter (as far as seen), but
+when you copy over a file from DOS->ADF it is not correctly entered into the
+file array.
+
+Monday 24th Feburary
+--------------------
+
+Worked on the MDI interface, until the two child forms (the DOS and ADF
+files contents) would auto-resize correctly. I just now have to connect them
+to the main MDI, so they both fill up the main MDI form (in half) when the
+form is resized. Have been thinking about the .INI file and wondering what
+I should do about it. Started on multiple drag and dropping, and the ADF->DOS
+multiple d`n`d is working and in. Its just needs to update the DOS list at
+the end of each copy. Also thinking of updating the information window to
+show file name, file number and total files to be copied. The information
+window has now been updated to give the previous mentioned info, and it
+also has been changed to remove the `flicker`. Multiple d`n`d is now fully
+working (as far as can be seen), for OFS<->DOS and FFS<->DOS. Think V1.41
+is due for release soon, away to test my creation. Its Works, so just a few
+more checks and it looks like V1.41 will be out tomorrow..
+
+Tuesday 25th Feburary
+---------------------
+
+Look like V1.41 is read, just need to test installer and simple functions.
+The installer (as far as I can remember) works on other machines, and should
+make ADF-Suite available to the millions (err. few!). Only think I did today
+was to make the MDI system more robust, so to stop crashes by the interface.
+Worked on the system to rename file, it was not too hard for the DOS side and
+the ADF side was not much harder again. Generally modifiy the FHB, recompute
+the checksum and then change ADF-DM's internal tables. Its works, but had
+problems access one file, this might be because test revisions (between V1.41
+and V1.42) may have damaged links (etc.) in the ADF. So I must test this again!
+V1.41 will not be released, I will add more to it, like deleting ADF's (a
+little more complex) and renaming the ADF file (as in what AmigaDOS think's
+its called). After that the preferences need in and then I`m out of ideas :(
+I`m off to get the train, and its pissing down. I wish my brother hadn`t
+crashed my car :-/
+
+V1.41 - Released
+
+Wednesday 26th Feburary
+-----------------------
+
+Tested the rename routine and found that renamed files are `not` found. And
+its just hit me why.. The hash table, if I rename a file I will have to
+relocate it in the hash table, loads of fun. Later: This wasn`t that simple,
+it required removing the FHB (file header block) from the existing chain and
+putting at the end of the new chain. If you have ever used linked lists and
+tried to remove or move the location of items in a LL, you know just how hard
+it is (Also I don`t have a previous link in the node, just next link so I
+have to search the LL to find out the previous link!). Got this working (as
+in ADF-DM likes it), but its time to see if AmigaDOS likes my rename routines
+(which it does sometimes object to!), hmm. Thats a bug, all files renamed
+files have two entries, for some reason. They are valid but AmigaDOS doesn`t
+like it, and ADF-DM shows this up as well. While I was at it, it added in
+the deletion of ADF files, this was simple as the code was already in the
+renaming part (that was the bit that did work), I`ve included the renaming
+of ADF files, it probably won`t work and theres a warning message. This is
+V1.425 (Hmm), and there is not much else to do. Prefs are next, but not
+today as I`m bored with ADF-DM..
+
+Thursday 27th Feburary
+----------------------
+
+Did no work on ADF-DM today. I did work on some web pages for it (just simple
+things, for people to reference to), it will probably find its way onto
+GeoCities or somewhere else. 
+
+Friday 28th Feburary
+--------------------
+
+Again, no work on ADF-DM. Did design pages for the web, and I`m on GeoCities
+under WWW.GeoCities.Com/SiliconValley/Lakes/7094 (Personal, or what?) - Check
+it out!
+
+Monday 3rd March
+----------------
+
+Got an e-mail from a PC magazine wanting to know can they include my program.
+My jaw dropping and I laughed (alot), I never expected my program (OR ANY)
+program of mine to make it onto a magazine! Working hard to get a newer
+version of ADF-DM, and the e-mail found a bug in my program. It looked for
+boot-block data in the path C:\ADF-Suite\etc.. but what if the user selected
+a non-standard directory, splat! I have popup menus in and working, but VB
+has just crashed on me so I will have to test them again. They look well and
+where a function that I didn`t know VB had! The Popup menus are now in for
+the two list boxes, I was going to include a sub-menu to allow them to copy
+without drag`n`dropping but this was to hard, the menus now are in and could
+be better designed by so what!! I tried to get a hint system working by using
+my own standard window calls (etc), but it didn`t work and I don`t want to
+have to hit API's and thinks directory with VB. I *Must* upgrade VB so I can
+get a host of other features (inc. Long File Names). I am now going to work
+on a encoder/decoder for ADF's; Which will encode a file as `empty` *or*
+completely encrypted.
+
+Tuesday 4th March
+-----------------
+
+Today I didn`t actually work on the encoder/decoder but on the preferences
+for ADF-DM. It will currently read the ini file and store it internaly, as
+well as place all the details on the current preferences window. The prefs
+are quite nice, and control alot (more than I though) this makes it more
+user friendly. I need now to get the prefs to `affect` the program and other
+parts of the ADF-DM system. Later : The Prefs now can read and be saved to
+the windows directory (including a non-standard windows directory). The
+next step is to get the toolbar section of the prefs working...
+
+Wednesday 5th March
+-------------------
+
+This morning, I got the preferences window and the tool bar fully working.
+You can now change where the icons are (inc. spaces) and also save the
+settings. Now I must get the other preferences `affecting` the rest of the
+program. Later: Have most of the prefs working, the only bit is to stop the
+child forms resizing (if told not too) and the pattern within the FileDialog
+boxes. [It can wait, I playing with Duke3d .Con Files!]
+
+Thursday 6th March
+------------------
+
+Programming continued on ADF-DM. I also received a e-mail for the italain
+computer magazine, and its a pity they won`t want a couple more days for
+V1.45 (they are using V1.41) but thats life. The preferences are now fully
+working and in. That means there is but just one think to do.. And thats to
+rename the `Main ADF's name`. Simply write out the new name, and recompute
+the checksum. Thats easy! Later: The rename interface is in and working and
+its just the turn of the code.. Later: Finished the code for the rename
+function and its works! This will soon be V1.45 release, just to check that
+the setup program will cope with the New .INI file and make sure if it finds
+an existing INI to leave it alone! Future version of ADF-DM will have to be
+able to `update` or `partical read` a .INI file. SAD :( - It looks like
+there is no much more to do with ADF-DM, the fact is that is surpased all what
+I wanted it to do!!
+
+Friday 7th March
+----------------
+
+V1.45 looks like its is ready for release, there should be no (little) extra
+bugs in the program as Its been the interface that got changed this time.
+The setup program now will ask the user if he/she wants to overwrite the
+orginal .INI file, if it finds one! Later: Finished the setup program and
+its looks like it works OK..
+
+Monday 10th March
+-----------------
+
+Found a small bug in the renaming of the root of any ADF. If ADF-DM Changed
+the variable root, then the original file name would not be right (it would
+be a file last accessed or read by ADF-DM), this did not affect the writing
+of the new root name. Later : Found a bug in the make directory routine,
+where it did not re-do the checksum on a FHB if the directory was added to
+its chain :( Hardfile support was being implemented when I found this bug.
+
+V1.45 released.
+
+Tuesday 11th March
+------------------
+
+Found a bug in the deleting of ADF files. Actually two bugs! ADF-DM didn`t
+redo the checksum on the parent (owner) of the link to the ADF file that was
+to be deleted, also the F.A.T. table was not changed to show the space used
+by the file was now free. So an empty ADF could contain 10 deleted files and
+still be 100% full :-/ The new routine needs to merge the new free blocks
+with the old existing free blocks. Later : The delete now works correct EXCEPT
+it does mark the deleted FHB and extensions blocks as free, still this will
+be fixed later rather than sooner.. Working on finding out whats wrong with
+the make directory routines.. If the directory is down a chain ADF-DM doesn`t
+see it, nor does AmigaDOS :( 
+
+Wednesday 12th March
+--------------------
+
+Though I fixed the delete routine, but I didn`t. And there is still a bug
+in the routine that redos the current blocks free. Directory problems seem
+to be if a directory is not on the root (or down a chain). Did the ADF-Suite
+homepage today, so thats most of it done. Just uploading the main zip file
+for V1.45, and thats it. Found, and (Finally) fixed the bug in the delete
+routines. The deletion now works and it will fully support COMPLETE deletion
+(Ie. It doesn`t leave FHB and extensions blocks!)
+
+Thursday 13th March
+-------------------
+
+Found the bug in the make directory routines! If the directory was created,
+and its was not on the top of a file/dir chain then it would change its
+parent block to equal the chain's master. (It should be the parent directory!)
+Thats why sometimes it worked and sometimes not!! Fixed that and found another
+bug under that one! I don`t redo the checksum on the hash_parent !! ( I
+think!) Another problem, now creating any directories makes the disk NDOS :(
+Found out what it was :) The checksum was being written a byte position less
+than what it should corrupting the DOS information. There was another bug
+under that (!?) this was that I redid the checksum too early and another
+routine after it changed the blocks informatin (making a checksum error and
+the block unreadable). A funny error is that if the disk is 99% full (IE. one
+block is free) and you create a directory it is not there, it exists and the
+structure are correct but AmigaDOS doesn`t see it :( - THERES AN IDEA! A
+secret directory, fill a disk to 99%, create a dir, delete all your old file
+and fill that `secret` directory. Only ADF-DM can see it :)
+HARDFILE support is in, and its sort of works. Its will read any HardFile
+(up to 100Mb) but it won`t write correctly because of the bitmap function.
+The bitmap was set for a 880K disk, ie. it reads only 880K of it. What I
+need to do know if write another routine to go through the entire bitmap
+blocks and gather all blocks. This will not be too hard, but will take a
+wee while to do. So I can read, but write only 900K odd of data :) I was
+actually suprised it went in so fast :) LATER : Also updated the F.A.T.
+viewer to display bigger files. The bigger the files the smaller the
+display, but hey! Might make this window resizable! ADF-DM may be done in
+patches. IE. Get V1.4x and there will be patches until V1.5x..
+
+Tuesday 18th March
+------------------
+
+Started off with a bug in the ReadBitmap() routine. It doesn`t read it
+right and it read the `root block` as free. So when you half fill a disk
+it fucks up the program (as well as your ADF!). I also suspect that the
+write bitmap is wrong too, but there is no evidence of this yet.. Also
+found a limitation, ADF-DM can only support upto 16.5 MB hard files, this
+is caused by the size of arrays VB supports (upto 35,536 values, and each
+place takes a 512 block of data - Limiting me to 16,777,216 byte :( files)..
+Hopefully, future version of VB will support bigger arrays as 35,536 isn`t
+enough. The bug with the bitmap, may not be a bug (as such), just a short
+sight with how hard files are made up! 
+
+Wednesday 19th March
+--------------------
+
+Worked on the registeration system today..
+
+Thursday 20th March
+-------------------
+
+Finished off the registeration system making it very robust from hackers
+and people who want to use this package for free. It will track the date
+installed (for 31 days), and also the date/time last used (to stop people
+back dating thier machines)... It also stops people messing with the .INI
+files, as well as detailed and very hard to break encryption! (Encryption
+is hard when you use a non-standard method that only you have ever though
+of :-). Now working on deleted file recovery. Currently the interface is
+in and I borrowed some code from a seperate program I was going to make
+(called ADF Doctor). For disk-based ADF's this works well, it will report
+any deleted files found. For hard-based ADF's it just reports all the files
+in the hardfile! I have to track down this bug.. Also found a bug in the
+OFS output routine, which may have been there for some time :( It would miss
+out a byte at the end each block, text files are not too badly hit but
+executables will die a horrible death... Thats fixed now too!
+
+Friday 21st March
+-----------------
+
+Went in and found another bug in the system to do with hard files. The bitmap
+are not wrote (and then read) properly after a deletion of a file. Adding
+seems OK, so its must be the way the FreeBlockArray() is rebuilt after the
+deletion. Its seems to be OK for disk-based files, as the blocks used
+disappear. Time to trace a bug.. Just something else, got a lot of links to
+my page from other UAE home pages!! Another bug found and fixed, the routine
+that gather blocks used will report all blocks in a hash table, even if
+the file only takes up the first 4 (out of 71 blocks) so the routine will
+return a array of value with 4 correct blocks, and 67 odd values of 0! It
+now `forgets` about zero entries.. Its probably caused no problems.. Later:
+FOUND it. The bug was simple, I wondered why it worked for Disk based ADF's
+only, and the reason was the program tock all number to 4 places (From 1-9999)
+A 16.5Mb ADF, has blocks from 1-32500 (odd) and so it misses the highest
+digit :) Thats also probably why the file deleted files doesn`t work with
+hard ADF's!! Later: True, it did cause that bug, but then it wasn`t as simple
+as changing the size of the number field. The main deleted file routine would
+build a string, about the file. Its type, name, block number, etc. ADF-DM
+would look at the 7 bytes for the filename, the number was now 2 digits larger
+so the filename was at 9 bytes. It tock a while to spot this (as the code has
+been left for about 3 weeks - and I forgot its functions..)
+LATER : So hardfile support is in and totaly working, also started and
+`almost` finished the `undelete` routines. There is still a bug running
+around in it somewhere. Got an e-mail from a homepage owner who tested ADF-DM
+and complained it was too slow on the interface, OK time to overhaul the
+undercode :)
+
+Monday 24th March
+-----------------
+
+Found the bug in the undelete routine. The code was OK (as in it undeleted
+the file correctly), the stupid thing was that I managed to write the array
+that holds the files twice!! Also overhauled the interface and removed any
+window/form refreshing. ADF-DM now calls DoEvents less times, and instead
+of any refreshes. This looks smooth to me, hope it does to other parties..
+Got a message about hardfiles, they do have two bootblocks.. Well, my
+program works when you tell it has only one bootblock, and AmigaDOS doesn`t
+complain about it! So until I find an error then it will work.. I`m also now
+about to start work on HEX/ASCII viewing of the file. This will simple
+require building the data blocks (Via a sub-routine) and going through them
+showing there contents in two grids! Its sort of working, as in the codes in.
+BUT because the `File Recovery` system uses a different way to look at files
+than the normal ADF-DM functions, I must reopen the file. This is going to
+be quite hard to do, without creating a variable to hold if the file is
+in the new state or not - which I don`t want to do. Later : Found a bug
+in the delete routine, it will deleted files off my Devpac.adf but one that
+I created it won`t. It leaves them there!! Later : Found it, my life is now
+happy again. It was the ComputeHash() routine, it looks for a filename with
+a leading space, and I didn`t put one in so it dropped a digit. The leading
+space is just a carrying around from ADF-Zap. Later : Got the hex/ascii view
+working, and am planning this option for normal files as well. Also a direct
+track dump would be nice for some users.. Later: Finished the setup program,
+it now works for multiple INI's and allows the user a better explaination.
+Also now lifts the registeration information file. For V1.50 I think I will
+actually spend time and get the hard file creation and direct track dumping
+working. The more options in V1.50 over V1.45 the better!
+
+Tuesday 25th March
+------------------
+
+Firstly, I`ve the cold and feel miserable. Secondly, the hard file creation
+doesn`t look like it will be too hard. Also decided that Creation of ADF's
+will give the `base` location of adf's the same as the preferences. Right,
+spend a few hours trying to get the hard file creation bits working. It
+seems that I basically re-use alot of the internal sub-routines of ADF-DM
+to create the hardfile. This is particulary true of the bitmap building,
+where I simply tell a routine where the root/bitmap blocks lie and it
+builds a bitmap leaving them out (sorry to the size of the hard file :-).
+So thats basically all hard file support in and working. The only two other
+things are (a) Viewing files, and (b) Track by Track dumping. Later : OK,
+viewing of ADF files is in and working, it will view any files you want
+in both hex and ascii. The next is track by track dumping direct to disk!
+Later : Got the web page development under way, the first effort was good
+but the second has to be better! Its will includes less on the index.html
+and more links. V1.50 looks almost complete!
+
+Wednesday 26th March
+--------------------
+
+Finished of the web page, but did little coding on ADF-DM.
+
+Thursday 27th March
+-------------------
+
+Uploaded the new web pages to geocities, and then saw that `776` people had
+been no the site, Not bad at all! I have just to do the track-by-track dump
+and then its time for V1.50 to hit to world! I hope there is enough interest
+in ADF-DM to get some (few) people to register it, it's pretty lame being
+a student with no money...
+T-by-T dumping will require another window, this will ask for the start/end
+track, a output file name and a progress indicator (another gauge!).. This
+should not be too hard, but I expect another icon should/maybe added or
+i`ll just put it on the `Tools` menu! Later : Worked only on the window today,
+no code behind it! The window looks as described before, and does look quite
+nice. The coding will require track-by-track output, as each track is 22
+block long, a ADF may not be rounded to a multiple of 22 blocks, so the last
+track will O/P until end-of-file!
+
+Friday 28th March
+-----------------
+
+Worked on the coding behind the track dumping, and the sliders are now `smart`
+as in they do not allow users to select invalid tracks. A start track cannot
+be after a end track (visa-versa). The dumping routines are going in now,
+and I think that is the lot for V1.50, there will be revision, but I can see
+myself spending less time on ADF-DM (as I can`t do much else!)
+
+Wesnesday 2nd April
+-------------------
+
+Worked on ADF-DM a bit today. The fact is that I have been working on a
+3D screen-saver for my company, and it has taken a lot of time and headache
+tablets.. I am finishing off the track dumping and may include a function
+suggested by a end-users.. The only thing about track dumping is its a bit
+slow at the minute, I may well need to change the file mode to the block
+transfer mode, and I have also to update the gauge.. Another idea hit me
+last night, about a seperate package.. Called `ADF Batch`, it will take
+any files in multiple floppies and put them into a disk based or hard
+file.
+Later : It looks like the final build of V1.50 is ready, just to check the
+setup engine and release it to the ADF-Suite world! Funny, it has taken
+it over 4 months to get to this stage! Now its almost perfect..
+Later : Had a look and made the renaming of ADF's root's better. It would
+rename the root and also change the ADF Window's title (to reflect the
+change).. Also works if your down-a-directory somewhere...
+Later : Only thing left is the documentation to fix up for a few new
+operations, and change in interface. Apart from that stick it together with
+the updated setup program, and put it on the web!
+
+V1.50 - Released!
+
+8th April 1997
+--------------
+
+Got an e-mail yesterday saying that a `File not found` error was being
+reported on a few machines. It was after messing with Tom's machine a .DLL
+missing in the registery system. The setup program now copies it over and
+all is happy, most users should be OK as they should have the DLL..
+Later : Chanced the web page to be `framed`, this allows people to select
+master links without having to goto index.html all the time!!
+
+V1.5a - Released!
+
+14/15th April 1997
+------------------
+
+Had reports of a bug in ADF-DM, and located it to be in the registeration
+system. What basically it was, is that my program was hard-coded to read
+a British Date, so any other dates would result in a nice `Type Mismatch`
+error, thanks goes to Rickard for finding this error!!
+
+V1.5b - Released!
+
+21st April 1997
+---------------
+
+After getting e-mail, I saw a bug that I suppose I would never have seen. When
+the ADF Creation window is displayed the first time, the disk-based check box
+is selected but the hardfile slider is active. This was easy fixed at design
+time. I also received a few other bugs, the one I can remember is that you
+cannot create a hardfile at some other location on your HD, or another
+file name. INCORRECT, I works for me..
+I have working on the idea of D`n`D of folders and not just files. This would
+be a handy feature and I know a few users would like this. Also the deleting
+of Directories would not be hard!
+
+
+
+
+
+Possible Problems
+-----------------
+
+* With hardfile (under my laws) having one bootblock, block 1 will seem free.
+  Files can then use this, but AmigaDOS doesn`t complain it just reads it!
+* File Recovery, if a FHB has a link (ie. an entry in the hash chain) when it
+  is undeleted this link becomes active. (Even if its dead), so AmigaDOS
+  will probably complain.
+
+
+
+
+
+
+ThanX!!
+-------
+
+If you read this and laughed, cried (etc!), then please tell me, as I don`t
+really think anyone will read this!

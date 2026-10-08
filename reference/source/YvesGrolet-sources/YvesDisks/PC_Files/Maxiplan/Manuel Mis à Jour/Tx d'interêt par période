@@ -1,0 +1,22 @@
+Period Interest Rates in Functions
+Fonctions de Taux d'Interêts par périodes
+
+La plupart des fonctions financières intégrées nécessitent des d'interêts
+composés sur une certaine periode de temps. Le taux d'interêt utilisé comme
+un Paramètre dans ces fonctions (c'est à dire PMT ou fonction de Paiement)
+doit correspondre à la période des intérêts composés pour renvoyer le
+résultat correct. Si un Paiement est mensuel, alors le paramètre du taux
+d'interêt doit être un taux d'interêt mensuel.
+
+Par exemple:
+Un taux d'interêt annuel de 12% pour un paiement mensuel correspond à 1%
+par mois c'est à dire 12% divisé par 12 mois.
+
+Si un paiement Mensuel est effectué sur 5 ans, il y aura donc 60 paiements.
+Le taux d'interêt annuel sera divisé par 12. Si le taux d'interêt était de
+10% et la somme à payer 10000, pour trouver le montant du paiement que vous
+allez demander vous utiliseriez la Fonction PMT.
+
+PMT=(10000,.083,60), où .083 est 10% divisé par 12.
+
+

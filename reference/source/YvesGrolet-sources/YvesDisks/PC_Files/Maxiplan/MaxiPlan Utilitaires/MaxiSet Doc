@@ -1,0 +1,9 @@
+Question:    Qu'est ce que MaxiSet et comment l'utiliser ?
+
+Réponse :    MaxiSet est un utilitaire permettant d'ajuster les paramètres
+des possibilités vocales de l'Amiga. Quand vous lancez MaxiSet, vous
+pouvez régler la vitesse, la fréquence, l'inflexion homme/femme et le
+timbre de la voix. Quand vous quittez MaxiSet en fermant la fenêtre les
+paramètres choisis sont sauvegardés en tant que fichier sur la disquette.
+Celui-ci sera récité par MaxiPlan si besoin est. Vous pourrez ainsi régler
+le son à votre guise.     

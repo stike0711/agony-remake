@@ -1,0 +1,18 @@
+cd $w
+cp preset.s vd0:
+cp msp.bin vd0:
+cp sky.bin vd0:
+cp sky.pal vd0:
+cp sky_mod.bin vd0:
+cp sky_vdl.bin vd0:
+cp sky_stpos.bin vd0:
+cp ground.bin vd0:
+cp ground_vdl.bin vd0:
+cp ground_mod.bin vd0:
+cp ground_size.bin vd0:
+cp ground.pal vd0:
+cp dragon.bin vd0:
+cp dragon.pal vd0:
+cp dragon.off vd0:
+cp dragon.h vd0:
+cp dragon.y vd0:

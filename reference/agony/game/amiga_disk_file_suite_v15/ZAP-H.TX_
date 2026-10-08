@@ -1,0 +1,256 @@
+******************************************************************************
+             History Documentation For Project `ADF-Zap V1.0e`
+******************************************************************************
+
+*****************
+ Version History
+*****************
+
+V1.0  - First release
+V1.0b - Problems with `spaces` in file names fixed
+        Disclaimer documentation included
+V1.0c - Optimized the file routine (65% faster!)
+        Found a bug where it missed the odd file :(
+V1.0d - Bug Fix : Problems with look up files (open a new ADF file, after one
+                  and do a list files, would abort ADF-ZAP).
+                  Clicking on List files, would not clear list boxes :(
+V1.0e - ADF-Suite release.
+
+**************
+ Daily Hisory
+**************
+
+Introduction.
+
+This history documentation is here for myself (as preference) and for the
+reader to learn what timescale ADF-Zap took, and what happened. ADF-Zap
+was created because there was not `specific` Amiga Disk File editors, plenty
+of `complex boring` disk editors, but nothing that could make some sence of
+ADF files (hmm.. some sence anyway). ADF-Zap was created in VBasic, mainly
+because its easy and fast to write applications rather than Delphi : But you
+do require VBRUN300.DLL and GRID.VBX :-(. Enjoy the read
+
+Wednesday 11th December
+-----------------------
+
+Receive initial idea for a ADF file editor from Dallas McNally. He
+suggested a number of items, such as on-line assembly help quide. Pre-lunch
+I tried testing a simple grid in VB. It would display hexidecimal values.
+Works, had to add monospaced font, and leading `0`s (so a 1 becomes 01, and
+a F becomes 0F). I used ZAP alot on the amiga, so am basing this around it.
+After lunch, I opened a `Devpac.Adf` file and tried to read it. Had loads of
+problems with this, and random file opening. Had to open the file with record
+length = 2 bytes, as length = 1 byte (for a single byte) did not work.
+[Strangly the length set as 2 bytes made VB read 1 byte??!?!). It worked, I
+could read the Hexidecimal values of the boot block and any position on the
+ADF file. This tock approx. 2 hours of `between-other-programs` coding. The
+only problem is that the grid shows 400 bytes. This is 16 bytes accross and
+24 down (I think). I need to show 512 bytes, so each screen is one amiga
+block BUT 24 lines down fills a 640x480 screen. Maybe change font OR increase
+the number of row across!
+
+Leaving Notes:
+              Thinking about adding a `simple` disassembler (maybe), also
+I could make ADF-Zap move directly to boot block, root block, end, a file (?).
+Who knows?
+
+Friday 13th(!) December
+-----------------------
+
+No coding on ADF-Zap done today, was currently in other VB projects and
+had no time to get at Zap. I though about the user interface, and am
+crossing it between the original Zap, and DiskX (Two of my favourite amiga
+utils - even if a bit old).
+
+Monday 16th December
+--------------------
+
+Programmed for a hour or two on Zap. I corrected the 512 byte on-screen
+problem by change fonts (many many times) and change row heights (which I
+didn`t know was possible!). The ASCII Grid is also in place, and this also
+looks well as it correctly matches the Hex Grid.
+A `Position` frame, labels and scroll bars were added to allow the user to
+see the position in tracks, sectors and blocks of the ADF file. (I also
+included the side value, for which side of the disk!). I have just released
+(When writting this), that the algorithm for computing the ADF position
+is wrong. I currently have 1-79 tracks, with 1-11 sectors, with each sector
+has two sides continously. WHILE it should be 1-79 trakcs, with 1-11 tracks.
+TRACK 1 : sectors 1-11 on side 1, sectors 11,21 on side 2, sectors 22,31 on
+side 1, sectors 32,41 on side 2, on so on till that track is full (I think!)
+I must read the Advanced Amiga Programmers Guide book (again!). If all the
+amiga used was a `byte-offset` life would be simple!
+ANYWAY : The sliders works, and so do the labels. Thinking of adding a
+few other commands such as `Goto Location`, `Find String`, `Find Hex` and
+maybe `Diassemble!!` (You never know :-).
+Time I was in bed (3am) and I`m just after dark smoke tinting the car, it
+looks kwel (cool) too....
+
+Tuesday 17th December
+---------------------
+
+No coding done on ADF today, was using the IRC to talk to a few people on
+undernet's #Amiga channel (Hi Ink!Gigs!bWhite!). The program looks a bit
+slow at the minute, I must optimize the loading routine, if could possibly
+use a cache or a read-ahead buffer. Also thought about the writing to the
+adf file, itself easy but VB makes it hard. I will have to make a temp copy
+of the Adf file, copy over all the data upto that byte(s) that need changed
+copy over the new bytes, continue with the rest of the file and finally
+reload the file to make the changes `appear` to Zap (Got that? Good..) Or
+I could do byte-modification, I will have to investigate this more!
+
+Thursday 19th December
+----------------------
+
+Added in a `Goto` frame (with a close `X`) and allowed the user 3 main goto
+functions. They can goto the boot block (block 0), the root block (usually
+block 880 - Or 3rd LWord of the Boot Block), and finally the start of any
+file. Currently I have no idea of how to read or display files from a ADF
+file, but I have technical documentation available on how to read files from
+a real amiga (Using DoIo), it just needs to be `emulated` :)
+Currently implemented are both the first seeks (to boot and root block), the
+file seeks are a bit different!
+
+Friday 20th December
+--------------------
+
+Fixed a bug with the root block seek, where it's display was not `true`. IE.
+It displayed a byte too early. You got one byte of block 879, and the rest of
+880 (Minus 1 byte), which wasn`t right. The interface was designed to show
+a `Long Word` in the hex values (4 long word per line, with a space delimiter)
+It is now corrected. Wrote, a test program (using ADF-Zap to view the root
+block - The first use of Zap!!), to seek and display all files and directories
+in a ADF file. It worked.. well.. to an extent. First problem was that it is
+not getting all the files. It gets the top level files (first on the hash
+chain), but I don`t know how far it will go down each chain (It seems to go
+only one or two levels down). The second is that all files will need to be
+sorted in dir, sub-dir (files under that), sub-dir ..etc.. Which may takes
+some time (and arrays or linked lists) BUT at this point the main ADF-Zap
+program is working.
+
+Leaving Notes : The algorithm for reading the hash tables and chains linked
+to it is interesting and took a few hours to code. This *May* allow me to
+advance the ADF Disk Manager Project which can currently do alot of things
+to an ADF file. Reading of files within an ADF and converting them to real
+MS-DOS files would be nice, so would converting MS-DOS files to ADF files -
+This is not impossible, just alot of coding.
+
+Sunday 22nd December
+--------------------
+
+No coding, but more thinking. The problem with how `correct` the position
+frame is (IE. If it says block 440 is it really block 440 on a real amiga)
+has been answered, maybe. Firstly a block is 512 bytes NOT 1024 bytes as I
+have currently running, also the way sectors are 11 on each side, and not
+all even on side 1 and all odd on side 2. Currently I am leaving that the
+way it is, if anyone really needs sectors to be right, then e-mail me :)
+
+Leaving Notes : Last day of work until Jan 4th Or 6th. So I *MUST* try and
+get a `aplha` (or even a `beta`) version of ADF-Zap out onto the Net. The
+problem is not `setup` program is available, and I need to installed the
+Grid.Vbx and the CmdDialog.Vbx for things to work :( - One reason why you
+should use Delphi and not VB :).
+
+Monday 23rd December
+--------------------
+
+Again, because I am off on holidays I cannot code any more on ADF-Zap. The
+problem with the `test` program - to list all files/dirs in a ADF file is
+down to a conversion routine *OR* a problem with the sub-routine (which
+handles chains of files) not pointing the conversion routine to the correct
+long word. I am not sure which one it is, as the conversion routine correctly
+finds and changes the long words in the main root block (IE. the start of
+the file chains), soo, it looks like it could be the chain search sub-routine.
+
+Tuesday 24th -> Wednesday 1st January
+----------------------------------
+
+Two words. TOTALY PISSED. Nuff said.
+
+Thursday 2th January
+--------------------
+
+Found out what the problem was with my test program. The fault did not lie
+in any routines or conversions but in my understanding on the amiga disk
+structure. There are many chains, not just one `main` chain off the root
+block. Each user directory, has a hash table with 71 entries, which can
+contains more files (and more directories, and withing them more chains, etc.)
+I had to make the routines `intelligent` to work out the position of files and
+the parent directories, etc.
+I created a file called DVB-ADF.BAS, which is a basic code module for Visual
+Basic. This is freely available to all users of VB 3.0 and above, and will
+allow you to view files easily and (fairly) quickly. ADF-ZAP is pretty fast
+at displaying files, considering the time it would take an amiga to do a
+complete directory lists (including all sub-directories). I did this on my
+devpac.adf file and it took 8-10 seconds (on P100, and P133) on a real amiga
+you are looking at half to a full minute to do this (FFS is faster, than OFS).
+The program supports FFS as the only difference is data blocks and not root
+file or user directory blocks (if I`m wrong please point this out). ADF-ZAP
+will happily find files, and place you at the start of them. So that is the
+`Goto` commands done, now the find. Find will be able to look for a specific
+string of ASCII or Hex characters and Look for files (if you don`t know where
+they are!). The search routine will be slow if I use the normal way, but
+VB must be able to provide a fast way of searching - You never know..
+
+Monday 6th Janurary
+-------------------
+
+Cleaned up ADF-ZAP ready for the setup program. I completed the readme.txt
+which is the help document and general information. The setup program took
+about 30 minutes to write and contains a bit of error checking. It will
+create ADF-ZAP directory (if not already created) and place ADF-ZAP.EXE in
+there, and no where it currently is..I have just need to zip it and FTP it.
+
+The life and times of ADF-ZAP, please take into account I am a professional
+programmer have NO nights to work on any of my personal projects and only
+a couple of hours a days to do them - ADF-ZAP in my option is `professional`
+and works :) - Unless you can tell me otherwise :)
+
+* VERSION 1.0 Released
+
+Tuesday 7th Janurary
+--------------------
+
+Just about 1 hour after release on the Web, I found a bug (and quite a bit
+one), it does not bring you to the start of files that have a `space` in
+their names. Today I know where the problem is, its just fixing it
+
+Wednesday 8th Janurary
+----------------------
+
+Fixed the bug within the first 10 minute of sitting infront of my computer.
+The next code I put in worked, but I wrongly used a result it returned :(
+
+* Version 1.0b Released
+
+Thursday 9th Janurary
+---------------------
+
+Worked started on ADF-DM (as disk manager), while using the same routine's
+for this as ADF-ZAP I found a few bugs, and was able to optimize the code
+(65% faster) and file searchs.
+
+Friday, 10th Janurary
+---------------------
+
+Found a bug in the file search algorithm. It missed a few files (the last
+files in a hash table), the counter was one too much. I only noticed when
+I was in UAE what a file was missing (though I suspected it was not there!)
+
+* Version 1.0c Released
+
+Enjoy , James.
+
+19th -> 22nd Janurary
+---------------------
+
+Found another bug in the file system, where the array was not erased fully
+and opening another ADF and doing a list files (ie. find start of file) would
+cause a sub-routine to get a HUGH offset from the start of the ADF file, it
+would be above 100 Trillion, and the ADF is only 901,120 bytes long! Also
+clicking on the start of file option, would not clear the list box and the
+double (tripple, etc.) files would appear, this may/may not cause problems
+I didn`t try it. I used a hex editor called `HexEd`, it refused to return
+a value of $FF (which made be wonder was it my editor at first), but it
+was a faulty program (also it was 5 years old :)
+
+* Version 1.0e Released.

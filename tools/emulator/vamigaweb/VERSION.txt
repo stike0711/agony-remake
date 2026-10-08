@@ -1,0 +1,5 @@
+vAmigaWeb/vAmigaWeb.github.io@bd0d2e9519c81af0a032d656723d56f7c4b36d81
+Commit-Datum: 2026-09-10T20:30:25Z
+Geladen: 2026-10-05T21:25:54.860Z
+Ohne: doc/
+Lizenz: GPL-3.0 (https://github.com/vAmigaWeb/vAmigaWeb)

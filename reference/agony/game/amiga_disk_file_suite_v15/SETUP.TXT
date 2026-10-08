@@ -1,0 +1,33 @@
+------------------------------------------------------------------------------
+                    Setting up Amiga Disk File Suite V1.5
+------------------------------------------------------------------------------
+
+As supplied in a ZIP file.
+
+You should place this ZIP file in a temporary directory. And use PkUnzip Or
+WinZip to unzip the contents into the temporary directory. Once this is done
+you must run the SETUP.EXE program. Move load windows..
+
+Windows 3.11 - Go to The File Menu, And Selected Run.. Move to Browse and
+find the SETUP.EXE program in the temp. directory and click OK.
+Windows 95 - Go to Start button, and select Run and browse. Now find the
+SETUP.EXE program in the temp. directory and click OK.
+Windows NT - Same as 3.11, ADF-Suite and the installer program should now
+be able to handle NT without problems.
+
+SETUP.EXE will automatically copy files over, but will allow you to select
+and customise where ADF-Suite is to go.
+
+Enjoy,
+
+James Hunter
+
+KMus@Geocities.Com
+
+* PROBLEMS
+
+If you get the problems, `Cannot find VBRUN300.DLL` please get a copy of the
+file called `VBRUN300.DLL` from your local FTP site, or Microsoft network.
+This is a `Very common` file and you should have no problems finding it. Once
+you have got it, please copy it directly into your windows/system directory.
+Need any help? E-Mail me, and no, I don`t know an FTP site to get it off.

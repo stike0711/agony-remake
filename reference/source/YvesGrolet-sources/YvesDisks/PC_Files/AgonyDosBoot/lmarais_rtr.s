@@ -1,0 +1,449 @@
+
+
+******************************************************
+*                                                    *
+*    Attack Wave Start struct for Relative Tracks    *
+*                                                    *
+******************************************************
+
+
+
+
+Awsrt0	* 2015($6DF)  360
+	DC.W	$0	* AWS_Table_X_Off
+	DC.W	$48	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	16                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt1	* 2020($6E4)  363
+	DC.W	$90	* AWS_Table_X_Off
+	DC.W	$EC	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	16                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt2	* 4800($11C0)  396
+	DC.W	$148	* AWS_Table_X_Off
+	DC.W	$198	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	15                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt3	* 4797($11BD)  390
+	DC.W	$1E8	* AWS_Table_X_Off
+	DC.W	$23C	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	15                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt4	* 4989($127D)  363
+	DC.W	$290	* AWS_Table_X_Off
+	DC.W	$2DA	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	14                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+
+
+Awsrt5	* 5055($12BF)  398
+	DC.W	$324	* AWS_Table_X_Off
+	DC.W	$37E	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	14                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt6	* 5118($12FE)  336
+	DC.W	$3D8	* AWS_Table_X_Off
+	DC.W	$43A	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	13                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt7	* 5121($1301)  331
+	DC.W	$49C	* AWS_Table_X_Off
+	DC.W	$4FC	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	13                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt8	* 5250($1382)  398
+	DC.W	$55C	* AWS_Table_X_Off
+	DC.W	$59C	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	12                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt9	* 5535($149F)  363
+	DC.W	$5DC	* AWS_Table_X_Off
+	DC.W	$610	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	12                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt10	* 5538($14A2)  358
+	DC.W	$644	* AWS_Table_X_Off
+	DC.W	$68E	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	11                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt11	* 5603($14E3)  399
+	DC.W	$6D8	* AWS_Table_X_Off
+	DC.W	$710	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	11                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt12	* 5793($15A1)  367
+	DC.W	$748	* AWS_Table_X_Off
+	DC.W	$786	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	10                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt13	* 5921($1621)  396
+	DC.W	$7C4	* AWS_Table_X_Off
+	DC.W	$800	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	10                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt14	* 5981($165D)  333
+	DC.W	$83C	* AWS_Table_X_Off
+	DC.W	$866	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	9                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt15	* 5984($1660)  323
+	DC.W	$890	* AWS_Table_X_Off
+	DC.W	$942	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	9                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt16	* 6077($16BD)  363
+	DC.W	$9F4	* AWS_Table_X_Off
+	DC.W	$A38	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	9                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt17	* 8540($205C)  396
+	DC.W	$A7C	* AWS_Table_X_Off
+	DC.W	$AC0	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	9                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7
+
+Awsrt18	* 8546($2062)  392
+	DC.W	$B04	* AWS_Table_X_Off
+	DC.W	$B40	* AWS_Table_Y_Off
+	DC.W	Anim_Monster_1	* AWS_Table_Obj_Off
+	DC.B	20	* AWS_Alien_Rate
+	DC.B	3	* AWS_Alien_Num
+	DC.W	2	* AWS_Alien_Energy
+	DC.B	10                  * AWS_Alien_Bad_F
+                  DC.B    2                   * AWS_Alien_F_Rate
+	DC.B	-1	* AWS_Pal_Mod_Lin0
+	DC.B	-1	* AWS_Pal_Mod_Lin1
+	DC.B	-1	* AWS_Pal_Mod_Lin2
+	DC.B	-1	* AWS_Pal_Mod_Lin3
+	DC.B	-1	* AWS_Pal_Mod_Lin4
+	DC.B	-1	* AWS_Pal_Mod_Lin5
+	DC.W	-1	* AWS_Pal_Mod_Col1
+	DC.W	-1	* AWS_Pal_Mod_Col2
+	DC.W	-1	* AWS_Pal_Mod_Col3
+	DC.W	-1	* AWS_Pal_Mod_Col4
+	DC.W	-1	* AWS_Pal_Mod_Col5
+	DC.W	-1	* AWS_Pal_Mod_Col6
+	DC.W	-1	* AWS_Pal_Mod_Col7

@@ -1,0 +1,18 @@
+
+
+
+                         File Converter Utility
+                           by James Lampert
+
+
+File Converter is a utility program for converting files from one format to
+another.  For example, it can convert a mailmerge file, saved from
+MaxiPlan, to the format used in WordPerfect, or to that used by Kind
+Words.  This program is written in AmigaBasic, and is supplied without any
+read protection whatsoever, so you can examine and modify it at will.
+It expects to find AmigaBasic on the root directory of a disk called
+"Extras," and will ask for such a disk if it cannot find one in a drive.
+
+For more information, click on File Converter.Help.
+
+

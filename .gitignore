@@ -1,0 +1,7 @@
+# Git-Arbeitskopie für Cloud-Sessions (E-041); das Projekt selbst läuft ohne Git
+node_modules/
+/server/
+/backup/
+/work/debug/
+/work/captures/
+/.claude/settings.local.json

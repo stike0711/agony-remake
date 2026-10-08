@@ -1,0 +1,81 @@
+LOOKUP Function
+
+Fonction LOOKUP
+
+Paramètre: valeur de recherche, Zone contenant une Table Lookup
+
+Il y a une petite erreur dans le chapitre 20 à propos de la fonction Lookup:
+elle peut être utilisée avec une zone de plusieurs Colonnes et plusieurs
+Lignes et non pas une seule. La forme de la Zone détermine néanmoins si les
+valeurs sont examinées le long des Lignes ou des Colonnes. S'il y a plus de
+Lignes que de Colonnes, Lookup recherche la correspondance la plus proche de
+la valeur recherchée dans la première Colonne de la Zone. Elle retoune 
+ensuiteà la valeur la plus éloignée contenant la concordance à partir de 
+la gauche.
+
+De même, si la zone de recherche de Lookup contient plus de colonnes que de
+lignes, une concordance de la valeur est recherchée dans la première ligne
+puis, la fonction Lookup renvoie la dernière valeur de la colonne où la
+concordance a été trouvée;
+
+Pour expliquer le fonctionnement de la Fonction Lookup, nous désignerons 
+trois zones nommées. La Table est la Zone A1 à D8, où la ligne 1 contient 
+des étiquettes. Lookup renverra une chaîne de caractères, c'est pourquoi 
+la ligne 1 sera exclue de la Table.
+
+EXTENSION est la Zone A2:D8
+COUT est la Zone A2:C8
+INVENTAIRE est la Zone A2:B8
+
+LOOKUP peut utiliser soit le nom d'une Zone comme Paramètre, soit l'adresse
+       d'une cellule de la zone. Exemple:
+
+=LOOKUP(349,EXTENSION)  renvoie 46.2
+=LOOKUP(349,A2:D8)  renvoie 46.2
+
+Puisqu'il y a six lignes et quatre colonnes dans la zone A2:D8, également
+appelée EXTENSION, la concordance est recherchée dans la première colonne. 
+La valeur recherchée 349 est une concordance exacte de la cellule A4. La 
+fonction renvoie la valeur la plus éloignée à droite dans la ligne 4, soit 
+la valeur de la cellule D4 c'est à dire 46.2
+
+Si la Table est modifiée, la même valeur de recherche renverra une valeur
+différente pour la fonction Lookup. Par exemple:
+
+=LOOKUP(349,COUT) renvoie 1.65
+=LOOKUP(349, A2:A5) renvoie 1.65
+
+Comme six lignes dépassent encore trois colonnes, 349 correspond à 
+l'entrée de A4 et Lookup renvoie la dernière de la ligne 4, ou l'entrée 
+de C4 dand la colonne C, derniére colonne de la zone A2:C8
+
+De même,
+
+=LOOKUP(349INVENTAIRE) renvoie 28
+=LOOKUP(349, A2:B8) renvoie 28
+
+Si la valeur de Recherche est modifiée, Lookup peut renvoyer une valeur
+différente si le meilleur Enregistrement est une valeur différente dans la
+colonne ou la ligne de recherche.
+
+Par exemple dans le manuel, 
+
+=LOOKUP(650,A2:D8) renvoie 31.68
+
+Puisque 650 est inférieur à 680 mais supérieur à 467 dans la colonne de
+Recherche, la concordance devient 467 et 31.68 est la dernière valeur de
+la ligne pour 467.
+
+=LOOKUP(700,A2:D8) renvoie 23.40
+
+Comme 700 est supérieur à 680 et qu'il n'y a pas d'autre nombre à faire
+concorder, 680 devient donc la meilleure concordance et 23.40 est la 
+dernière valeur de la ligne pour 680.
+
+=LOOKUP(560,A2:D8) renvoie 31.68
+
+puisque 560 est également inférieur à 680 mais supérieur à 467, 467 
+devient la valeur concordante et 31.68 est toujours la dernière valeur 
+de la ligne pour 467. 
+
+

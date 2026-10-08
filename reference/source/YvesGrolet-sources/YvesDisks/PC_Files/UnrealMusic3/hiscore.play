@@ -1,0 +1,1217 @@
+
+
+
+s:
+bset	#1,$bfe001;turns power led (and low pass filter) off
+		  ;this has only effect on the A-500 as far
+		  ;as i know. Not required.
+
+moveq	#0,d0;move #0 for intro tune
+
+bsr	initmusic;reset the selected piece
+
+wait:
+cmp.b	#103,$dff006;wait for scan line 103
+bne.s	wait
+
+again:
+move.w	#$fff,$dff180;set colors
+bsr	player	;call the main routine
+move.w	#$222,$dff180;reset colors
+
+move.w	$dff016,d1;check right button for "fast-forward" playing
+and.w	#$0400,d1
+bne.s	wait2
+bsr	storegist
+bra.s	again	;loop until right button is released
+
+wait2:
+cmp.b	#180,$dff006;wait for scan line 180 (a delay is required!)
+bne.s	wait2
+
+move.w	#$fff,$dff180;colors...
+bsr	storegist;call a routine to set the sounds registers
+move.w	#$222,$dff180;colors reset
+
+btst	#6,$bfe001;check left button for exit
+bne.s	wait
+
+bsr	clearmusic;stop the currently playing tune
+	;this clears the dma access and the routines will stop writing
+	;into the sound registers (if the routines are still called)..
+
+bclr	#1,$bfe001;turn back on power led and filter
+rts
+;---------------------------------------------------
+
+
+
+initmusic:	bra setmus
+storegist:	bra setallreg
+player:
+and.b	#1,musicon
+bne.s	playthen
+rts
+
+playthen:
+moveq	#0,d4
+move.b	novoices,d4
+
+subq.b	#1,tempocnt
+cmp.b	#$fe,tempocnt
+bne.s	nextvoice
+move.b	tempo,tempocnt
+
+nextvoice:
+move.l	#varstart,a5
+move.l	(a5,d4),a5
+
+cmp.b	#$ff,tempocnt
+beq.s	dyt
+
+cmp.b	#0,tempocnt
+beq.s	tcnt0
+bra.L	compute
+
+tcnt0:
+subq.b	#1,nlen-var0(a5)
+bpl.L	compute
+clr.b	gate-var0(a5)
+bra.L	compute
+
+dyt:
+cmp.b	#$ff,nlen-var0(a5)
+bne.L	compute
+
+loop2:
+move.l	vdata-var0(a5),a3
+
+loop1:
+moveq	#0,d0
+
+checkout:
+move.b	seqno-var0(a5),d0
+
+moveq	#0,d1
+move.b	(a3,d0),d1;current sequence# in d1
+
+cmp.b	#$ff,d1;tune finished?
+bne.s	notfin
+
+;yes,tune finished
+move.b	#$00,seqno
+move.b	#$00,seqno-var0+var1
+move.b	#$00,seqno-var0+var2
+move.b	#$00,seqno-var0+var3
+
+move.b	seqno-var0(a5),d0
+move.b	(a3,d0),d1;current sequence# in d1
+bra	notstoptune
+
+notfin:
+cmp.b	#$fe,d1;tune stop?
+bne.s	notstoptune
+
+jmp	clearmusic
+
+notstoptune:
+cmp.b	#$7f,d1
+bls.s	nottrans
+
+move.b	d1,transpose-var0(a5)
+sub.b	#$c0,transpose-var0(a5)
+addq.b	#1,seqno-var0(a5)
+bra.s	checkout
+
+nottrans:
+move.l	#seqstart,a3
+asl.w	#2,d1
+move.l	(a3,d1),a3;start addr. of current sequence
+
+move.b	seqptr-var0(a5),d0
+
+move.b	(a3,d0),nlen-var0(a5);next byte in sequence (len+control)
+and.b	#$1f,nlen-var0(a5);length set!
+
+readagain:
+move.b	(a3,d0),d3
+move.b	d3,hold
+and.b	#$20,hold
+
+cmp.b	#$df,d3;select arpeggio
+bls.s	notselarp
+move.b	1(a3,d0),arpsel-var0(a5)
+addq.b	#1,d0
+move.b	(a3,d0),d3
+move.b	#0,hold
+
+notselarp:
+cmp.b	#$bf,d3
+bls.s	notpause
+
+addq.b	#1,seqptr-var0(a5)
+cmp.b	#$ff,1(a3,d0)
+bne.L	compute
+clr.b	seqptr-var0(a5)
+addq.b	#1,seqno-var0(a5)
+bra.L	compute
+
+notpause:
+and.b	#$c0,d3
+bmi.s	samchng
+beq.s	notsamchng
+
+clr.w	brate-var0(a5)
+move.b	1(a3,d0),1+brate-var0(a5)
+addq.b	#2,d0
+move.b	(a3,d0),enote-var0(a5)
+move.b	transpose-var0(a5),d1
+add.b	d1,enote-var0(a5)
+bra.s 	readnte
+
+samchng:
+addq.b	#1,d0
+moveq	#0,d1
+move.b	(a3,d0),d1;sample# now in d1
+asl.w	#2,d1
+lea	samdatptr,a4
+move.l	(a4,d1),samdata-var0(a5)
+move.l	samdata-var0(a5),a4
+move.b	28(a4),arpsel-var0(a5)
+moveq	#0,d1
+move.b	1(a3,d0),d1
+bpl.s	notsamchng
+addq.b	#1,d0
+and.b	#$7f,d1
+move.b	d1,arpsel-var0(a5)
+move.b	#0,hold
+notsamchng:
+clr.w	brate-var0(a5)
+
+readnte:
+addq.b	#1,d0
+move.b	(a3,d0),note-var0(a5)
+move.b	transpose-var0(a5),d1
+add.b	d1,note-var0(a5)
+
+cmp.b	#$ff,1(a3,d0)
+bne.s	notresta
+clr.b	seqptr-var0(a5)
+addq.b	#1,seqno-var0(a5)
+bra.s	dontad
+
+notresta:
+addq.b	#1,d0
+move.b	d0,seqptr-var0(a5)
+
+dontad:
+and.b	#$20,hold
+beq.s	stopit
+move.b	#2,adsr-var0(a5)
+move.l	samdata-var0(a5),a3
+move.w	18(a3),volume-var0(a5)
+bra	nobend
+
+stopit:
+move.w	clearaud-var0(a5),$dff096
+
+notstop:
+clr.w	volume-var0(a5)
+clr.b	adsr-var0(a5)
+clr.w	framecount-var0(a5)
+clr.l	pulseptr-var0(a5)
+move.b	#1,arpptr-var0(a5)
+
+move.l	samdata-var0(a5),a4
+move.w	24(a4),vibdircnt-var0(a5)
+lsr.w	#1,vibdircnt-var0(a5)
+move.b	#1,vibdirec-var0(a5)
+move.b	regstart-var0(a5),d3
+
+move.l	#$dff0a0,a3
+move.l	4(a4),(a3,d3);set data location
+move.w	2(a4),4(a3,d3);set len
+
+move.b	#1,gate-var0(a5)
+bra.l	attack
+
+compute:
+;change sample start
+moveq	#0,d0
+move.l	samdata-var0(a5),a3
+move.w	32(a3),d0
+beq.s	chkrel
+
+move.w	framecount,d0
+and	#1,d0
+beq	chkrel
+move.l	4(a3),a4
+add.l	pulseptr-var0(a5),a4
+move.b	regstart-var0(a5),d0
+move.l	#$dff0a0,a3
+move.l	a4,(a3,d0)
+
+addq.l	#1,pulseptr-var0(a5)
+cmp.l	#$20,pulseptr-var0(a5)
+bls.s	chkrel
+move.l	#$00,pulseptr-var0(a5)
+chkrel:
+;check release trigger
+
+move.l	samdata-var0(a5),a3
+moveq	#0,d0
+
+move.w	30(a3),d0
+beq	ratata
+cmp.w	framecount-var0(a5),d0
+bgt.s	ratata
+move.b	#2,adsr-var0(a5)
+move.b	#0,gate-var0(a5)
+ratata:
+addq.w	#1,framecount-var0(a5)
+cmp.w	#1,framecount-var0(a5)
+bne.s	notyet
+move.l	samdata-var0(a5),a3
+lea	$dff0a0,a4
+
+moveq	#0,d3
+move.b	regstart-var0(a5),d3
+move.l	8(a3),(a4,d3);new location
+move.w	12(a3),4(a4,d3);new length
+
+notyet:
+
+cmp.w	#0,brate-var0(a5)
+bne.s	bendit
+
+;vibrato
+move.l	samdata-var0(a5),a3
+move.w	framecount-var0(a5),d1
+move.b	note-var0(a5),d2
+btst	#7,note-var0(a5)
+bne.s	vibtrig
+cmp.w	#0,22(a3)
+beq.l	nobend
+
+cmp.w	22(a3),d1
+bls.L	nobend
+
+vibtrig:
+move.w	24(a3),d2;vib speed
+move.w	26(a3),d3;vib rate
+
+cmp.b	#0,vibdirec-var0(a5)
+beq.s	vibup
+
+;vib down
+add.w	d3,freq-var0(a5)
+subq.w	#1,vibdircnt-var0(a5)
+bpl.s	nobend
+clr.b	vibdirec-var0(a5)
+move.w	d2,vibdircnt-var0(a5)
+bra.s	nobend
+
+vibup:
+sub.w	d3,freq-var0(a5)
+subq.w	#1,vibdircnt-var0(a5)
+bpl.s	nobend
+
+move.b	#1,vibdirec-var0(a5)
+move.w	d2,vibdircnt-var0(a5)
+bra.s	nobend
+
+bendit:
+moveq	#0,d0
+moveq	#0,d2
+move.b	enote-var0(a5),d0
+and.b	#$7f,d0
+move.w	brate-var0(a5),d1
+move.b	d0,d2
+asl.b	#1,d2
+move.l	#audpertab,a3
+move.w	(a3,d2),d2
+
+cmp.b	note-var0(a5),d0
+bge.s	bdown
+
+;bend up
+
+add.w	d1,freq-var0(a5)
+cmpa.w	freq-var0(a5),d2
+bge.s	nobend
+move.w	d2,freq-var0(a5)
+clr.w	brate-var0(a5)
+bra.s	nobend
+
+bdown:
+sub.w	d1,freq-var0(a5)
+cmpa.w	freq-var0(a5),d2
+blt.s	nobend
+move.w	d2,freq-var0(a5)
+clr.w	brate-var0(a5)
+
+nobend:
+and.b	#1,gate-var0(a5)
+beq.s	release
+move.w	framecount-var0(a5),d1
+and.w	#1,d1
+bne.s	decv
+cmp.b	#0,adsr-var0(a5)
+bne.s	decay
+
+attack:
+move.l	samdata-var0(a5),a3
+move.w	14(a3),d0
+add.w	d0,volume-var0(a5)
+move.w	volume-var0(a5),d1
+cmpa.w	(a3),d1
+bls.s	decv
+move.w	(a3),volume-var0(a5)
+move.b	#1,adsr-var0(a5)
+bra.s	decv
+
+decay:
+cmp.b	#2,adsr-var0(a5)
+beq.s	decv
+
+dosustain:
+move.l	samdata-var0(a5),a3
+move.w	16(a3),d0
+sub.w	d0,volume-var0(a5)
+bmi.s	yess
+move.w	volume-var0(a5),d1
+cmpa.w	18(a3),d1
+bge.s	decv
+yess:
+move.w	18(a3),volume-var0(a5)
+move.b	#2,adsr-var0(a5)
+bra.s	decv
+
+release:
+move.l	samdata-var0(a5),a3
+move.w	20(a3),d0
+sub.w	d0,volume-var0(a5)
+bpl.s	decv
+clr.w	volume-var0(a5)
+
+decv:
+;arpeggio (28.b*4)
+
+moveq	#0,d1
+moveq	#0,d0
+move.b	arpsel-var0(a5),d0
+move.l	#arptabptr,a3
+move.l	(a3,d0),a4;start addr. of current arpeggio table
+move.b	arpptr-var0(a5),d0;arpeggio pointer
+
+rere:
+move.b	(a4,d0),d1
+cmp.b	#$ff,d1
+bne.s	notreld
+clr.b	d0
+move.b	(a4,d0),d0
+bra.s	rere
+
+notreld:
+cmp	#$fe,d1
+beq.s	endarp
+
+addq.b	#1,d0
+move.b	d0,arpptr-var0(a5)
+cmp.b	#$80,d1
+bpl.s	only
+
+add.b	note-var0(a5),d1
+
+only:
+and.b	#$7f,d1
+move.l	#audpertab,a3
+asl.b	#1,d1
+move.w	(a3,d1),freq-var0(a5)
+
+endarp:
+subq.b	#4,d4
+bpl.L	nextvoice
+rts
+
+setallreg:
+and.b	#1,musicon
+bne.s	setthemthen
+rts
+
+setthemthen:
+moveq	#0,d4
+move.b	novoices,d4
+lea	$dff0a6,a4
+moveq	#0,d3
+nextv2:
+move.l	#varstart,a5
+move.l	(a5,d4),a5
+
+move.b	regstart-var0(a5),d3
+move.w	freq-var0(a5),(a4,d3)
+
+move.w	volume-var0(a5),2(a4,d3)
+
+move.w	setaud-var0(a5),$dff096
+
+subq.b	#4,d4
+bpl.s	nextv2
+rts
+
+
+setmus:
+clr.b	transpose
+clr.b	transpose-var0+var1
+clr.b	transpose-var0+var2
+clr.b	transpose-var0+var3
+
+clr.b	nlen
+clr.b	nlen-var0+var1
+clr.b	nlen-var0+var2
+clr.b	nlen-var0+var3
+
+clr.b	seqptr
+clr.b	seqptr-var0+var1
+clr.b	seqptr-var0+var2
+clr.b	seqptr-var0+var3
+
+clr.b	seqno
+clr.b	seqno-var0+var1
+clr.b	seqno-var0+var2
+clr.b	seqno-var0+var3
+
+move.b	#2,adsr
+move.b	#2,adsr-var0+var1
+move.b	#2,adsr-var0+var2
+move.b	#2,adsr-var0+var3
+
+clr.b	gate
+clr.b	gate-var0+var1
+clr.b	gate-var0+var2
+clr.b	gate-var0+var3
+
+clr.w	volume
+clr.w	volume-var0+var1
+clr.w	volume-var0+var2
+clr.w	volume-var0+var3
+
+lea	voistart,a4
+move.l	(a4,d0),vdata
+move.l	4(a4,d0),vdata-var0+var1
+move.l	8(a4,d0),vdata-var0+var2
+move.l	12(a4,d0),vdata-var0+var3
+move.b	16(a4,d0),novoices
+move.b	17(a4,d0),tempo
+move.w	#$000f,$dff096
+move.b	#1,musicon
+rts
+
+clearmusic:
+clr.b	musicon
+move.w	#$000f,$dff096
+rts
+
+even
+voistart:
+dc.l	seqseq0,seqseq1,seqseq2,seqseq3
+dc.b	12,2;(#voices-1)*4,tempo
+dc.l	seqseq4,seqseq5,seqseq6,seqseq7
+dc.b	12,4
+
+hold:		dc.b	0
+tempocnt:	dc.b	0
+tempo:		dc.b	0
+novoices:	dc.b	0
+musicon:	dc.b	0
+even
+
+var0:
+nlen:		dc.b	0
+seqno:		dc.b	0
+seqptr:		dc.b	0
+note:		dc.b	0
+enote:		dc.b	0
+adsr:		dc.b	0
+gate:		dc.b	0
+vibdirec:	dc.b	0
+regstart:	dc.b	$00
+even
+brate:		dc.w	0
+vibdircnt:	dc.w	0
+freq:		dc.w	0
+framecount:	dc.w	0
+volume:		dc.w	0
+clearaud:	dc.w	$0001
+setaud:		dc.w	$8001
+samdata:	dc.l	0
+vdata:		dc.l	seqseq0
+arpptr:		dc.b	0
+even
+pulseptr:	dc.l	0
+arpsel:		dc.b	0
+transpose:	dc.b	0
+even
+var1:
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	$10
+even
+	dc.w	0
+	dc.w	0
+	dc.w	0
+	dc.w	0
+	dc.w	0
+	dc.w	$0002
+	dc.w	$8002
+	dc.l	0
+	dc.l	seqseq1
+	dc.b	0
+even
+	dc.l	0
+	dc.b	0
+	dc.b	0
+even
+var2:
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	$20
+even
+	dc.w	0
+	dc.w	0
+	dc.w	0
+	dc.w	0
+	dc.w	0
+	dc.w	$0004
+	dc.w	$8004
+	dc.l	0
+	dc.l	seqseq2
+	dc.b	0
+even
+	dc.l	0
+	dc.b	0
+	dc.b	0
+even
+var3:
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	0
+	dc.b	$30
+even
+	dc.w	0
+	dc.w	0
+	dc.w	0
+	dc.w	0
+	dc.w	0
+	dc.w	$0008
+	dc.w	$8008
+	dc.l	0
+	dc.l	seqseq3
+	dc.b	0
+even
+	dc.l	0
+	dc.b	0
+	dc.b	0
+even
+varstart:	dc.l	var0,var1,var2,var3
+
+seqstart:
+		dc.l	s00,s01,s02,s03,s04,s05,s06,s07
+		dc.l	s08,s09,s0a,s0b,s0c,s0d,s0e,s0f
+		dc.l	s10,s11,s12,s13,s14,s15,s16,s17
+		dc.l	s18,s19,s1a,s1b,s1c,s1d,s1e,s1f
+		dc.l	s20,s21,s22,s23,s24,s25,s26,s27
+;		dc.l	s28,s29,s2a,s2b,s2c,s2d,s2e,s2f
+;		dc.l	s30,s31,s32,s33,s34,s35,s36,s37
+;		dc.l	s38,s39,s3a,s3b,s3c,s3d,s3e,s3f
+; 		dc.l	s40,s41,s42,s43,s44,s45,s46,s47
+;		dc.l	s48,s49,s4a,s4b,s4c,s4d,s4e,s4f
+;		dc.l	s50,s51,s52,s53,s54,s55,s56,s57
+
+seq:
+
+seqseq0:	dc.b	$01
+		dc.b	$01,$01,$01,$05
+		dc.b	$01,$01,$01,$05
+		dc.b	$01,$01,$01,$05
+		dc.b	$01,$01,$01,$05
+		dc.b	$01,$01,$01,$05
+		dc.b	$01,$01,$01,$05
+		dc.b	$ff
+seqseq1:
+		dc.b	0
+		dc.b	$02,$06
+		dc.b	$0b
+		dc.b	$0e
+		dc.b	$0b
+		dc.b	$0e
+		dc.b	$0b
+		dc.b	$ff
+seqseq2:
+		dc.b	0
+		dc.b 	$03,$07
+		dc.b 	$09,$09
+		dc.b	$0c
+		dc.b 	$09,$09
+		dc.b	$0c
+		dc.b 	$09,$09
+		dc.b	$ff
+
+seqseq3:
+		dc.b	0
+		dc.b	$04,$08
+		dc.b	$0a
+		dc.b	$0d
+		dc.b	$0a
+		dc.b	$0d
+		dc.b	$0a
+		dc.b	$ff
+
+seqseq4:
+seqseq5:
+seqseq6:
+seqseq7:
+
+s00:	dc.b	$df,$df,$ff
+
+s01:	dc.b	$83,$00,$16
+	dc.b	$81,$06,$0e,$01,$0a
+	dc.b	$87,$01,$13
+	dc.b	$83,$06,$0a
+	dc.b	$83,$00,$16
+	dc.b	$87,$01,$13
+	dc.b	$83,$00,$16,$81,$06,$0a,$01,$0e
+	dc.b	$85,$01,$13,$81,$06,$0e
+	dc.b	$83,$00,$16,$81,$06,$0a
+	dc.b	$81,$01,$13
+	dc.b	$83,$01,$13
+	dc.b	$83,$02,$13
+	dc.b	$ff
+
+s02:	dc.b	$97,$08,$0c,$c7
+	dc.b	$97,$08,$0c,$c7
+	dc.b	$97,$08,$0e,$c7
+	dc.b	$97,$08,$0c,$c7
+	dc.b	$ff
+	
+s03:	dc.b	$c0
+	dc.b	$96,$08,$11,$c3,$00,$10,$c3
+	dc.b	$8f,$08,$10,$c6,$05,$0e,$c2
+	dc.b	$9b,$08,$11,$c3
+	dc.b	$98,$08,$10,$c5
+	dc.b	$ff
+	
+s04:	dc.b	$c1
+	dc.b	$93,$08,$15,$c5,$00,$13,$c4
+	dc.b	$91,$08,$13,$c3,$06,$11,$c2
+	dc.b	$92,$08,$16,$c5,$03,$15,$c2
+	dc.b	$93,$08,$13,$c1,$02,$11,$c0,$02,$13,$c0
+	dc.b	$ff
+	
+s05:
+	dc.b	$83,$00,$16
+	dc.b	$81,$06,$0e,$01,$0a
+	dc.b	$87,$01,$13
+	dc.b	$83,$06,$0a
+	dc.b	$83,$00,$16
+	dc.b	$87,$01,$13
+	dc.b	$87,$00,$16,$85,$06,$0a,$01,$0e
+	dc.b	$87,$01,$13,$87,$02,$13
+	dc.b	$ff
+
+s06:	dc.b	$97,$08,$0c,$c7
+	dc.b	$97,$08,$0c,$c7
+	dc.b	$97,$08,$0e,$c7
+	dc.b	$8f,$08,$0c,$c7
+	dc.b	$81,$03,$1d,$c1,$82,$0d,$18,$c0
+	dc.b	$ff
+	
+s07:	dc.b	$c0
+	dc.b	$96,$08,$11,$c3,$00,$10,$c3
+	dc.b	$93,$08,$10,$c2,$05,$0e,$c2
+	dc.b	$99,$08,$11,$c5
+	dc.b	$98,$08,$10,$c5
+	dc.b	$ff
+		
+s08:	dc.b	$c1
+	dc.b	$93,$08,$15,$c5,$00,$13,$c4
+	dc.b	$91,$08,$13,$c3,$06,$11,$c2
+	dc.b	$8f,$08,$16,$c5,$03,$15,$c5
+	dc.b	$97,$08,$13,$c5
+	dc.b	$ff
+	
+s09:
+	dc.b	$97,$08,$11,$c3,$00,$10,$c2
+	dc.b	$93,$08,$10,$c3,$05,$0e,$c1
+	dc.b	$9b,$08,$11,$c3
+	dc.b	$9b,$08,$10,$c3
+	dc.b	$ff
+	
+s0a:	dc.b	$c0
+	dc.b	$97,$08,$15,$c2,$00,$13,$c3
+	dc.b	$93,$08,$13,$c2,$05,$11,$c2
+	dc.b	$8f,$08,$16,$c2,$09,$15,$c2
+	dc.b	$93,$08,$13,$c2,$02,$11,$c0,$02,$13,$c1
+	dc.b	$97,$08,$15,$c2,$00,$13,$c3
+	dc.b	$93,$08,$13,$c2,$05,$11,$c2
+	dc.b	$8f,$08,$16,$c2,$09,$15,$c2
+	dc.b	$9b,$08,$13,$c2
+	dc.b	$ff
+
+
+s0b:	dc.b	$80,$0a,$18,$6e,$07,$1a,$18
+	dc.b	$c7
+	dc.b	$80,$0a,$18,$62,$06,$1a,$18
+	dc.b	$82,$05,$18,$c0
+	dc.b	$93,$04,$18,$c3,$83,$04,$1a,$c3
+	dc.b	$80,$0a,$1a,$6e,$03,$1b,$1a
+	dc.b	$80,$05,$18,$64,$09,$1a,$18
+	dc.b	$05,$18,$83,$04,$18
+	dc.b	$80,$03,$1c,$62,$03,$1d,$1c,$07,$1c,$c3
+	dc.b	$83,$05,$18,$03,$1a,$07,$1c
+	dc.b	$80,$05,$1c,$6a,$03,$1d,$1c
+	dc.b	$80,$0b,$1d,$66,$06,$1f,$1d
+	dc.b	$67,$e0,$1d,$1e
+	dc.b	$80,$05,$1a,$60,$05,$1c,$1a
+	dc.b	$01,$1a
+	dc.b	$17,$18,$c3,$81,$0b,$1a,$61,$e0,$18,$1a
+	dc.b	$80,$0b,$18,$6b,$05,$1a,$18,$c2
+	dc.b	$80,$05,$1a,$c4
+	dc.b	$00,$16,$64,$0c,$18,$16
+	dc.b	$80,$04,$1b,$c2
+	dc.b	$00,$18,$62,$06,$1a,$18
+	dc.b	$07,$18,$c7
+	dc.b	$80,$03,$18,$c0
+	dc.b	$80,$03,$1a,$c0
+	dc.b	$80,$03,$1c,$c0
+	dc.b	$80,$03,$1d,$c0
+	dc.b	$80,$04,$18,$c0
+	dc.b	$80,$04,$1a,$c0
+	dc.b	$ff
+
+s0c:	dc.b	$9b,$08,$0f,$c3
+	dc.b	$9b,$08,$0e,$c3
+	dc.b	$9b,$08,$0f,$c3
+	dc.b	$9b,$08,$0e,$c3
+	dc.b	$ff	
+
+s0d:	dc.b	$c0
+	dc.b	$9b,$08,$13,$c3
+	dc.b	$9b,$08,$11,$c3
+	dc.b	$9b,$08,$13,$c3
+	dc.b	$9b,$08,$11,$c2
+	dc.b	$ff	
+
+s0e:	dc.b	$8b,$04,$1b
+
+	dc.b	$80,$05,$18,$c0
+	dc.b	$80,$05,$1a,$c0
+	dc.b	$80,$05,$1a,$60,$10,$1b,$1a
+	dc.b	$80,$05,$1a,$c0
+	dc.b	$80,$05,$18,$c0
+	dc.b	$80,$04,$1b,$c0
+	dc.b	$80,$05,$17,$60,$10,$18,$17
+	dc.b	$80,$04,$1b,$c0
+	dc.b	$80,$04,$1a,$c0
+	dc.b	$80,$0a,$18,$c0
+	dc.b	$80,$0a,$18,$6a,$06,$1a,$18
+
+	dc.b	$83,$03,$1a
+	dc.b	$80,$04,$18,$62,$10,$1a,$18
+	dc.b	$00,$18,$c2
+	dc.b	$80,$04,$1b,$c2
+	dc.b	$80,$04,$1a,$c2
+
+	dc.b	$8b,$04,$1b
+
+	dc.b	$80,$05,$18,$c0
+	dc.b	$80,$05,$1a,$c0
+	dc.b	$80,$05,$1a,$60,$08,$1b,$1a
+	dc.b	$80,$05,$1a,$c0
+	dc.b	$80,$05,$18,$c0
+	dc.b	$80,$04,$1b,$c0
+	dc.b	$80,$05,$17,$60,$08,$18,$17
+	dc.b	$80,$04,$1b,$c0
+	dc.b	$80,$04,$1a,$c0
+	dc.b	$80,$0a,$18,$c0
+	
+	dc.b	$80,$03,$1d,$c0
+	dc.b	$80,$04,$18,$c0
+	dc.b	$80,$03,$1d,$c0
+	dc.b	$00,$1a,$c0
+	dc.b	$80,$09,$1b,$66,$10,$1d,$1b,$c7
+	dc.b	$80,$03,$1d,$c2
+	dc.b	$80,$04,$18,$c2
+	dc.b	$ff	
+
+s0f:
+s10:
+s11:
+s12:
+s13:
+s14:
+s15:
+s16:
+s17:
+s18:
+s19:
+s1a:
+s1b:
+s1c:
+s1d:
+s1e:
+s1f:
+s20:
+s21:
+s22:
+s23:
+s24:
+s25:
+s26:
+s27:
+s28:
+
+
+even
+audpertab:
+;c0
+	dc.w	856
+	dc.w	808,762,720,678,640,604,570,538
+	dc.w	508,480,453
+;c1
+	dc.w	428,404,381,360,339
+	dc.w	320,302,285,269,254,240,226
+;c2	
+	dc.w	214
+	dc.w	202,190,180,170,160,151,143,135
+	dc.w	127,120,114
+;c3	
+	dc.w	80,80,80,80
+
+samdatptr:
+	dc.l	sa00,sa01,sa02,sa03,sa04,sa05,sa06,sa07,sa08,sa09
+	dc.l	sa0a,sa0b,sa0c,sa0d,sa0e,sa0f   ;,sa10,sa11,sa12,sa13
+;	dc.l	sa14,sa15,sa16,sa17,sa18,sa19,sa1a,sa1b,sa1c,sa1d
+;	dc.l	sa1e,sa1f,sa20,sa21
+
+x00=5754     	;saltkick
+x01=3972	;madsnare
+x02=6002	;sax c
+x03=5910	;conga
+x04=20618       ;e-piano
+x05=5064 	;sax g
+x06=6342	;sac c2
+x07=0
+x08=0
+x09=0
+x0a=0
+x0b=0
+x0c=0
+x0d=0
+x0e=0
+
+
+
+>extern "df0:hiscore samp",sam
+
+even
+sa00:				;saltkick
+dc.w	$0034;"master" volume
+dc.w	x00/2;load length
+dc.l	sam;loadup position
+dc.l	silence;reload position
+dc.w	2;reload length
+dc.w	$0034;atk rate
+dc.w	$0000;dcy rate
+dc.w	$0034;sustain level
+dc.w	$0001;release rate
+dc.w	$0000;vib delay
+dc.w	$0000;vib speed
+dc.w	$0000;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa01:				;madsnare
+dc.w	$003c;"master" volume
+dc.w	x01/2;load length
+dc.l	sam+x00;loadup position
+dc.l    silence;reload position
+dc.w	2;reload length
+dc.w	$003c;atk rate
+dc.w	$0000;dcy rate
+dc.w	$003c;sustain level
+dc.w	$0001;release rate
+dc.w	$0000;vib delay
+dc.w	$0000;vib speed
+dc.w	$0000;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa02:				;madsnare vol 2
+dc.w	$0010;"master" volume
+dc.w	x01/2;load length
+dc.l	sam+x00;loadup position
+dc.l    silence;reload position
+dc.w	2;reload length
+dc.w	$0010;atk rate
+dc.w	$0010;dcy rate
+dc.w	$0010;sustain level
+dc.w	$0001;release rate
+dc.w	$0000;vib delay
+dc.w	$0000;vib speed
+dc.w	$0000;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa03:				;sax vol 1 c1
+dc.w	$001c;"master" volume
+dc.w	x02/2;load length
+dc.l	sam+x00+x01;loadup position
+dc.l    sam+x00+x01+$0d10;reload position
+dc.w	x02-$0d10/2;reload length
+dc.w	$001c;atk rate
+dc.w	$001c;dcy rate
+dc.w	$001c;sustain level
+dc.w	$0001;release rate
+dc.w	$000c;vib delay
+dc.w	$0004;vib speed
+dc.w	$0001;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa04:				;sax vol 1 g
+dc.w	$0020;"master" volume
+dc.w	x05/2;load length
+dc.l	sam+x00+x01+x02+x03+x04;loadup position
+dc.l    sam+x00+x01+x02+x03+x04+$0c04;reload position
+dc.w	x05-$0c04/2;reload length
+dc.w	$0020;atk rate
+dc.w	$0020;dcy rate
+dc.w	$0020;sustain level
+dc.w	$0001;release rate
+dc.w	$000a;vib delay
+dc.w	$0004;vib speed
+dc.w	$0001;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa05:				;sax vol 1 c2
+dc.w	$001c;"master" volume
+dc.w	x06/2;load length
+dc.l	sam+x00+x01+x02+x03+x04+x05;loadup position
+dc.l    sam+x00+x01+x02+x03+x04+x05+$11f8;reload position
+dc.w	x06-$11f8/2;reload length
+dc.w	$001c;atk rate
+dc.w	$001c;dcy rate
+dc.w	$001c;sustain level
+dc.w	$0001;release rate
+dc.w	$000a;vib delay
+dc.w	$0004;vib speed
+dc.w	$0001;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa06:				;conga
+dc.w	$0014;"master" volume
+dc.w	x03/2;load length
+dc.l	sam+x00+x01+x02;loadup position
+dc.l    silence;reload position
+dc.w	2;reload length
+dc.w	$0014;atk rate
+dc.w	$0014;dcy rate
+dc.w	$0014;sustain level
+dc.w	$0001;release rate
+dc.w	$0000;vib delay
+dc.w	$0000;vib speed
+dc.w	$0000;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa07:				;conga vol 2
+dc.w	$000c;"master" volume
+dc.w	x03/2;load length
+dc.l	sam+x00+x01+x02;loadup position
+dc.l    silence;reload position
+dc.w	2;reload length
+dc.w	$000c;atk rate
+dc.w	$0000;dcy rate
+dc.w	$000c;sustain level
+dc.w	$0001;release rate
+dc.w	$0000;vib delay
+dc.w	$0000;vib speed
+dc.w	$0000;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa08:				;e-piano
+dc.w	$0010;"master" volume
+dc.w	x04/2;load length
+dc.l	sam+x00+x01+x02+x03;loadup position
+dc.l    sam+x00+x01+x02+x03+$3558;reload position
+dc.w	x04-$3558/2;reload length
+dc.w	$0010;atk rate
+dc.w	$0000;dcy rate
+dc.w	$0010;sustain level
+dc.w	$0001;release rate
+dc.w	$0000;vib delay
+dc.w	$0000;vib speed
+dc.w	$0000;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa09:				;sax vol 1 rele c1
+dc.w	$001c;"master" volume
+dc.w	x02/2;load length
+dc.l	sam+x00+x01;loadup position
+dc.l    sam+x00+x01+$0d10;reload position
+dc.w	x02-$0d10/2;reload length
+dc.w	$001c;atk rate
+dc.w	$001c;dcy rate
+dc.w	$001c;sustain level
+dc.w	$0000;release rate
+dc.w	$000c;vib delay
+dc.w	$0004;vib speed
+dc.w	$0001;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa0a:				;sax vol 1 rele g
+dc.w	$001f;"master" volume
+dc.w	x05/2;load length
+dc.l	sam+x00+x01+x02+x03+x04;loadup position
+dc.l    sam+x00+x01+x02+x03+x04+$0c04;reload position
+dc.w	x05-$0c04/2;reload length
+dc.w	$001f;atk rate
+dc.w	$001f;dcy rate
+dc.w	$001f;sustain level
+dc.w	$0000;release rate
+dc.w	$000a;vib delay
+dc.w	$0004;vib speed
+dc.w	$0001;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa0b:				;sax vol 1 c2 rele
+dc.w	$001c;"master" volume
+dc.w	x06/2;load length
+dc.l	sam+x00+x01+x02+x03+x04+x05;loadup position
+dc.l    sam+x00+x01+x02+x03+x04+x05+$11f8;reload position
+dc.w	x06-$11f8/2;reload length
+dc.w	$001c;atk rate
+dc.w	$001c;dcy rate
+dc.w	$001c;sustain level
+dc.w	$0000;release rate
+dc.w	$000a;vib delay
+dc.w	$0004;vib speed
+dc.w	$0001;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa0c:				;sax vol 1 rele c1 off
+dc.w	$001c;"master" volume
+dc.w	x02/2;load length
+dc.l	sam+x00+x01;loadup position
+dc.l    sam+x00+x01+$0d10;reload position
+dc.w	x02-$0d10/2;reload length
+dc.w	$001c;atk rate
+dc.w	$001c;dcy rate
+dc.w	$001c;sustain level
+dc.w	$000c;release rate
+dc.w	$000c;vib delay
+dc.w	$0004;vib speed
+dc.w	$0001;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa0d:				;sax vol 1 rele g off
+dc.w	$001f;"master" volume
+dc.w	x05/2;load length
+dc.l	sam+x00+x01+x02+x03+x04;loadup position
+dc.l    sam+x00+x01+x02+x03+x04+$0c04;reload position
+dc.w	x05-$0c04/2;reload length
+dc.w	$001f;atk rate
+dc.w	$001f;dcy rate
+dc.w	$001f;sustain level
+dc.w	$000c;release rate
+dc.w	$000a;vib delay
+dc.w	$0004;vib speed
+dc.w	$0001;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa0e:				;sax vol 1 c2 rele off
+dc.w	$001c;"master" volume
+dc.w	x06/2;load length
+dc.l	sam+x00+x01+x02+x03+x04+x05;loadup position
+dc.l    sam+x00+x01+x02+x03+x04+x05+$11f8;reload position
+dc.w	x06-$11f8/2;reload length
+dc.w	$001c;atk rate
+dc.w	$001c;dcy rate
+dc.w	$001c;sustain level
+dc.w	$000c;release rate
+dc.w	$000a;vib delay
+dc.w	$0004;vib speed
+dc.w	$0001;vib rate
+dc.w	$0000;arpeggio select
+dc.w	$0000;trigger release delay
+dc.w	$0000;pulse on/off
+
+sa0f:
+even
+silence:
+dc.w	0,0,0,0,0,0,0,0,0
+
+
+even
+arptabptr:
+		dc.l	arp0,arp1,arp2,arp3,arp4,arp5,arp6,arp7
+
+
+arp0:		dc.b	$00,$00,$fe;0
+arp1:		dc.b	$03,$8c,$8e,$92,$98,$90,$96,$8e 
+		dc.b	$94,$8c,$92,$8a,$90,$88,$8e,$86,$8c,$84,$ff;4
+arp2:		dc.b	$00,$90,$92,$fe
+arp3:		dc.b	$00,$01,$00,$fe
+arp4:
+arp5:
+arp6:
+arp7:
+
+even
+
+end:
+even
+
+
+sam = $25000

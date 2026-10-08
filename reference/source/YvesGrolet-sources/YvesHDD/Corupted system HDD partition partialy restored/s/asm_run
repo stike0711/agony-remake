@@ -1,0 +1,18 @@
+rm $asm_project
+cls
+echo
+echo
+
+genam $asm_project.s
+
+echo
+echo
+echo Executing $asm_project
+
+$asm_project
+
+echo
+echo
+echo Done
+echo
+

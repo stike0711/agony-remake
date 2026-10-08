@@ -1,0 +1,25 @@
+
+
+
+
+		   TFMX-Soundtool V1.5 (CLI-menu)
+		   ------------------------------
+	  Press HELP-key to show this menu again
+
+	  For 512 K machines
+	  F1  Editor - 16 colors/145 K samples/25 K musicdata
+	  F2  Editor -  4 colors/225 K samples/25 K musicdata
+
+	  For machines with more than 512 K
+	  F3  Editor - 16 colors/275 K samples/50 K musicdata
+	  F4  Editor -  4 colors/355 K samples/50 K musicdata
+
+	  TFMX-utilities
+	  F6  Initialize new datadisk
+	  F7  Toggle keymap (usa/d)
+	  F9  Disconnect title
+	  F10 Connect    title
+
+	  Editorprogramming : Peter W. Thierolf	  
+	  Concept & Player  : Chris Huelsbeck
+

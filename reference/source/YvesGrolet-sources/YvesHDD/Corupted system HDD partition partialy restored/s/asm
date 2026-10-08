@@ -1,0 +1,28 @@
+
+resident sys:dev_util/devpac/genam
+
+set asm_project Arny's_Dreams
+
+set default_edit AD_Hardware.s AD_Game_Init.s AD_Game_Loop.s AD_Game_Sub.s AD_Data.s
+
+cls
+echo
+echo Opening project : $asm_project
+echo
+echo
+
+assign env: ram:
+set F1 "genam $asm_project.s\12"
+set F2 "x s:asm_run\12"
+set F3 "monam $asm_project\12"
+set F4 "monam\12"
+set F5 "$asm_project\12"
+
+set F6 "genam $asm_project.s -oram:$asm_project\12"
+set F7 "x s:ram_asm_run\12"
+set F8 "monam ram:$asm_project\12"
+set F9 "monam2 ram:$asm_project\12"
+set F10 "ram:$asm_project\12"
+
+cd work:$asm_project
+ced $asm_project.s $default_edit

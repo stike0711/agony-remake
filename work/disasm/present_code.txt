@@ -1,0 +1,1117 @@
+000600  move.l    d0, -(a7)
+000602  move.l    $DFF004.l, d0
+000608  andi.l    #$1ff00, d0
+00060E  cmp.l     #$1000, d0
+000614  bne.b     $602
+000616  move.l    (a7)+, d0
+000618  lea.l     $DFF000.l, a6
+00061E  move.w    #$7fff, d0
+000622  move.w    d0, $9a(a6)
+000626  move.w    d0, $9c(a6)
+00062A  move.w    d0, $96(a6)
+00062E  move.l    #$10ba, $80(a6)
+000636  move.w    d0, $88(a6)
+00063A  move.l    #$3c00d4, $92(a6)
+000642  move.l    #$500050, $108(a6)
+00064A  move.w    #$c204, $100(a6)
+000650  clr.l     $102(a6)
+000654  move.w    #$2000, sr
+000658  lea.l     $0010B4.l, a1
+00065E  move.l    #$10be, d0
+000664  move.w    d0, $4(a1)
+000668  swap      d0
+00066A  move.w    d0, (a1)
+00066C  lea.l     $0010E0.l, a1
+000672  move.l    #$1092, d0
+000678  move.w    d0, $4(a1)
+00067C  swap      d0
+00067E  move.w    d0, (a1)
+000680  lea.l     $00110C.l, a1
+000686  move.l    #$12c2, d0
+00068C  move.w    d0, $4(a1)
+000690  swap      d0
+000692  move.w    d0, (a1)
+000694  lea.l     $0012E4.l, a1
+00069A  move.l    #$10ea, d0
+0006A0  move.w    d0, $4(a1)
+0006A4  swap      d0
+0006A6  move.w    d0, (a1)
+0006A8  move.l    #$ef0, $6c.l
+0006B2  move.w    #$c020, $9a(a6)
+0006B8  move.l    #$ff811ac1, $8e(a6)
+0006C0  lea.l     $001094.l, a1
+0006C6  move.l    #$14168, d0
+0006CC  moveq     #$3, d1
+0006CE  move.w    d0, $4(a1)
+0006D2  swap      d0
+0006D4  move.w    d0, (a1)
+0006D6  swap      d0
+0006D8  addq.w    #$8, a1
+0006DA  addi.l    #$1220, d0
+0006E0  dbra      d1, $6ce
+0006E4  lea.l     $0010C0.l, a1
+0006EA  move.l    #$141b8, d0
+0006F0  moveq     #$3, d1
+0006F2  move.w    d0, $4(a1)
+0006F6  swap      d0
+0006F8  move.w    d0, (a1)
+0006FA  swap      d0
+0006FC  addq.w    #$8, a1
+0006FE  addi.l    #$1220, d0
+000704  dbra      d1, $6f2
+000708  move.l    d0, -(a7)
+00070A  move.l    $DFF004.l, d0
+000710  andi.l    #$1ff00, d0
+000716  cmp.l     #$1000, d0
+00071C  bne.b     $70a
+00071E  move.l    (a7)+, d0
+000720  clr.w     $2a(a6)
+000724  move.l    #$10be, $80(a6)
+00072C  move.w    d0, $88(a6)
+000730  move.l    #$3eef8, $a0(a6)
+000738  move.l    #$49e3a, $b0(a6)
+000740  move.w    #$5799, d0
+000744  move.w    d0, $a4(a6)
+000748  move.w    d0, $b4(a6)
+00074C  move.w    #$f4, d0
+000750  move.w    d0, $a6(a6)
+000754  move.w    d0, $b6(a6)
+000758  move.w    d0, $0014CC.l
+00075E  moveq     #$0, d0
+000760  move.w    d0, $a8(a6)
+000764  move.w    d0, $b8(a6)
+000768  move.w    d0, $0014D0.l
+00076E  bset.b    #$1, $BFE001.l
+000776  move.w    #$8783, $96(a6)
+00077C  lea.l     $0189E8.l, a0
+000782  bsr.w     $d9e
+000786  move.w    #$32, d0
+00078A  bsr.w     $ebc
+00078E  bsr.w     $e42
+000792  move.l    #$5481ccc1, $8e(a6)
+00079A  lea.l     $0010EC.l, a1
+0007A0  move.l    #$1548, d0
+0007A6  moveq     #$3, d1
+0007A8  move.w    d0, $4(a1)
+0007AC  swap      d0
+0007AE  move.w    d0, (a1)
+0007B0  swap      d0
+0007B2  addq.w    #$8, a1
+0007B4  addi.l    #$4b00, d0
+0007BA  dbra      d1, $7a8
+0007BE  lea.l     $0012C4.l, a1
+0007C4  move.l    #$1598, d0
+0007CA  moveq     #$3, d1
+0007CC  move.w    d0, $4(a1)
+0007D0  swap      d0
+0007D2  move.w    d0, (a1)
+0007D4  swap      d0
+0007D6  addq.w    #$8, a1
+0007D8  addi.l    #$4b00, d0
+0007DE  dbra      d1, $7cc
+0007E2  lea.l     $001094.l, a1
+0007E8  move.l    #$1548, d0
+0007EE  moveq     #$3, d1
+0007F0  move.w    d0, $4(a1)
+0007F4  swap      d0
+0007F6  move.w    d0, (a1)
+0007F8  swap      d0
+0007FA  addq.w    #$8, a1
+0007FC  addi.l    #$4b00, d0
+000802  dbra      d1, $7f0
+000806  lea.l     $0010C0.l, a1
+00080C  move.l    #$1598, d0
+000812  moveq     #$3, d1
+000814  move.w    d0, $4(a1)
+000818  swap      d0
+00081A  move.w    d0, (a1)
+00081C  swap      d0
+00081E  addq.w    #$8, a1
+000820  addi.l    #$4b00, d0
+000826  dbra      d1, $814
+00082A  move.l    d0, -(a7)
+00082C  move.l    $DFF004.l, d0
+000832  andi.l    #$1ff00, d0
+000838  cmp.l     #$1000, d0
+00083E  bne.b     $82c
+000840  move.l    (a7)+, d0
+000842  clr.w     $2a(a6)
+000846  move.l    #$12c2, $80(a6)
+00084E  move.w    d0, $88(a6)
+000852  clr.w     $0014CA.l
+000858  tst.w     $0014CA.l
+00085E  beq.b     $858
+000860  moveq     #$34, d1
+000862  lea.l     $001116.l, a0
+000868  lea.l     $0012EE.l, a1
+00086E  lea.l     $0014D6.l, a3
+000874  subq.w    #$1, (a3)
+000876  bmi.w     $896
+00087A  move.w    (a3)+, d0
+00087C  cmp.w     #$ff, d0
+000880  blt.w     $888
+000884  move.w    #$ff, d0
+000888  move.b    d0, (a0)
+00088A  move.b    d0, (a1)
+00088C  addq.w    #$8, a0
+00088E  addq.w    #$8, a1
+000890  dbra      d1, $874
+000894  bra.b     $852
+000896  move.l    #$54d90, $c0(a6)
+00089E  move.w    #$4301, $c4(a6)
+0008A4  move.w    #$c2, $c6(a6)
+0008AA  move.w    #$3f, $c8(a6)
+0008B0  move.w    #$8004, $96(a6)
+0008B6  lea.l     $014148.l, a0
+0008BC  bsr.w     $d9e
+0008C0  lea.l     $00110C.l, a1
+0008C6  move.l    #$10be, d0
+0008CC  move.w    d0, $4(a1)
+0008D0  swap      d0
+0008D2  move.w    d0, (a1)
+0008D4  lea.l     $0012E4.l, a1
+0008DA  move.l    #$1092, d0
+0008E0  move.w    d0, $4(a1)
+0008E4  swap      d0
+0008E6  move.w    d0, (a1)
+0008E8  move.w    #$200, $9c(a6)
+0008EE  move.w    $1e(a6), d0
+0008F2  btst.b    #$9, d0
+0008F6  beq.b     $8ee
+0008F8  move.w    #$4, $96(a6)
+0008FE  move.w    #$19, d0
+000902  bsr.w     $ebc
+000906  move.l    #$54d90, $d0(a6)
+00090E  move.w    #$4301, $d4(a6)
+000914  move.w    #$d9, $d6(a6)
+00091A  move.w    #$3f, $d8(a6)
+000920  move.w    #$8008, $96(a6)
+000926  bsr.w     $e42
+00092A  move.w    #$400, $9c(a6)
+000930  move.w    $1e(a6), d0
+000934  btst.b    #$a, d0
+000938  beq.b     $930
+00093A  move.w    #$8, $96(a6)
+000940  move.l    #$8a8196c1, $8e(a6)
+000948  lea.l     $001094.l, a1
+00094E  move.l    #$39248, d0
+000954  moveq     #$3, d1
+000956  move.w    d0, $4(a1)
+00095A  swap      d0
+00095C  move.w    d0, (a1)
+00095E  swap      d0
+000960  addq.w    #$8, a1
+000962  addi.l    #$15e0, d0
+000968  dbra      d1, $956
+00096C  lea.l     $0010C0.l, a1
+000972  move.l    #$39298, d0
+000978  moveq     #$3, d1
+00097A  move.w    d0, $4(a1)
+00097E  swap      d0
+000980  move.w    d0, (a1)
+000982  swap      d0
+000984  addq.w    #$8, a1
+000986  addi.l    #$15e0, d0
+00098C  dbra      d1, $97a
+000990  move.l    d0, -(a7)
+000992  move.l    $DFF004.l, d0
+000998  andi.l    #$1ff00, d0
+00099E  cmp.l     #$1000, d0
+0009A4  bne.b     $992
+0009A6  move.l    (a7)+, d0
+0009A8  clr.w     $2a(a6)
+0009AC  move.l    #$10be, $80(a6)
+0009B4  move.w    d0, $88(a6)
+0009B8  move.l    #$60a96, $c0(a6)
+0009C0  move.w    #$2c5e, $c4(a6)
+0009C6  move.w    #$98, $c6(a6)
+0009CC  move.l    #$60a96, $d0(a6)
+0009D4  move.w    #$2c5e, $d4(a6)
+0009DA  move.w    #$98, $d6(a6)
+0009E0  clr.w     $c8(a6)
+0009E4  clr.w     $d8(a6)
+0009E8  move.w    #$1, $001540.l
+0009F0  move.w    #$800c, $96(a6)
+0009F6  lea.l     $03E9C8.l, a0
+0009FC  bsr.w     $d9e
+000A00  move.w    #$19, d0
+000A04  bsr.w     $ebc
+000A08  bsr.w     $e42
+000A0C  move.l    d0, -(a7)
+000A0E  move.l    $DFF004.l, d0
+000A14  andi.l    #$1ff00, d0
+000A1A  cmp.l     #$1000, d0
+000A20  bne.b     $a0e
+000A22  move.l    (a7)+, d0
+000A24  move.l    #$6881b8c1, $8e(a6)
+000A2C  lea.l     $001094.l, a1
+000A32  move.l    #$18a08, d0
+000A38  moveq     #$3, d1
+000A3A  move.w    d0, $4(a1)
+000A3E  swap      d0
+000A40  move.w    d0, (a1)
+000A42  swap      d0
+000A44  addq.w    #$8, a1
+000A46  addi.l    #$3200, d0
+000A4C  dbra      d1, $a3a
+000A50  lea.l     $0010C0.l, a1
+000A56  move.l    #$18a58, d0
+000A5C  moveq     #$3, d1
+000A5E  move.w    d0, $4(a1)
+000A62  swap      d0
+000A64  move.w    d0, (a1)
+000A66  swap      d0
+000A68  addq.w    #$8, a1
+000A6A  addi.l    #$3200, d0
+000A70  dbra      d1, $a5e
+000A74  lea.l     $025208.l, a0
+000A7A  bsr.w     $d9e
+000A7E  move.w    #$64, d0
+000A82  bsr.w     $ebc
+000A86  move.w    #$1, $001542.l
+000A8E  bsr.w     $e42
+000A92  move.l    #$8a8193c1, $8e(a6)
+000A9A  lea.l     $001094.l, a1
+000AA0  move.l    #$399c8, d0
+000AA6  moveq     #$3, d1
+000AA8  move.w    d0, $4(a1)
+000AAC  swap      d0
+000AAE  move.w    d0, (a1)
+000AB0  swap      d0
+000AB2  addq.w    #$8, a1
+000AB4  addi.l    #$15e0, d0
+000ABA  dbra      d1, $aa8
+000ABE  lea.l     $0010C0.l, a1
+000AC4  move.l    #$39a18, d0
+000ACA  moveq     #$3, d1
+000ACC  move.w    d0, $4(a1)
+000AD0  swap      d0
+000AD2  move.w    d0, (a1)
+000AD4  swap      d0
+000AD6  addq.w    #$8, a1
+000AD8  addi.l    #$15e0, d0
+000ADE  dbra      d1, $acc
+000AE2  lea.l     $03E9C8.l, a0
+000AE8  bsr.w     $d9e
+000AEC  move.w    #$19, d0
+000AF0  bsr.w     $ebc
+000AF4  bsr.w     $e42
+000AF8  move.l    d0, -(a7)
+000AFA  move.l    $DFF004.l, d0
+000B00  andi.l    #$1ff00, d0
+000B06  cmp.l     #$1000, d0
+000B0C  bne.b     $afa
+000B0E  move.l    (a7)+, d0
+000B10  st.b      $0014D5.l
+000B16  move.l    #$5081d0c1, $8e(a6)
+000B1E  lea.l     $001094.l, a1
+000B24  move.l    #$25228, d0
+000B2A  moveq     #$3, d1
+000B2C  move.w    d0, $4(a1)
+000B30  swap      d0
+000B32  move.w    d0, (a1)
+000B34  swap      d0
+000B36  addq.w    #$8, a1
+000B38  addi.l    #$5000, d0
+000B3E  dbra      d1, $b2c
+000B42  lea.l     $0010C0.l, a1
+000B48  move.l    #$25278, d0
+000B4E  moveq     #$3, d1
+000B50  move.w    d0, $4(a1)
+000B54  swap      d0
+000B56  move.w    d0, (a1)
+000B58  swap      d0
+000B5A  addq.w    #$8, a1
+000B5C  addi.l    #$5000, d0
+000B62  dbra      d1, $b50
+000B66  move.l    d0, -(a7)
+000B68  move.l    $DFF004.l, d0
+000B6E  andi.l    #$1ff00, d0
+000B74  cmp.l     #$1000, d0
+000B7A  bne.b     $b68
+000B7C  move.l    (a7)+, d0
+000B7E  lea.l     $039228.l, a0
+000B84  lea.l     $180(a6), a1
+000B88  lea.l     $0014AA.l, a2
+000B8E  moveq     #$f, d0
+000B90  move.w    (a0)+, d1
+000B92  move.w    d1, (a1)+
+000B94  move.w    d1, (a2)+
+000B96  dbra      d0, $b90
+000B9A  move.l    #$5d3d6, $c0(a6)
+000BA2  move.w    #$1b4d, $c4(a6)
+000BA8  move.w    #$9a, $c6(a6)
+000BAE  move.w    #$3f, $c8(a6)
+000BB4  move.w    #$8004, $96(a6)
+000BBA  move.w    #$a, d0
+000BBE  bsr.w     $ebc
+000BC2  move.l    #$5d3d6, $d0(a6)
+000BCA  move.w    #$1b4d, $d4(a6)
+000BD0  move.w    #$9a, $d6(a6)
+000BD6  move.w    #$32, $d8(a6)
+000BDC  move.w    #$8008, $96(a6)
+000BE2  move.w    #$2, d0
+000BE6  bsr.w     $ebc
+000BEA  move.w    #$200, $9c(a6)
+000BF0  move.w    $1e(a6), d0
+000BF4  btst.b    #$9, d0
+000BF8  beq.b     $bf0
+000BFA  move.w    #$4, $96(a6)
+000C00  move.w    #$400, $9c(a6)
+000C06  move.w    $1e(a6), d0
+000C0A  btst.b    #$9, d0
+000C0E  beq.b     $c06
+000C10  move.w    #$8, $96(a6)
+000C16  move.w    #$1, d0
+000C1A  bsr.w     $ebc
+000C1E  move.l    #$5d3d6, $c0(a6)
+000C26  move.w    #$1b4d, $c4(a6)
+000C2C  move.w    #$9a, $c6(a6)
+000C32  move.w    #$28, $c8(a6)
+000C38  move.w    #$8004, $96(a6)
+000C3E  move.w    #$a, d0
+000C42  bsr.w     $ebc
+000C46  move.l    #$5d3d6, $d0(a6)
+000C4E  move.w    #$1b4d, $d4(a6)
+000C54  move.w    #$9a, $d6(a6)
+000C5A  move.w    #$1e, $d8(a6)
+000C60  move.w    #$8008, $96(a6)
+000C66  move.w    #$2, d0
+000C6A  bsr.w     $ebc
+000C6E  move.w    #$200, $9c(a6)
+000C74  move.w    $1e(a6), d0
+000C78  btst.b    #$9, d0
+000C7C  beq.b     $c74
+000C7E  move.w    #$4, $96(a6)
+000C84  move.w    #$400, $9c(a6)
+000C8A  move.w    $1e(a6), d0
+000C8E  btst.b    #$9, d0
+000C92  beq.b     $c8a
+000C94  move.w    #$8, $96(a6)
+000C9A  move.w    #$1, d0
+000C9E  bsr.w     $ebc
+000CA2  move.l    #$5d3d6, $c0(a6)
+000CAA  move.w    #$1b4d, $c4(a6)
+000CB0  move.w    #$9a, $c6(a6)
+000CB6  move.w    #$14, $c8(a6)
+000CBC  move.w    #$8004, $96(a6)
+000CC2  move.w    #$a, d0
+000CC6  bsr.w     $ebc
+000CCA  move.l    #$5d3d6, $d0(a6)
+000CD2  move.w    #$1b4d, $d4(a6)
+000CD8  move.w    #$9a, $d6(a6)
+000CDE  move.w    #$a, $d8(a6)
+000CE4  move.w    #$8008, $96(a6)
+000CEA  move.w    #$2, d0
+000CEE  bsr.w     $ebc
+000CF2  move.w    #$200, $9c(a6)
+000CF8  move.w    $1e(a6), d0
+000CFC  btst.b    #$9, d0
+000D00  beq.b     $cf8
+000D02  move.w    #$4, $96(a6)
+000D08  move.w    #$400, $9c(a6)
+000D0E  move.w    $1e(a6), d0
+000D12  btst.b    #$9, d0
+000D16  beq.b     $d0e
+000D18  move.w    #$8, $96(a6)
+000D1E  move.w    #$64, d0
+000D22  bsr.w     $ebc
+000D26  bsr.w     $e42
+000D2A  move.w    #$666, d0
+000D2E  bsr.w     $ede
+000D32  move.w    d0, $DFF180.l
+000D38  move.w    d0, $DFF182.l
+000D3E  move.w    d0, $DFF184.l
+000D44  move.w    d0, $DFF186.l
+000D4A  move.w    d0, $DFF188.l
+000D50  move.w    d0, $DFF18A.l
+000D56  move.w    d0, $DFF18C.l
+000D5C  move.w    d0, $DFF18E.l
+000D62  move.w    d0, $DFF190.l
+000D68  move.w    d0, $DFF192.l
+000D6E  move.w    d0, $DFF194.l
+000D74  move.w    d0, $DFF196.l
+000D7A  move.w    d0, $DFF198.l
+000D80  move.w    d0, $DFF19A.l
+000D86  move.w    d0, $DFF19C.l
+000D8C  move.w    d0, $DFF19E.l
+000D92  subi.w    #$111, d0
+000D96  bpl.b     $d2e
+000D98  jmp       $066352.l
+000D9E  lea.l     $0014AA.l, a1
+000DA4  lea.l     $180(a6), a2
+000DA8  moveq     #$10, d0
+000DAA  move.w    #$666, (a1)+
+000DAE  move.w    #$666, (a2)+
+000DB2  dbra      d0, $daa
+000DB6  moveq     #$10, d0
+000DB8  bsr.w     $ecc
+000DBC  lea.l     $180(a6), a1
+000DC0  movea.l   a0, a2
+000DC2  lea.l     $0014AA.l, a3
+000DC8  moveq     #$10, d1
+000DCA  move.w    (a3), d2
+000DCC  move.w    d2, d3
+000DCE  lsr.w     #$4, d3
+000DD0  move.w    d3, d4
+000DD2  lsr.w     #$4, d4
+000DD4  andi.w    #$f, d2
+000DD8  andi.w    #$f, d3
+000DDC  andi.w    #$f, d4
+000DE0  move.w    (a2)+, d5
+000DE2  move.w    d5, d6
+000DE4  lsr.w     #$4, d6
+000DE6  move.w    d6, d7
+000DE8  lsr.w     #$4, d7
+000DEA  andi.w    #$f, d5
+000DEE  andi.w    #$f, d6
+000DF2  andi.w    #$f, d7
+000DF6  cmp.w     d5, d2
+000DF8  beq.w     $e08
+000DFC  bpl.w     $e06
+000E00  addq.w    #$1, d2
+000E02  bra.w     $e08
+000E06  subq.w    #$1, d2
+000E08  cmp.w     d6, d3
+000E0A  beq.w     $e1a
+000E0E  bpl.w     $e18
+000E12  addq.w    #$1, d3
+000E14  bra.w     $e1a
+000E18  subq.w    #$1, d3
+000E1A  cmp.w     d7, d4
+000E1C  beq.w     $e2c
+000E20  bpl.w     $e2a
+000E24  addq.w    #$1, d4
+000E26  bra.w     $e2c
+000E2A  subq.w    #$1, d4
+000E2C  lsl.w     #$4, d3
+000E2E  lsl.w     #$8, d4
+000E30  or.w      d3, d2
+000E32  or.w      d4, d2
+000E34  move.w    d2, (a3)+
+000E36  move.w    d2, (a1)+
+000E38  dbra      d1, $dca
+000E3C  dbra      d0, $db8
+000E40  rts       
+000E42  moveq     #$10, d0
+000E44  bsr.w     $ede
+000E48  lea.l     $180(a6), a1
+000E4C  lea.l     $0014AA.l, a3
+000E52  moveq     #$10, d1
+000E54  move.w    (a3), d2
+000E56  move.w    d2, d3
+000E58  lsr.w     #$4, d3
+000E5A  move.w    d3, d4
+000E5C  lsr.w     #$4, d4
+000E5E  andi.w    #$f, d2
+000E62  andi.w    #$f, d3
+000E66  andi.w    #$f, d4
+000E6A  moveq     #$6, d5
+000E6C  moveq     #$6, d6
+000E6E  moveq     #$6, d7
+000E70  cmp.w     d5, d2
+000E72  beq.w     $e82
+000E76  bpl.w     $e80
+000E7A  addq.w    #$1, d2
+000E7C  bra.w     $e82
+000E80  subq.w    #$1, d2
+000E82  cmp.w     d6, d3
+000E84  beq.w     $e94
+000E88  bpl.w     $e92
+000E8C  addq.w    #$1, d3
+000E8E  bra.w     $e94
+000E92  subq.w    #$1, d3
+000E94  cmp.w     d7, d4
+000E96  beq.w     $ea6
+000E9A  bpl.w     $ea4
+000E9E  addq.w    #$1, d4
+000EA0  bra.w     $ea6
+000EA4  subq.w    #$1, d4
+000EA6  lsl.w     #$4, d3
+000EA8  lsl.w     #$8, d4
+000EAA  or.w      d3, d2
+000EAC  or.w      d4, d2
+000EAE  move.w    d2, (a3)+
+000EB0  move.w    d2, (a1)+
+000EB2  dbra      d1, $e54
+000EB6  dbra      d0, $e44
+000EBA  rts       
+000EBC  clr.w     $0014CA.l
+000EC2  cmp.w     $0014CA.l, d0
+000EC8  bne.b     $ec2
+000ECA  rts       
+000ECC  clr.w     $0014CA.l
+000ED2  cmpi.w    #$5, $0014CA.l
+000EDA  bne.b     $ed2
+000EDC  rts       
+000EDE  clr.w     $0014CA.l
+000EE4  cmpi.w    #$3, $0014CA.l
+000EEC  bne.b     $ee4
+000EEE  rts       
+000EF0  movem.l   d0-d7/a0-a6, -(a7)
+000EF4  lea.l     $DFF000.l, a6
+000EFA  addq.w    #$1, $0014CA.l
+000F00  addq.w    #$1, $0014CE.l
+000F06  cmpi.w    #$a, $0014CE.l
+000F0E  bne.w     $f2e
+000F12  clr.w     $0014CE.l
+000F18  subq.w    #$1, $0014CC.l
+000F1E  move.w    $0014CC.l, $a6(a6)
+000F26  move.w    $0014CC.l, $b6(a6)
+000F2E  cmpi.w    #$1, $0014D4.l
+000F36  beq.w     $fb0
+000F3A  addq.w    #$1, $0014D2.l
+000F40  cmpi.w    #$3, $0014D2.l
+000F48  bne.w     $f74
+000F4C  clr.w     $0014D2.l
+000F52  cmpi.w    #$f, $0014D0.l
+000F5A  bge.w     $f74
+000F5E  addq.w    #$1, $0014D0.l
+000F64  move.w    $0014D0.l, $a8(a6)
+000F6C  move.w    $0014D0.l, $b8(a6)
+000F74  move.w    $0014D4.l, d0
+000F7A  beq.w     $fb0
+000F7E  subq.w    #$1, d0
+000F80  beq.w     $fb0
+000F84  tst.w     $0014D0.l
+000F8A  bne.w     $f9a
+000F8E  move.w    #$1, $0014D4.l
+000F96  bra.w     $fb0
+000F9A  subq.w    #$1, $0014D0.l
+000FA0  move.w    $0014D0.l, $a8(a6)
+000FA8  move.w    $0014D0.l, $b8(a6)
+000FB0  move.w    $001540.l, d0
+000FB6  beq.w     $1008
+000FBA  cmp.w     #$ffff, d0
+000FBE  beq.w     $1008
+000FC2  addq.w    #$1, $001544.l
+000FC8  cmpi.w    #$5, $001544.l
+000FD0  bne.w     $1008
+000FD4  clr.w     $001544.l
+000FDA  cmpi.w    #$3f, $001546.l
+000FE2  bne.w     $ff2
+000FE6  move.w    #$ffff, $001540.l
+000FEE  bra.w     $1008
+000FF2  addq.w    #$1, $001546.l
+000FF8  move.w    $001546.l, $c8(a6)
+001000  move.w    $001546.l, $d8(a6)
+001008  move.w    $001542.l, d0
+00100E  beq.w     $1086
+001012  cmp.w     #$ffff, d0
+001016  beq.w     $1086
+00101A  addq.w    #$1, $001544.l
+001020  cmpi.w    #$2, $001544.l
+001028  bne.w     $1086
+00102C  clr.w     $001544.l
+001032  tst.w     $001546.l
+001038  bne.w     $104e
+00103C  move.w    #$ffff, $001542.l
+001044  move.w    #$c, $96(a6)
+00104A  bra.w     $1086
+00104E  subq.w    #$1, $001546.l
+001054  move.w    $001546.l, $c8(a6)
+00105C  move.w    $001546.l, $d8(a6)
+001064  cmpi.w    #$3f, $0014D0.l
+00106C  beq.w     $1086
+001070  addq.w    #$1, $0014D0.l
+001076  move.w    $0014D0.l, $a8(a6)
+00107E  move.w    $0014D0.l, $b8(a6)
+001086  move.w    #$20, $9c(a6)
+00108C  movem.l   (a7)+, d0-d7/a0-a6
+001090  rte       
+001092  .byte     0x00, 0xe0
+001094  ori.b     #$e2, d0
+001098  ori.b     #$e4, d0
+00109C  ori.b     #$e6, d0
+0010A0  ori.b     #$e8, d0
+0010A4  ori.b     #$ea, d0
+0010A8  ori.b     #$ec, d0
+0010AC  ori.b     #$ee, d0
+0010B0  ori.b     #$80, d0
+0010B4  ori.b     #$82, d0
+0010B8  ori.b     #$ff, d0
+0010BC  .byte     0xff, 0xfe
+0010BE  .byte     0x00, 0xe0
+0010C0  ori.b     #$e2, d0
+0010C4  ori.b     #$e4, d0
+0010C8  ori.b     #$e6, d0
+0010CC  ori.b     #$e8, d0
+0010D0  ori.b     #$ea, d0
+0010D4  ori.b     #$ec, d0
+0010D8  ori.b     #$ee, d0
+0010DC  ori.b     #$80, d0
+0010E0  ori.b     #$82, d0
+0010E4  ori.b     #$ff, d0
+0010E8  .byte     0xff, 0xfe
+0010EA  .byte     0x00, 0xe0
+0010EC  ori.b     #$e2, d0
+0010F0  ori.b     #$e4, d0
+0010F4  ori.b     #$e6, d0
+0010F8  ori.b     #$e8, d0
+0010FC  ori.b     #$ea, d0
+001100  ori.b     #$ec, d0
+001104  ori.b     #$ee, d0
+001108  ori.b     #$80, d0
+00110C  ori.b     #$82, d0
+001110  ori.b     #$82, d0
+001114  addi.w    #$ff01, -(a6)
+001118  .byte     0xff, 0xfe
+00111A  bclr.b    d0, d2
+00111C  addi.w    #$ff01, -(a6)
+001120  .byte     0xff, 0xfe
+001122  bclr.b    d0, d2
+001124  bchg.b    d3, -(a6)
+001126  .byte     0xff, 0x01
+001128  .byte     0xff, 0xfe
+00112A  bclr.b    d0, d2
+00112C  .byte     0x08, 0x66
+00112E  .byte     0xff, 0x01
+001130  .byte     0xff, 0xfe
+001132  bclr.b    d0, d2
+001134  bchg.b    d4, -(a6)
+001136  .byte     0xff, 0x01
+001138  .byte     0xff, 0xfe
+00113A  bclr.b    d0, d2
+00113C  eori.w    #$ff01, -(a6)
+001140  .byte     0xff, 0xfe
+001142  bclr.b    d0, d2
+001144  bchg.b    d5, -(a6)
+001146  .byte     0xff, 0x01
+001148  .byte     0xff, 0xfe
+00114A  bclr.b    d0, d2
+00114C  cmpi.w    #$ff01, -(a6)
+001150  .byte     0xff, 0xfe
+001152  bclr.b    d0, d2
+001154  bchg.b    d6, -(a6)
+001156  .byte     0xff, 0x01
+001158  .byte     0xff, 0xfe
+00115A  bclr.b    d0, d2
+00115C  .byte     0x0e, 0x66
+00115E  .byte     0xff, 0x01
+001160  .byte     0xff, 0xfe
+001162  bclr.b    d0, d2
+001164  bchg.b    d7, -(a6)
+001166  .byte     0xff, 0x01
+001168  .byte     0xff, 0xfe
+00116A  bclr.b    d0, d2
+00116C  bchg.b    d7, ([a6, a7.l * 8])
+001170  .byte     0xff, 0xfe
+001172  bclr.b    d0, d2
+001174  bclr.b    d7, d6
+001176  .byte     0xff, 0x01
+001178  .byte     0xff, 0xfe
+00117A  bclr.b    d0, d2
+00117C  bclr.b    d7, (a6)
+00117E  .byte     0xff, 0x01
+001180  .byte     0xff, 0xfe
+001182  bclr.b    d0, d2
+001184  bclr.b    d7, -(a6)
+001186  .byte     0xff, 0x01
+001188  .byte     0xff, 0xfe
+00118A  bclr.b    d0, d2
+00118C  bclr.b    d7, ([a6, a7.l * 8])
+001190  .byte     0xff, 0xfe
+001192  bclr.b    d0, d2
+001194  bset.b    d7, d6
+001196  .byte     0xff, 0x01
+001198  .byte     0xff, 0xfe
+00119A  bclr.b    d0, d2
+00119C  bset.b    d7, (a6)
+00119E  .byte     0xff, 0x01
+0011A0  .byte     0xff, 0xfe
+0011A2  bclr.b    d0, d2
+0011A4  bset.b    d7, -(a6)
+0011A6  .byte     0xff, 0x01
+0011A8  .byte     0xff, 0xfe
+0011AA  bclr.b    d0, d2
+0011AC  bset.b    d7, ([a6, a7.l * 8])
+0011B0  .byte     0xff, 0xfe
+0011B2  bclr.b    d0, d2
+0011B4  bset.b    d7, $ff01.w
+0011B8  .byte     0xff, 0xfe
+0011BA  bclr.b    d0, d2
+0011BC  .byte     0x0f, 0xfa
+0011BE  .byte     0xff, 0x01
+0011C0  .byte     0xff, 0xfe
+0011C2  bclr.b    d0, d2
+0011C4  .byte     0x0f, 0xfc
+0011C6  .byte     0xff, 0x01
+0011C8  .byte     0xff, 0xfe
+0011CA  bclr.b    d0, d2
+0011CC  .byte     0x0f, 0xff
+0011CE  .byte     0xff, 0x01
+0011D0  .byte     0xff, 0xfe
+0011D2  bclr.b    d0, d2
+0011D4  .byte     0x0f, 0xfb
+0011D6  .byte     0xff, 0x01
+0011D8  .byte     0xff, 0xfe
+0011DA  bclr.b    d0, d2
+0011DC  bset.b    d7, $ff01fffe.l
+0011E2  bclr.b    d0, d2
+0011E4  bset.b    d7, ([a7, a7.l * 8])
+0011E8  .byte     0xff, 0xfe
+0011EA  bclr.b    d0, d2
+0011EC  bset.b    d7, ([a5, a7.l * 8])
+0011F0  .byte     0xff, 0xfe
+0011F2  bclr.b    d0, d2
+0011F4  bset.b    d7, ([a3, a7.l * 8])
+0011F8  .byte     0xff, 0xfe
+0011FA  bclr.b    d0, d2
+0011FC  bset.b    d7, -(a0)
+0011FE  .byte     0xff, 0x01
+001200  .byte     0xff, 0xfe
+001202  bclr.b    d0, d2
+001204  bset.b    d7, (a0)
+001206  .byte     0xff, 0x01
+001208  .byte     0xff, 0xfe
+00120A  bclr.b    d0, d2
+00120C  bset.b    d7, d0
+00120E  .byte     0xff, 0x01
+001210  .byte     0xff, 0xfe
+001212  bclr.b    d0, d2
+001214  bclr.b    d7, ([a0, a7.l * 8])
+001218  .byte     0xff, 0xfe
+00121A  bclr.b    d0, d2
+00121C  bclr.b    d7, -(a0)
+00121E  .byte     0xff, 0x01
+001220  .byte     0xff, 0xfe
+001222  bclr.b    d0, d2
+001224  bclr.b    d7, (a0)
+001226  .byte     0xff, 0x01
+001228  .byte     0xff, 0xfe
+00122A  bclr.b    d0, d2
+00122C  bclr.b    d7, d0
+00122E  .byte     0xff, 0x01
+001230  .byte     0xff, 0xfe
+001232  bclr.b    d0, d2
+001234  bchg.b    d7, ([a0, a7.l * 8])
+001238  .byte     0xff, 0xfe
+00123A  bclr.b    d0, d2
+00123C  bchg.b    d7, -(a0)
+00123E  .byte     0xff, 0x01
+001240  .byte     0xff, 0xfe
+001242  bclr.b    d0, d2
+001244  bchg.b    d7, (a0)
+001246  .byte     0xff, 0x01
+001248  .byte     0xff, 0xfe
+00124A  bclr.b    d0, d2
+00124C  .byte     0x0e, 0x40
+00124E  .byte     0xff, 0x01
+001250  .byte     0xff, 0xfe
+001252  bclr.b    d0, d2
+001254  btst.l    d6, ([a0, a7.l * 8])
+001258  .byte     0xff, 0xfe
+00125A  bclr.b    d0, d2
+00125C  cmpi.b    #$1, -(a0)
+001260  .byte     0xff, 0xfe
+001262  bclr.b    d0, d2
+001264  btst.l    d5, (a0)
+001266  .byte     0xff, 0x01
+001268  .byte     0xff, 0xfe
+00126A  bclr.b    d0, d2
+00126C  eori.b    #$1, d0
+001270  .byte     0xff, 0xfe
+001272  bclr.b    d0, d2
+001274  btst.l    d4, d0
+001276  .byte     0xff, 0x01
+001278  .byte     0xff, 0xfe
+00127A  bclr.b    d0, d2
+00127C  .byte     0x08, 0x00
+00127E  .byte     0xff, 0x01
+001280  .byte     0xff, 0xfe
+001282  bclr.b    d0, d2
+001284  btst.l    d3, d0
+001286  .byte     0xff, 0x01
+001288  .byte     0xff, 0xfe
+00128A  bclr.b    d0, d2
+00128C  addi.b    #$1, d0
+001290  .byte     0xff, 0xfe
+001292  bclr.b    d0, d2
+001294  btst.l    d2, d0
+001296  .byte     0xff, 0x01
+001298  .byte     0xff, 0xfe
+00129A  bclr.b    d0, d2
+00129C  subi.b    #$1, d0
+0012A0  .byte     0xff, 0xfe
+0012A2  bclr.b    d0, d2
+0012A4  btst.l    d1, d0
+0012A6  .byte     0xff, 0x01
+0012A8  .byte     0xff, 0xfe
+0012AA  bclr.b    d0, d2
+0012AC  andi.b    #$1, d0
+0012B0  .byte     0xff, 0xfe
+0012B2  bclr.b    d0, d2
+0012B4  btst.l    d0, d0
+0012B6  .byte     0xff, 0x01
+0012B8  .byte     0xff, 0xfe
+0012BA  bclr.b    d0, d2
+0012BC  ori.b     #$ff, d0
+0012C0  .byte     0xff, 0xfe
+0012C2  .byte     0x00, 0xe0
+0012C4  ori.b     #$e2, d0
+0012C8  ori.b     #$e4, d0
+0012CC  ori.b     #$e6, d0
+0012D0  ori.b     #$e8, d0
+0012D4  ori.b     #$ea, d0
+0012D8  ori.b     #$ec, d0
+0012DC  ori.b     #$ee, d0
+0012E0  ori.b     #$80, d0
+0012E4  ori.b     #$82, d0
+0012E8  ori.b     #$82, d0
+0012EC  addi.w    #$ff01, -(a6)
+0012F0  .byte     0xff, 0xfe
+0012F2  bclr.b    d0, d2
+0012F4  addi.w    #$ff01, -(a6)
+0012F8  .byte     0xff, 0xfe
+0012FA  bclr.b    d0, d2
+0012FC  bchg.b    d3, -(a6)
+0012FE  .byte     0xff, 0x01
+001300  .byte     0xff, 0xfe
+001302  bclr.b    d0, d2
+001304  .byte     0x08, 0x66
+001306  .byte     0xff, 0x01
+001308  .byte     0xff, 0xfe
+00130A  bclr.b    d0, d2
+00130C  bchg.b    d4, -(a6)
+00130E  .byte     0xff, 0x01
+001310  .byte     0xff, 0xfe
+001312  bclr.b    d0, d2
+001314  eori.w    #$ff01, -(a6)
+001318  .byte     0xff, 0xfe
+00131A  bclr.b    d0, d2
+00131C  bchg.b    d5, -(a6)
+00131E  .byte     0xff, 0x01
+001320  .byte     0xff, 0xfe
+001322  bclr.b    d0, d2
+001324  cmpi.w    #$ff01, -(a6)
+001328  .byte     0xff, 0xfe
+00132A  bclr.b    d0, d2
+00132C  bchg.b    d6, -(a6)
+00132E  .byte     0xff, 0x01
+001330  .byte     0xff, 0xfe
+001332  bclr.b    d0, d2
+001334  .byte     0x0e, 0x66
+001336  .byte     0xff, 0x01
+001338  .byte     0xff, 0xfe
+00133A  bclr.b    d0, d2
+00133C  bchg.b    d7, -(a6)
+00133E  .byte     0xff, 0x01
+001340  .byte     0xff, 0xfe
+001342  bclr.b    d0, d2
+001344  bchg.b    d7, ([a6, a7.l * 8])
+001348  .byte     0xff, 0xfe
+00134A  bclr.b    d0, d2
+00134C  bclr.b    d7, d6
+00134E  .byte     0xff, 0x01
+001350  .byte     0xff, 0xfe
+001352  bclr.b    d0, d2
+001354  bclr.b    d7, (a6)
+001356  .byte     0xff, 0x01
+001358  .byte     0xff, 0xfe
+00135A  bclr.b    d0, d2
+00135C  bclr.b    d7, -(a6)
+00135E  .byte     0xff, 0x01
+001360  .byte     0xff, 0xfe
+001362  bclr.b    d0, d2
+001364  bclr.b    d7, ([a6, a7.l * 8])
+001368  .byte     0xff, 0xfe
+00136A  bclr.b    d0, d2
+00136C  bset.b    d7, d6
+00136E  .byte     0xff, 0x01
+001370  .byte     0xff, 0xfe
+001372  bclr.b    d0, d2
+001374  bset.b    d7, (a6)
+001376  .byte     0xff, 0x01
+001378  .byte     0xff, 0xfe
+00137A  bclr.b    d0, d2
+00137C  bset.b    d7, -(a6)
+00137E  .byte     0xff, 0x01
+001380  .byte     0xff, 0xfe
+001382  bclr.b    d0, d2
+001384  bset.b    d7, ([a6, a7.l * 8])
+001388  .byte     0xff, 0xfe
+00138A  bclr.b    d0, d2
+00138C  bset.b    d7, $ff01.w
+001390  .byte     0xff, 0xfe
+001392  bclr.b    d0, d2
+001394  .byte     0x0f, 0xfa
+001396  .byte     0xff, 0x01
+001398  .byte     0xff, 0xfe
+00139A  bclr.b    d0, d2
+00139C  .byte     0x0f, 0xfc
+00139E  .byte     0xff, 0x01
+0013A0  .byte     0xff, 0xfe
+0013A2  bclr.b    d0, d2
+0013A4  .byte     0x0f, 0xff
+0013A6  .byte     0xff, 0x01
+0013A8  .byte     0xff, 0xfe
+0013AA  bclr.b    d0, d2
+0013AC  .byte     0x0f, 0xfb
+0013AE  .byte     0xff, 0x01
+0013B0  .byte     0xff, 0xfe
+0013B2  bclr.b    d0, d2
+0013B4  bset.b    d7, $ff01fffe.l
+0013BA  bclr.b    d0, d2
+0013BC  bset.b    d7, ([a7, a7.l * 8])
+0013C0  .byte     0xff, 0xfe
+0013C2  bclr.b    d0, d2
+0013C4  bset.b    d7, ([a5, a7.l * 8])
+0013C8  .byte     0xff, 0xfe
+0013CA  bclr.b    d0, d2
+0013CC  bset.b    d7, ([a3, a7.l * 8])
+0013D0  .byte     0xff, 0xfe
+0013D2  bclr.b    d0, d2
+0013D4  bset.b    d7, -(a0)
+0013D6  .byte     0xff, 0x01
+0013D8  .byte     0xff, 0xfe
+0013DA  bclr.b    d0, d2
+0013DC  bset.b    d7, (a0)
+0013DE  .byte     0xff, 0x01
+0013E0  .byte     0xff, 0xfe
+0013E2  bclr.b    d0, d2
+0013E4  bset.b    d7, d0
+0013E6  .byte     0xff, 0x01
+0013E8  .byte     0xff, 0xfe
+0013EA  bclr.b    d0, d2
+0013EC  bclr.b    d7, ([a0, a7.l * 8])
+0013F0  .byte     0xff, 0xfe
+0013F2  bclr.b    d0, d2
+0013F4  bclr.b    d7, -(a0)
+0013F6  .byte     0xff, 0x01
+0013F8  .byte     0xff, 0xfe
+0013FA  bclr.b    d0, d2
+0013FC  bclr.b    d7, (a0)
+0013FE  .byte     0xff, 0x01
+001400  .byte     0xff, 0xfe
+001402  bclr.b    d0, d2
+001404  bclr.b    d7, d0
+001406  .byte     0xff, 0x01
+001408  .byte     0xff, 0xfe
+00140A  bclr.b    d0, d2
+00140C  bchg.b    d7, ([a0, a7.l * 8])
+001410  .byte     0xff, 0xfe
+001412  bclr.b    d0, d2
+001414  bchg.b    d7, -(a0)
+001416  .byte     0xff, 0x01
+001418  .byte     0xff, 0xfe
+00141A  bclr.b    d0, d2
+00141C  bchg.b    d7, (a0)
+00141E  .byte     0xff, 0x01
+001420  .byte     0xff, 0xfe
+001422  bclr.b    d0, d2
+001424  .byte     0x0e, 0x40
+001426  .byte     0xff, 0x01
+001428  .byte     0xff, 0xfe
+00142A  bclr.b    d0, d2
+00142C  btst.l    d6, ([a0, a7.l * 8])
+001430  .byte     0xff, 0xfe
+001432  bclr.b    d0, d2
+001434  cmpi.b    #$1, -(a0)
+001438  .byte     0xff, 0xfe
+00143A  bclr.b    d0, d2
+00143C  btst.l    d5, (a0)
+00143E  .byte     0xff, 0x01
+001440  .byte     0xff, 0xfe
+001442  bclr.b    d0, d2
+001444  eori.b    #$1, d0
+001448  .byte     0xff, 0xfe
+00144A  bclr.b    d0, d2
+00144C  btst.l    d4, d0
+00144E  .byte     0xff, 0x01
+001450  .byte     0xff, 0xfe
+001452  bclr.b    d0, d2
+001454  .byte     0x08, 0x00
+001456  .byte     0xff, 0x01
+001458  .byte     0xff, 0xfe
+00145A  bclr.b    d0, d2
+00145C  btst.l    d3, d0
+00145E  .byte     0xff, 0x01
+001460  .byte     0xff, 0xfe
+001462  bclr.b    d0, d2
+001464  addi.b    #$1, d0
+001468  .byte     0xff, 0xfe
+00146A  bclr.b    d0, d2
+00146C  btst.l    d2, d0
+00146E  .byte     0xff, 0x01
+001470  .byte     0xff, 0xfe
+001472  bclr.b    d0, d2
+001474  subi.b    #$1, d0
+001478  .byte     0xff, 0xfe
+00147A  bclr.b    d0, d2
+00147C  btst.l    d1, d0
+00147E  .byte     0xff, 0x01
+001480  .byte     0xff, 0xfe
+001482  bclr.b    d0, d2
+001484  andi.b    #$1, d0
+001488  .byte     0xff, 0xfe
+00148A  bclr.b    d0, d2
+00148C  btst.l    d0, d0
+00148E  .byte     0xff, 0x01
+001490  .byte     0xff, 0xfe
+001492  bclr.b    d0, d2
+001494  ori.b     #$ff, d0
+001498  .byte     0xff, 0xfe
+00149A  .byte     0x00, 0xe0
+00149C  ori.b     #$e2, d0
+0014A0  ori.b     #$82, d0
+0014A4  ori.b     #$ff, d0
+0014A8  .byte     0xff, 0xfe
+0014AA  ori.b     #$0, d0
+0014AE  ori.b     #$0, d0
+0014B2  ori.b     #$0, d0
+0014B6  ori.b     #$0, d0
+0014BA  ori.b     #$0, d0
+0014BE  ori.b     #$0, d0
+0014C2  ori.b     #$0, d0
+0014C6  ori.b     #$0, d0
+0014CA  ori.b     #$0, d0
+0014CE  ori.b     #$0, d0
+0014D2  ori.b     #$0, d0
+0014D6  .byte     0x00, 0xfa
+0014D8  .byte     0x00, 0xfb
+0014DA  .byte     0x00, 0xfc
+0014DC  .byte     0x00, 0xfd
+0014DE  .byte     0x00, 0xfe
+0014E0  .byte     0x00, 0xff
+0014E2  btst.l    d0, d0
+0014E4  btst.l    d0, d1
+0014E6  btst.l    d0, d2
+0014E8  btst.l    d0, d3
+0014EA  btst.l    d0, d4
+0014EC  btst.l    d0, d5
+0014EE  btst.l    d0, d6
+0014F0  btst.l    d0, d7
+0014F2  movep.w   $109(a0), d0
+0014F6  movep.w   $10b(a2), d0
+0014FA  movep.w   $10d(a4), d0
+0014FE  movep.w   $10f(a6), d0
+001502  btst.l    d0, (a0)
+001504  btst.l    d0, (a1)
+001506  btst.l    d0, (a2)
+001508  btst.l    d0, (a3)
+00150A  btst.l    d0, (a4)
+00150C  btst.l    d0, (a5)
+00150E  btst.l    d0, (a6)
+001510  btst.l    d0, (a7)
+001512  btst.l    d0, (a0)+
+001514  btst.l    d0, (a1)+
+001516  btst.l    d0, (a2)+
+001518  btst.l    d0, (a3)+
+00151A  btst.l    d0, (a4)+
+00151C  btst.l    d0, (a5)+
+00151E  btst.l    d0, (a6)+
+001520  btst.l    d0, (a7)+
+001522  btst.l    d0, -(a0)
+001524  btst.l    d0, -(a1)
+001526  btst.l    d0, -(a2)
+001528  btst.l    d0, -(a3)
+00152A  btst.l    d0, -(a4)
+00152C  btst.l    d0, -(a5)
+00152E  btst.l    d0, -(a6)
+001530  btst.l    d0, -(a7)
+001532  btst.l    d0, $129(a0)
+001536  btst.l    d0, $12b(a2)
+00153A  btst.l    d0, $12d(a4)
+00153E  btst.l    d0, $0(a6)
+001542  ori.b     #$0, d0
+001546  ori.b     #$aa, d0

@@ -1,0 +1,233 @@
+*****************************************************************************
+    Technical Documenation On Structure And Use Of Amiga Disk Image Files
+*****************************************************************************
+
+I have wrote this, in hope that another programmer without amiga knowledge or
+without amiga reference books could access and use ADF files. I am currently
+making a ADF Disk manager, but wish to help anyone using ADF files.
+
+Boot Block Structure
+--------------------
+
+Description : The boot block is the boot strap of the amiga. The OS will load
+in these 2 blocks (1024 bytes), and process them as the amiga's boot strap.
+The standard `workbench` boot block simply makes the OS look at a startup
+routine in the Dos.Library, while games boot blocks can kick the OS out and
+load the rest of the game.
+
+Structure:
+
+        ID Header       Long Word (4 Bytes)
+                        Values : DOS0 or DOS1 (OFS/FFS)
+        CheckSum        Long Word (4 Bytes)
+                        Value : Brings the sum of all other word in the boot
+                                block to zero.
+        Root Location   Long Word (4 Bytes)
+                        Value : Pointer to the root block (880)
+        Data            Rest Of 2 Blocks (1012 Bytes)
+                        Value : Machine code program (Customising boot strap)
+
+Notes:
+
+ID Header : ID Header tells the amiga what version of file system is being
+used. DOS0 ($XXXXXX00) is old file system, while DOS1 ($XXXXXX01) stands
+for the fast file system (See later).
+Checksum : This is a value which makes the sum of all the other long words
+to zero.
+Root Location : The location of the root block, this is usually block 880
+but you can place the root anywhere. Disk defragers may place it else where,
+so do *NOT* reply on it being at 880 (though 95% of the time its there!)
+Data : 1012 bytes of machine code, this can be anything.
+
+
+
+----------------------
+ Root Block Structure
+----------------------
+
+Description : The root block, usualy at block 880 if not the 3rd LWord points
+to the root block. The hash table contains a list of blocks which contain
+either a file header block or a user directory block. The rest is imformation
+only.
+
+Word  Name       Contents       Description
+-----------------------------------------------------------------------------
+ 0    Type           2          Type 2 means that this block is the start.
+ 1    Header.Key     0          No meaning here
+ 2    HighSeq        0          No meaning here
+ 3    HT Size       $48         The size of the hash table
+ 4    reserved       0          reserved by commodore (whoever) for fut. user
+ 5    checksum       ?          Contains a value which brings the sum of all
+                                other blocks o zero.
+ 6    Hash table                Here begins table which the start blocks of
+                                files and directories are stored.
+ 78   BM Flag       -1          This flag is -1 is the bitmap is valid
+ 79   BM Pages                  This is a table pointing to the bitmap.
+                                There is usualy only one bitmap block.
+105   Days                      Contains the date when the disk was modified
+106   Mins
+107   Ticks
+108   Disk name                 Name of the disk as BCPL dtring (First byte
+                                is the length of the name, Max. 30)
+121   Create Days
+122   Create Mins
+123   Create Ticks              Date, time and seconds of disk creation
+124   Next Hash      0          Always 0.
+125   Parent Dir     0          Pointer to parent dir, root dir so 0
+126   Extension      0          Always 0, no extension block
+127   Sector Type    1          Type 1 = Root Block.
+
+
+
+
+
+
+
+
+
+
+
+----------------------
+ File Header Structure
+----------------------
+
+Description : A file header this can be pointer to by the root block or by
+a user directory block hash table.
+
+Word  Name       Contents       Description
+-----------------------------------------------------------------------------
+ 0    Type           2          Type 2 means that this block is the start.
+ 1    Header.Key     0          No meaning here
+ 2    HighSeq        0          No meaning here
+ 3    Data Size      0          
+ 4    First Data     0         
+ 5    checksum       ?          Contains a value which brings the sum of all
+                                other blocks o zero.
+ 6    Data Blocks               Here begins table which the start blocks of
+                                files and directories are stored. The table
+                                starts backward from word no.77 to no.6
+ 78   Reserved
+ 79   Reserved
+ 80   Protect                   Bit 1=Delete, 2=Modification, 3=Write, 4=Read
+ 81   Byte Size                 Size of file in bytes
+ 82   Comment                   Here begins the file comment as BCPL (Max.22)
+105   Days                      Contains the date when the file was modified
+106   Mins
+107   Ticks
+108   File name                 Name of the file as BCPL dtring (First byte
+                                is the length of the name, Max. 30)
+124   Next Hash                 Block nummber of next file in chain.
+125   Parent Dir     0          Pointer to parent directory where this file
+                                belongs.
+126   Extension      0          Pointer to extension block or zero.
+127   Sector Type   $-3         Type -3 = File Header Block
+
+
+
+
+
+
+
+
+
+-----------------
+ File List Block
+-----------------
+
+Description : If the File Header Block does not contain enough entries in
+the data blocks table this block is pointed to by the extension entry in
+the file header block.
+
+Word  Name       Contents       Description
+-----------------------------------------------------------------------------
+ 0    Type           10         Type 10 = Extension of file structure
+ 1    Header.Key                The block number
+ 2    HighSeq                   Contains the total number of data blocks
+ 3    Data Size      0          
+ 4    First Data     0          Number of the first data block (same as 77)
+ 5    checksum       ?          Contains a value which brings the sum of all
+                                other blocks o zero.
+ 6    Data Blocks               Here begins table which the start blocks of
+                                files and directories are stored. The table
+                                starts backward from word no.77 to no.6
+ 78   Info           0          reserved
+
+124   Next Hash                 Block nummber of next file in chain.
+125   Parent Dir     0          Pointer to parent directory where this file
+                                belongs.
+126   Extension      0          Pointer to extension block or zero.
+127   Sector Type   $-3         Type -3 = File Header Block
+
+
+
+
+
+
+
+
+
+----------------------------
+ Directory Header Structure
+----------------------------
+
+Description : When a user directory is created this is formed. It holds a
+list of all sub-dirs and files on its own hash table.
+
+Word  Name       Contents       Description
+-----------------------------------------------------------------------------
+ 0    Type           2          Type 2 means that this block is the start.
+ 1    Header.Key     0          No meaning here
+ 2    HighSeq        0          No meaning here
+ 3    HT Size        0          No meaning here 
+ 4    reserved       0          reserved by commodore (whoever) for fut. user
+ 5    checksum       ?          Contains a value which brings the sum of all
+                                other blocks o zero.
+ 6    Hash table                Here begins table which the start blocks of
+                                files and directories are stored THAT belong
+                                to this directory.
+ 78   Reserved        0         reserved
+ 80   Protect                   Bit 1=Delete, 2=Modification, 3=Write, 4=Read
+ 81   Byte Size                 Size of file in bytes
+ 82   Comment                   Here begins the file comment as BCPL (Max.22)
+
+105   Days                      Contains the date when the disk was modified
+106   Mins
+107   Ticks
+108   Dir Name                  Name of the directory as BCPL dtring (First
+                                byte is the length of the name, Max. 30)
+124   Next Hash                 Next entry in the chain
+125   Parent Dir     0          Pointer to parent dir.
+126   Extension      0          Always 0, no extension block
+127   Sector Type    2          Type 1 = User directory block.
+
+
+
+----------------
+ Data Structure
+----------------
+
+OFS..
+
+Description : OFS uses checksums, etc. to look after data. To load a file
+get the start block and read the `Next data` until it is 0 and Data Size
+will probably be less than $1E8 in the last block.
+
+Word  Name       Contents       Description
+-----------------------------------------------------------------------------
+ 0    Type           8          Type 8 = Data block
+ 1    Header.Key                Here is the block number of the file header
+ 2    HighSeq                   Running number of data blocks in this file.
+ 3    Data Size     $1E8        Valid data words ($1E8 or fewer)
+ 4    Next Data                 Number of next data block in this file
+ 5    checksum       ?          Contains a value which brings the sum of all
+                                other blocks o zero.
+ 6    Data                      Here the data starts.
+
+FFS..
+
+Description : MUCH FASTER! No checksum or data size. That makes FFS loads
+faster (and a couple of other reasons). 
+
+Word  Name       Contents       Description
+-----------------------------------------------------------------------------
+ 1    Data                      Here the data starts

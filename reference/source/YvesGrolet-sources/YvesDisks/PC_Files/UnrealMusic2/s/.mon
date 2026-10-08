@@ -1,0 +1,19 @@
+window -lf
+cls
+echo
+echo
+echo "                MANIACS of NOISE's UNREAL INGAME-TUNES"
+echo
+echo
+echo "You can find the tunes under the names of '3D_TUNE' and '2D_TUNE',"
+echo "in the root-dir of the diskette. You know better then me how to start"
+echo "the tunes, so i'm not going to explain that."
+echo
+echo "I hope you like the new 2D_INGAME tune, all sampled stuff in only"
+echo "15K of memory. Sorry about the 3D tune, but this was made in the time"
+echo "that we didn't know anything about FRED's routine."
+echo
+echo "Cheers, Charles Deenen"
+echo
+echo
+dir df0:

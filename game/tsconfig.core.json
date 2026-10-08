@@ -1,0 +1,9 @@
+{
+  // Prüft, dass der Kern plattformneutral bleibt: ohne DOM-Typen und ohne Node-Typen.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["src/core/**/*.ts", "src/data/**/*.ts"]
+}

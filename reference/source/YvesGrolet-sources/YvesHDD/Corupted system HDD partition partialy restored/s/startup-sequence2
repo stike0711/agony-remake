@@ -1,0 +1,3 @@
+setmap f
+ff siesta.font
+shell -b s:.sh

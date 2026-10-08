@@ -1,0 +1,25 @@
+c/copy c/makedir to ram:
+c/copy c/colorwait to ram:
+c/copy l/Disk-Validator to ram:
+c/copy c/copy to ram:
+c/echo "Please insert formatted disk in DF0: and push left mousebutton !"
+c/mousewait
+ram:makedir df0:l
+ram:makedir df0:songs
+ram:makedir df0:patterns
+ram:makedir df0:macros
+ram:makedir df0:samples
+ram:makedir df0:samples/bass
+ram:makedir df0:samples/drums
+ram:makedir df0:samples/percussion
+ram:makedir df0:samples/melody
+ram:makedir df0:samples/chords
+ram:makedir df0:samples/orchestra
+ram:makedir df0:samples/effects
+ram:makedir df0:samples/noises
+ram:makedir df0:samples/megasounds
+ram:makedir df0:samples/voices
+ram:copy ram:Disk-Validator to df0:l
+ram:colorwait
+ram:colorwait
+

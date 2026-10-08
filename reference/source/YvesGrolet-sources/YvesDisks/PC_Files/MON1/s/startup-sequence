@@ -1,0 +1,4 @@
+nofastmem
+echo ""
+type s/menu
+prompt "Your choice please: "

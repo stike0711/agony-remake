@@ -1,0 +1,82 @@
+
+ (NOTE : This is a copy of what is in the declaration section of
+         the module )
+
+ Direct Visual Basic Amiga Disk File Add-In Module (Phew!)
+ ---------------------------------------------------------
+
+    Version 0.99 - First Release - Early Janurary 1997
+
+ Welcome to the first release of this add-on to make Visual Basic
+ programmers (who make up a large percentage of hobbist programmers)
+ a chance to use and get access to files and directories on ADF files.
+
+ Because this is a first release DONT expect too much. It will allow
+ you to look and move through a amiga disk file image without problems.
+ Including sub-directories and files under that. All that is required
+ is a form called FileListForm and three objects, two list boxes and a
+ label. The first list box (for the directories) is called `List1` and
+ list box two (for the files under that directory) is called `List2`.
+ VB automatically gives the list boxes these names so don`t sorry
+ about changing them. The Label MUST have its name changed to
+ StatusLabel, as this reports the current position in the ADF file.
+ Also, contained in this module is the code for handling a double-click
+ on the directory list (list1), CUT the code out and paste it into the
+ declarations part of the FileListForm as this will automatically place
+ it in the List1_DblClick() routine. Also the Form_Load() code must
+ also be CUT and pasted into the declarations section of the FileListForm.
+
+ Changing the ADF file, is simple. Enter the Form_Load sub-routine and
+ the first line reads Open "<FileName>" For Binary As 1 Len = 2, now
+ all you have to do is change the file name.
+
+ Exiting. When you exit your program (and therefore clode the DVB-ADF module)
+ the ADF file is closed. I have not done this in the program because DVB-ADF
+ needs to be able to use and `see` the file at all times. Closing it will
+ crash the module.
+
+ Error-Handling, is limited (infact nearly non-existant). This is
+ because I have been using correctly put together ADF files. If you
+ have a corrupt ADF file (or a demo/game adf file) and try and get
+ this add-on to read it, well it will probably `Hang` - It hasn`t
+ crashes, its just in an internal (eternal?) loop trying to make
+ sense of the ADF file. You should take note about the following places
+ * Closing a file when the module is using it. * Another program locking
+ the ADF file when using it * Illegal values in root blocks (Ie. Values over
+ decimal 1759) and other file/data blocks.
+
+ Code, please don`t rely on the code for being correct. It's a simple
+ beta version to see if I can get things to work! For example, the
+ function called DecToHex is WRONG, not in its working but in its
+ title, it should be HexToDec. I know its crap programming, but I have
+ little time to worry about the `finer` points of programming. Anyway
+ tidy my code, and mail it back to me and I will credit you!
+
+ Other Things. This code was developed to allow a program called ADF-ZAP
+ to find the start of files. This code also opens up another program
+ that has been `stalled` called ADF Disk Manager. It will now be able
+ to load and save MS-DOS files to ADF files directly.
+
+ Contact. Please contact me at the following e-mail address, as this is my
+ personal e-mail account.
+
+ KMus@Geocities.Com
+
+
+ Enjoy the module, and get hold of ADF-ZAP and ADF-DM they should be
+ completed when you read this! Do a netsearch for `UAE Amiga Emulator`
+ or goto the main UAE web page, and there `should` be a link to
+ ADF-ZAP or ADF-DM!
+
+                                       James Hunter :)
+
+  FIND ME ON THE `#AMIGA` CHANNEL ON UNDERNET'S INTERNET RELAY CHAT
+  AS `K-MUS`.
+
+
+NOTES [added later]
+-----
+
+DVB-ADF has a few bugs, like it misses the odd files or two. DVB-ADF.Bas
+is incorperated into ADF-DM SO much that I cannot seperate it, and thus give
+you a good version of DVB-ADF. If you want more info give me a e-mail..

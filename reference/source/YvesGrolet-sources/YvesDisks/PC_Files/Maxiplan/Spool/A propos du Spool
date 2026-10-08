@@ -1,0 +1,35 @@
+Information about Spool
+
+Informations à propos du Spool:
+
+Le spooler est un utilitaire qui imprime les fichiers textes à la suite.
+Déplacez le programme de Spooler à l'intérieur du tiroir dans lequel vous
+ allez mettre vos fichiers à imprimer et cliquez deux fois dessus. 
+
+Le Spooler se réveille ensuite toutes les minutes et examine le contenu
+de ce tiroir. S'il y a des fichiers se terminant par ".PRINT"  ceux-ci
+seront copiés dans l'unité PRT: tout comme si vous aviez utilisé la commande
+du CLI:  COPY file to PRT:
+
+Puis après avoir été copiés dans l'unité PRT: les fichiers seront renommés
+pour se terminer par ".PRINTED" ce qui indique à l'utilisateur et au Spooler
+que le fichier a été imprimé.
+
+Le programme CleanUp vous permet d'effacer facilement tous les fichiers
+ .PRINTED de votre tiroir sans utiliser le CLI. Il est préférable d'utiliser
+CleanUp losque vous sentez que la disquette est bientôt pleine.
+
+Les Fichiers ".PRINT" doivent obligatoirement être en ASCII, et il est
+préférable qu'ils contiennent des séparateurs de Pages (généralement fournis
+avec le programme d'application).
+
+Par exemple, déplacez le Spooler et CleanUp dans le tiroir Worksheets de votre
+disquette et cliquez deux fois dessus. Puis ouvrez le programme a_demo et
+imprimez-le vers un fichier utilisant Maxiplan, mettez le fichier dans le
+tiroir Worksheets et assurez-vous que les fichiers se terminent bien par
+".PRINT"
+Après une minute environ ce listing sera imprimé sur l'imprimante. Une fois
+l'impression terminée, vous pouvez utiliser CleanUp pour effacer les fichiers
+". PRINTED"
+
+C'est tout!

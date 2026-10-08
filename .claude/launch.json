@@ -1,0 +1,36 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "emulator",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "tools/emulator/server.ts"
+      ],
+      "port": 8090
+    },
+    {
+      "name": "game",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "game/node_modules/vite/bin/vite.js",
+        "game",
+        "--config",
+        "game/vite.config.ts"
+      ],
+      "port": 5173
+    },
+    {
+      "name": "game-build",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "game/node_modules/vite/bin/vite.js",
+        "preview",
+        "game",
+        "--config",
+        "game/vite.config.ts"
+      ],
+      "port": 4173
+    }
+  ]
+}

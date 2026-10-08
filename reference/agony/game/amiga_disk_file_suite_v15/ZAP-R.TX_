@@ -1,0 +1,389 @@
+******************************************************************************
+                       Amiga Disk File ZAPper  (ADF-Zap) 
+******************************************************************************
+
+                                    V1.0d
+                              (c) James Hunter
+                         E-Mail: KMus@Geocities.Com  
+
+Introduction  ....................................................... Page 1
+User Interface  ..................................................... Page 2
+Opening And Closing ADF Files   ..................................... Page 3
+Searching for a file  ............................................... Page 4
+The Future  ......................................................... Page 5
+Credits  ............................................................ Page 6
+Legal Crap  ......................................................... Page 7
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                     -1-
+******************************************************************************
+                          Introduction to ADF-Zap
+******************************************************************************
+
+Introduction.
+
+Welcome to ADF-Zap (pronounced adif-zap). This program is a hexadecimal editor
+designed solely for processing amiga disk files used by Ultimate Amiga
+Emulator (UAE). It has been developed as requested by a number of UAE users.
+
+Myself.
+
+I have been a programmer for approx. 7 years now (since the age of 13). I
+have started my programming on the simple ZX-81, and moved to the spectrum+2.
+For there I got my first amiga which was an A500 (Batman Pack!), with K1.3!
+I learned to program Amos, and a bit of C but for the last few years have
+worked completely in assembly. During 1994, I published a number of source
+codes in the Amiga Coders Club disk magazine, which unfortunately never got
+published (That was half my summer hols!). Because now the amiga is sadly,
+a dying machine (though I wish it wasn`t), I has been using IBM PC and
+programming in Borland Delphi, Visual Basic and `C`. UAE can along at the
+right time, as I was getting pissed off with the PC and longed to you my
+amiga again. Until I down loaded UAE for the first time, I was sure it was
+a hoak. For the PC (or any platform) to emulate an amiga - even simply, would
+require some remarkable programmed. I was so impressed with UAE, I have
+myself decided to `support` it with a number of add-on programs for Windows
+users (3.11 and `95) - Sorry, not DOS work! Currently in development is a
+DMS-->ADF Converter for directly converting disk masher files to ADF files
+without the need to enter UAE. I must that all the people who have sent me
+source on the structure of DMS, but I still need to compression algorithm
+used by DMS - If anyone can help I will co-credit the person on the converter.
+Thats enough about me!....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                     -2-
+******************************************************************************
+                               User Interface
+******************************************************************************
+
+How it looks.
+
+The user interface was designed as a cross between the real amiga ZAP (NOT
+NEWZAP - I don`t like it), and DiskX utils (both are very old). ZAP because
+of the way it looked, and DiskX because of the way it could view by tracks
+, sectors, blocks, etc.
+
+The Main Window.
+
+The main windows is divided into the following sections, each specialise in
+using (or viewing) the ADF file a different way. Most options here, and
+more!, can be accessed from the drop-down menus (explained later).
+
+Two main grids
+--------------
+
+The two main grids display the hexadecimal and ascii values stored in that
+current 512 block. The left grid is for the hexadecimal, and the right for 
+the ascii values.
+
+Amiga Disk File Movement Frame
+------------------------------
+
+This is where the `real amiga` position is indicated. This will show you
+where you are in the current adf file in Tracks, Sectors and Blocks. It will
+even show the side of the disk you are on. To the best of my knowledge these
+are correct (and I have looked at loads of books!)
+
+Below the labels showing the current position of the file are sliders which
+allow you to move in those different levels. 
+
+DOUBLE-CLICK on the block label and it will change from decimal view to hex.
+I added this to help me find out location of files and blocks when looking at
+the root block. All the values are in hex and it was too much bother to load
+`calculator` every time I needed to know the hex value!
+
+Byte Position shows the current position in bytes. This is for reference again,
+incase you need to go to a specific location.
+
+ADF-Zap Commands
+----------------
+
+<<Backward Button - Moves back 512 bytes (a block)
+>>Forward Button  - Moves forward 512 bytes (a block)
+
+Goto Position - Displays the goto frame with a number of `move` functions. See
+                Later for more information
+Find Position - Displays the find frame with a number of `find` functions. This
+                is not implemented (for speed reasons), see later for more info.
+
+Menu
+----
+
+File -> Open  - Displays a dialog box where you selected the .ADF file to want to
+                view. You do not need to close the existing file before you open
+                another, this is automatic.
+File -> Close - Closes the file.
+File -> Exit  - Exists from ADF-Zap (and closes, if open, the ADF file)
+
+Movement -> Goto boot block - Moves to the boot block of the ADF File (Block 0)
+Movement -> Goto root block - Moves to the root block of the ADF File (usually 880)
+
+Help -> Help  - Opens Notepad with this README.TXT file
+Help -> About - Displays information about ADF-ZAP, including build and function
+                information.
+
+
+
+Goto Frame
+----------
+
+This frame allows you to move to different location on the disk. There are
+currently three `goto` functions. They are...
+
+* Goto boot block
+                  - This moves to the start of the ADF file where the boot
+                    block lives. 
+
+* Goto root block
+                   - The root block is where the file system for the amiga 
+		    starts, this is usually located at block 880, thought
+		    ADF-ZAP supports a `floating` root-block.
+
+* Goto start of file
+                  - When you click on the option box, ADF-ZAP will start
+		    a comprehensive search of the ADF file to locate files
+		    and directories. This may take some time depending on the
+		    number of files and directories and the speed of your
+		    machine. Use the left list box to select the Directory
+		    (Or `<-Top->` to move to the root directory). You can go
+		    down sub-dirs until you find your file, then simply 
+		    double-click on the filename (or highlight the name and
+		    select `Go Find It`). If you double-click on it, ADF-ZAP
+		    will search and find the file without removing the goto
+		    frame. 
+
+
+Find Frame
+----------
+
+Sorry, but this has not been implemented yet. The main reason is that its just
+too slow for visual basic to search a file (it will search 10,000 bytes in
+5 seconds, so 900,000 bytes = 450 seconds). So until I manage to get a nice
+fast algorithm there will be no search.. (SORRY)
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    -3-
+******************************************************************************
+                        Opening And Closing ADF Files
+******************************************************************************
+
+Opening ADF Files
+-----------------
+
+To open a ADF File you must move to the File menu and select `Open ADF File`.
+The program will try and open the ADF file and present you at the start
+of the ADF file. If there is a problem with accessing the file, then ADF-Zap
+will return an error and you can reselect another file. 
+
+Closing ADF Files
+-----------------
+
+To close an ADF file (Ie. to use it again with UAE, and still keep ADF-ZAP
+open), simply selected `Close ADF File` from the file menu. 
+
+Automatic Closing
+-----------------
+
+This occurs when you either open a new ADF file (without first closing it)
+or when you close the program down. 
+
+Problems with Opening Or Using An ADF File
+------------------------------------------
+
+`Normal` DOS 1.x 2.x 3.x OFS and FFS formatted disk will work (well, as far
+as tested) and I would recommend that you try to stay clear of games and
+demo disks when look for files and root blocks (as they probably don`t exist)
+If you do try and search for files on a games/demo disk, ADF-ZAP has a 
+built-in error handler which will trap all the illegal block entries. A normal
+disk with 50 odd files and 20 directories will be listed in 10 seconds on
+a P133. If you have an non-dos disk and you do a file search then ADF-ZAP will
+go looking for all files/dir and try to decode the disk. It will fail because
+there is no `real` valid data for it to look at, you will probably receive one
+or two `Warning - Invalid block value, etc...` Don`t worry this is to tell
+you that it can`t decode a root or file header block. 
+If you get this error when doing a file list on a normal DOS disk which 
+works 100% under dos (without any checksum errors) then please let me know!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    -4-
+******************************************************************************
+                           Searching for a file.
+******************************************************************************
+
+     This is also decribed `briefly` in the interface section (Page 2)
+
+To search for a file you must open an ADF file which is a normal DOS disk. 
+Now click on the Goto Position button at the bottom right, and a frame box
+will appear showing you a number of options. Click on the `Goto start of
+file` option and ADF will report `Searching ADF file...`
+When ADF has returned with its list of files, it will place you in the root
+where you can move along sub-directories by double-clicking on the specified
+directory. To move back to the root selected `<-TOP->` in the list box and
+this will return you to the root (Sorry, no moving up sub-directories :( )
+Once you ahve found the correct file, double-click on it to move directly
+to it without removing the goto frame box, or selected the `Go Find It` 
+button to move to it and remove the goto frame box.
+
+
+
+
+
+
+
+
+
+                                    -5-
+******************************************************************************
+                                The Future 
+******************************************************************************
+
+The Future 
+----------
+
+The future of ADF-ZAP is pretty limited. If you can think of any ideas to
+improve it then place send me them, but remember this is a hex-ascii viewer
+and I don`t want to expand this beyond that (Ie. Don`t suggest it could do
+DMS->ADF conversion, I`m working on another application for that). The only
+real option left is to allow users to directly modify the ADF file, itself
+not hard (I even have the grids done so that they will only access hexadecimal
+number's only!!)
+
+The Future
+----------
+
+Currently being made is ADF-DM (Amiga Disk File - Disk Manager). This allows
+loads of interesting things to be done with ADF files. It should be available
+late Feb/ Early March. Watch out in a UAE Page near you!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                     -6-
+******************************************************************************
+                             Contacts and thanks.
+******************************************************************************
+
+Contacting myself.
+------------------
+
+You can contact me via E-Mail at the following address... KMus@Geocties.Com
+
+*OR*
+
+Post a messages on the UAE discussion board..
+
+
+Thanks goes to..
+----------------
+
+Euro-Software-Systems Ltd. (Northern Ireland) : Thanks for the P133's!
+
+Dallas McNally <lore@iinet.net.au> : Thanks goes to Dallas as he
+gave me the idea behing a windows ADF `specific` hex/ascii editor.
+
+All other contributors to ADF-Zap that I has forgotten (E-Mail me your name!)
+
+
+Things Of Interest
+------------------
+
+There are a number of .TXT files supplied with ADF-ZAP most of them will
+mean nothing and some may be helpful. Read and enjoy..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                     -7-
+******************************************************************************
+                                  Legal Crap 
+******************************************************************************
+
+I know, it always spoils the fun but where it is (or well, part of it)..
+
+By using ADF-ZAP you agree to the following contract AND all of the other
+imformation contained in the disclaimer file that comes it ADF-ZAP.
+

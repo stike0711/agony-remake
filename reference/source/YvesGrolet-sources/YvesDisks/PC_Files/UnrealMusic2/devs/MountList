@@ -1,0 +1,14 @@
+VD0:
+Device = asdg.vdisk.device
+Unit = 1
+Flags = 0
+Surfaces = 1
+BlocksPerTrack = 16
+Priority = 5
+Reserved = 2
+Interleave = 0
+LowCyl = 0
+HighCyl = 127
+Buffers = 5
+BufMemType = 5
+#

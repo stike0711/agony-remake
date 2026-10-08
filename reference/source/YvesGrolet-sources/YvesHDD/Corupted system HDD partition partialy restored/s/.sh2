@@ -1,0 +1,24 @@
+set _path dh0:,dh1:,dh0:c/,df0:,df0:c/,dh0:gr_util/,dh0:disk_util/,dh0:dev_util/,dh0:dev_util/packer/,dh0:lc/c/,dh0:sound_util/
+
+set f1 "x s:asm\12"
+set f2 "run ads\12"
+set f3 "run gfa\12"
+set f4 "run dpaint\12"
+set f5 "run pixmate\12"
+set f6 "dm\12"
+set f7 "x-copy\12"
+set f8 "x s:ex\12"
+set f9 "Powerpacker\12"
+set f10 "Qb\12"
+
+menu path work: system: work:agony work:ur work:apocalypse system:dev_util system:disk_util system:gr_util devs: libs: l: c: s:
+menu device dh0: dh1: df0: df1: df2: ram:
+menu ls "cls;ls" "dh0:;cls:ls" "dh1:;cls:ls" "df0:;cls:ls" "df1:;cls:ls"
+menu tools "x s:asm" "run ads" "run ads *.s" "ced" "run gfa" "run dpaint" "run pixmate" "dm" "x-copy" "x s:ex" "Powerpacker" "Qb" "format drive name" "exit"
+menu environement "run machiii" "setmachiii" virusx
+
+set _titlebar CShell V5.13L (poped) / A & M
+set _prompt "%c%n-%f:%p>"
+alias e ced
+alias x source
+window 320 12 320 500

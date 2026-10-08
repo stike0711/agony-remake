@@ -1,0 +1,13 @@
+ Amiga 1000 Notes/ Notes à propos de l'Amiga 1000
+
+MaxiPlan 500 et MaxiPlan Plus sont livrés avec un Workbench 500/2000
+installé sur la disquette de programme.
+
+Si vous possédez un Amiga 1000, et souhaitez utiliser une des configurations
+spéciales ou internationales du clavier, vous serez obligé de charger les
+claviers à partir du Workbench que vous utilisez sur l'Amiga 1000 pour les
+copier sur la disquette de MaxiPlan. Ceci peut être effectué en utilisant
+l'instruction Copy à partir du CLI:
+
+COPY "Your Workbench Disk:devs/Keymaps" to "MaxiPlan Disk:devs Keymaps" ALL
+ 

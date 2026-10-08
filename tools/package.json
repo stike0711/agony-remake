@@ -1,0 +1,5 @@
+{
+  "//": "Werkzeuge (Asset-Pipeline, Emulator-Server) laufen direkt in Node als ES-Module (.ts im Strip-only-Modus).",
+  "private": true,
+  "type": "module"
+}

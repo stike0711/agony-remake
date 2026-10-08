@@ -1,0 +1,8 @@
+rename devs/keymaps/menu.sleep to devs/keymaps/menu.help
+rename devs/keymaps/menu to devs/keymaps/menu.sleep
+rename devs/keymaps/menu.help to devs/keymaps/menu
+rename devs/keymaps/ed.sleep to devs/keymaps/ed.help
+rename devs/keymaps/ed to devs/keymaps/ed.sleep
+rename devs/keymaps/ed.help to devs/keymaps/ed
+echo "Keymap changed"
+

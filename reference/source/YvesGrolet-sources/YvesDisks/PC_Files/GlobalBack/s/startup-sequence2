@@ -1,0 +1,5 @@
+setmap f
+popcli 300 newcli
+mount vd0:
+initcli -w
+shell
