@@ -106,11 +106,6 @@ Danach: Quellcode weiter kartieren (Objektstruktur, Zufallsgenerator) für das e
 - **Enhanced-Fassung:** Grundsatz entschieden (E-019, E-040: Original exakt; Enhanced als eigener, neuer Kern mit dem
   Nachbau als Prüfstein). Offen: Reihenfolge der Punkte im [Fahrplan](enhanced.md) und die Sprache des neuen Kerns
   (TypeScript für Web/iPad, C++/Rust falls Switch oder andere Konsolen gewünscht).
-- **Cloud-Sessions (Guthaben aus der Aktion, verfällt 04.11.2026):** Arbeitskopie als privates GitHub-Repo? Geprüft
-  08.10.2026, noch nicht entschieden: Code, Wiki und Werkzeuge rund 20 MB, Grolets Quellcode 43 MB (ohne Tels Teile),
-  Spieldaten `game/public/data` 1,4 MB. Die Aufnahmen für die Tests sind roh 1,7 GB (Einzeldateien bis 70 MB), gzip
-  verkleinert sie etwa 30-fach (43 MB → 1,4 MB); dafür müssten die Test-Lader `.gz` lesen. Emulator, ROMs und ADFs
-  blieben lokal (Aufnahmen nur am PC). `git` ist vorhanden, `gh` nicht.
 - **Game Boy Advance, Switch:** als weitere Plattformen nach Phase 1? (Ideen in [Enhanced-Fassung](enhanced.md#e5--weitere-plattformen); Switch nur mit Rechten und Nintendo-Lizenz)
 - **Deutsche Anleitung:** Die englische ist ausgewertet (Lemon Amiga, vom Nutzer bereitgestellt). Eine deutsche
   Fassung wurde online nicht gefunden – liegt dem Nutzer evtl. die Originalverpackung vor?

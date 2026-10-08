@@ -55,6 +55,10 @@ Alles Wissen über das Original, den Projektstand, die Entscheidungen und die We
   Folgen wird toleriert und notiert, nicht weiter verfolgt.
 - **Kein Git:** Das Projekt läuft bewusst ohne Versionskontrolle. Vor größeren Umbauten oder Löschungen eine
   Sicherungskopie in `backup/` anlegen, mit Datum im Dateinamen (z. B. `backup/2026-10-06_CLAUDE.md`).
+  Ausnahme (E-041): Für Cloud-Sessions gibt es eine Git-Arbeitskopie in `P:\agony-remake-git` (privates
+  GitHub-Repo `stike0711/agony-remake`), abgeglichen mit `tools/repo/sync.ts`. **Arbeitet eine Sitzung in dieser
+  Arbeitskopie bzw. in der Cloud:** dort committen, nicht in den Projektordner schreiben; vor den Tests einmal
+  `node tools/repo/unpack-captures.ts` (Aufnahmen); den Emulator gibt es dort nicht. Ablauf in `wiki/setup.md`.
 - **Ein Ordner für zwei Rechner:** Das Projekt liegt auf einem NAS; der Windows-PC (Laufwerk `P:`) und später der
   Mac greifen gleichzeitig darauf zu. Deshalb:
   - Skripte und Build laufen unter Windows, macOS und Linux, ohne feste Laufwerkspfade (Pfade relativ zum Projekt

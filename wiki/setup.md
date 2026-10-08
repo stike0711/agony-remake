@@ -440,6 +440,29 @@ Sobald der Mac da ist (laut Nutzer in ein bis zwei Monaten, Stand 06.10.2026):
   Installation, TestFlight oder App Store ist das kostenpflichtige Apple Developer Program nötig.
 - Einrichtungsschritte hier dokumentieren, sobald sie ausgeführt sind.
 
+## Git-Arbeitskopie für Cloud-Sessions
+
+Entscheidung E-041. Das Projekt selbst bleibt ohne Git; für Cloud-Sessions von Claude Code (claude.ai/code) gibt es
+eine Arbeitskopie mit Git.
+
+- Arbeitskopie: `P:\agony-remake-git` (auf dem NAS neben dem Projekt), Repo `https://github.com/stike0711/agony-remake`
+  (privat), Zweig `main`. Git-Benutzer der Kopie: `stike0711`. In der globalen Git-Konfiguration des PCs ist der
+  Ordner als `safe.directory` eingetragen (das NAS speichert keine Besitzer).
+- Inhalt: alles außer `node_modules`, `server/`, `backup/`, `work/debug/`, `.claude/settings.local.json`; die
+  Emulator-Aufnahmen gepackt in `work/captures-gz/` (109 MB statt 2,1 GB). Auf Wunsch des Nutzers auch ROMs, ADFs
+  und Musik – **nur, weil das Repo privat ist**; nie öffentlich schalten oder weitergeben.
+- Abgleich (aus dem Projekt):
+  - `node tools/repo/sync.ts push ../agony-remake-git` – Projekt → Arbeitskopie (packt neue Aufnahmen), danach in
+    der Kopie `git add -A`, `git commit`, `git push`.
+  - Nach einer Cloud-Session: in der Kopie `git pull`, dann `node tools/repo/sync.ts pull ../agony-remake-git` –
+    übernimmt geänderte Dateien ins Projekt, sichert Überschriebenes nach `backup/<datum>_repo-pull/`, meldet in der
+    Kopie gelöschte Dateien nur. Danach `npm test` und `npm run build` im Projekt.
+- In der Cloud: `cd game && npm install`, einmal `node tools/repo/unpack-captures.ts` (aus der Wurzel), dann
+  `npm test`. Neue Emulator-Aufnahmen gehen nur am PC.
+- Nie gleichzeitig im Projekt und in der Cloud an denselben Dateien arbeiten; vor einer Cloud-Session pushen, danach
+  erst zurückholen, dann lokal weiter.
+- Das Guthaben für Cloud-Sessions (Aktion, 100 $) verfällt am 04.11.2026; danach zählen Cloud-Sessions zum Plan-Limit.
+
 ## Zwei Rechner, ein NAS
 
 Das Projekt liegt auf einem NAS. Der Windows-PC greift über Laufwerk `P:` darauf zu, der Mac später über die

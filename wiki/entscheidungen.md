@@ -439,3 +439,14 @@ Status: **gilt** · **vorgeschlagen** (noch nicht umgesetzt oder bestätigt) · 
 - Offen: Sprache des neuen Kerns. TypeScript reicht für Web und iPad (Capacitor); für Switch und andere Konsolen
   wäre ein Kern in C++ oder Rust (oder eine Engine mit Konsolen-Export) nötig, der Game Boy Advance braucht ohnehin
   einen eigenen Port in C/C++ ([Enhanced-Fassung](enhanced.md#e5--weitere-plattformen)).
+
+### E-041 Git-Arbeitskopie für Cloud-Sessions
+- Datum: 08.10.2026 · Status: gilt (vom Nutzer beschlossen)
+- Anlass: Guthaben für Cloud-Sessions von Claude Code (Aktion, verfällt 04.11.2026), das nicht zum Wochenlimit
+  zählt. Cloud-Sessions brauchen ein GitHub-Repo; das Projekt läuft bewusst ohne Git (NAS, zwei Rechner).
+- Entscheidung: Das Projekt bleibt ohne Git. Daneben gibt es die Arbeitskopie `P:\agony-remake-git` mit dem privaten
+  Repo `stike0711/agony-remake`; Abgleich in beide Richtungen mit `tools/repo/sync.ts` (Rückweg mit Sicherung). Inhalt
+  auf Wunsch des Nutzers vollständig einschließlich `reference/` (ROMs, ADFs, Musik), weil privat; Aufnahmen gepackt.
+- Geeignet für die Cloud: Arbeit am Code mit den vorhandenen Aufnahmen (Gegner-Routinen, Wiki, Werkzeuge). Neue
+  Emulator-Aufnahmen nur am PC.
+- Ablauf: [Setup](setup.md#git-arbeitskopie-für-cloud-sessions).
