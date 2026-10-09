@@ -299,7 +299,7 @@ Startliste liegen in Quelltext-Reihenfolge (Startadressen aus den `START_C`-Eint
 `R_Sol_Kamikaze` `$4C196`, `R_Colonne_Flamme` `$4C276`, `R_Araignee` `$4C368`, `R_Bomber` `$4C412`, `R_Sol_Guide`
 `$4C55C` (mit Parameter, z. B. 256 + 200), `R_Dragon` `$4C710`, `R_Final` `$4C888` (`START_C` bei `WAIT $2300`;
 Disassembly `work/disasm/mountains_rout.txt`). `R_Rapide` steht im Quelltext, wird aber nicht gestartet. Noch nicht
-übertragen: Im Nachbau hält das Level beim ersten `R_Sol_Guide` an (724 Bilder nach dem Start, `WAIT $280`,
+übertragen: Im Nachbau hält das Level beim ersten `R_Dragon` an (4.564 Bilder nach dem Start, `WAIT $1180`,
 `level4.test.ts`).
 
 Aus Level 1–3 bekannt (Quelltext per `diff`, Abbild Befehl für Befehl verglichen, 09.10.2026, gegen das Original
@@ -316,6 +316,16 @@ Durchläufe setzt der nächste Wert aus `R_CF_Hight` (`$4C256`: 1, 1, 1, 1, 1, 1
 Kopfwort der Bank, also wie viele Flammen von unten sichtbar sind. Ende, wenn die unterste Flamme x 200 erreicht
 (208 Durchläufe). Eigenheit O-018: Die versetzten Startphasen landen an den absoluten Adressen `$2`–`$9`, alle 4
 Flammen zeigen stets dasselbe Bild.
+
+✔ `R_Sol_Guide` (`$4C55C`–`$4C6CE`, gleich dem Quelltext; übertragen 09.10.2026, gegen das Original noch
+ungeprüft): ein Gegner am Boden (x 256 + 320, y 256 + 178, `Obj_Sol_Guide_0` `$3AA`, Energie 5, Status 0, ohne
+eigene Palette), der 2 Pixel je Durchlauf nach links läuft. Trifft x genau den Parameter `P_SG_Launch` (256 + 200,
++ 180 oder + 150 in der Startliste; ein ungerader Wert würde nie getroffen), wählt er nach der Lage der Eule die
+Flugrichtung, geflogen wird ab dem nächsten Durchlauf mit 3 Pixeln: Mit dx = x − (`Sorcerer_X` + 20) und
+h = 310 − `Sorcerer_Y` geht es bei |dx| ≤ 40 senkrecht hoch (Modus 4, `$3E8`); sonst bei ||dx| − h| ≤ 70 steil
+(Modus 3 nach links `$3D2` bzw. 5 nach rechts `$3FE`, je 3 Pixel hoch), andernfalls flach (Modus 2 `$3BC` bzw. 6
+`$414`, 1 Pixel hoch), jeweils in Richtung der Eule. Ende, wenn x < 200, x > 256 + 330 oder y < 200; CLOSE ändert
+`Rout_Mod_Pal_Counter` nicht und stellt nur bei 0 die Palette des Levels wieder her.
 
 ### Level 5 – Hochland (`Ag_Game_LPLATEAUX.s`)
 

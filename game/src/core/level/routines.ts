@@ -10,7 +10,8 @@
 // Level 3 nutzt die bekannten Routinen ganz ohne eigene Paletten (auch ohne Rout_Mod_Pal_Counter bei R_Rapide,
 // R_Transporteur und R_Sol_Crache), hat einen eigenen R_Jumper (jumperMarais), R_Sol_Kamikaze und einen eigenen
 // Endgegner mit Zunge (finalMarais); gegen das Original ungeprüft. Level 4 nutzt R_Bomber, R_Volant_Missile,
-// R_Sol_Kamikaze und R_Araignee wie Level 1–3 und hat eine Feuersäule (colonneFlamme); gegen das Original ungeprüft.
+// R_Sol_Kamikaze und R_Araignee wie Level 1–3 und hat eine Feuersäule (colonneFlamme) und R_Sol_Guide (solGuide);
+// gegen das Original ungeprüft.
 // Unbekannte Routinen halten die Engine an (LevelEngine.unported).
 
 import type { LevelEngine } from "./engine.ts";
@@ -218,9 +219,16 @@ export interface ColonneFlammeDef {
   obj: number;
 }
 
+/** Monster am Boden, das an einem Punkt (Parameter) in eine von 5 Richtungen nach oben losfliegt, je nach Lage der Eule (R_Sol_Guide, Level 4) */
+export interface SolGuideDef {
+  kind: "solGuide";
+  /** Obj_Sol_Guide_0 (Laufen) und Obj_Sol_Guide_1–5 (Flug in Modus 2–6) */
+  obj: number[];
+}
+
 export type RoutineDef = SolCracheDef | AraigneeDef | TransporteurDef | TirEtoileDef | SpectreDef | RapideDef |
   BomberDef | GrossiDef | VolantMissileDef | FinalDef | KamikazeDef | SolEtoileDef | FinalForetDef | JumperMaraisDef |
-  SolKamikazeDef | FinalMaraisDef | ColonneFlammeDef;
+  SolKamikazeDef | FinalMaraisDef | ColonneFlammeDef | SolGuideDef;
 
 const ROUTS = 32;
 const ROUT_LEN = 28;
@@ -282,6 +290,7 @@ export function routineManager(e: LevelEngine): void {
       case "solKamikaze": solKamikaze(e, a0, def); break;
       case "finalMarais": finalMarais(e, a0, def); break;
       case "colonneFlamme": colonneFlamme(e, a0, def); break;
+      case "solGuide": solGuide(e, a0, def); break;
     }
   }
 }
@@ -1633,4 +1642,63 @@ function colonneFlamme(e: LevelEngine, a0: number, d: ColonneFlammeDef): void {
     }
   }
   if (s16(ram.word(a2 + AWO_X)) <= 200) close(e, a0, bank, false);
+}
+
+// R_Sol_Guide: Schritt in x und y je Durchlauf in Modus 2–6 (Quelle: AG_GAME_LMONTAGNES.S, Labels .mode2–.mode6)
+const SG_DX = [-3, -3, 0, 3, 3];
+const SG_DY = [-1, -3, -3, -3, -1];
+
+/**
+ * R_Sol_Guide (AG_GAME_LMONTAGNES.S, „SOL GUIDE“): ein Gegner am Boden (x 256 + 320, y 256 + 178, Obj_Sol_Guide_0,
+ * Energie 5, schießt nicht), der 2 Pixel je Durchlauf nach links läuft. Erreicht x genau den Parameter P_SG_Launch
+ * (Vergleich auf Gleichheit), wählt er nach der Lage der Eule eine Flugrichtung; geflogen wird ab dem nächsten
+ * Durchlauf, 3 Pixel je Durchlauf. Mit dx = x − (Sorcerer_X + 20) und h = 310 − Sorcerer_Y:
+ * |dx| ≤ 40 → Modus 4 (senkrecht hoch); sonst, wenn die Eule links steht (dx ≥ 0), ||dx| − h| ≤ 70 → Modus 3 (steil
+ * nach links oben), sonst Modus 2 (flach nach links); steht sie rechts, entsprechend Modus 5 bzw. 6 nach rechts. Ende,
+ * wenn x < 200, x > 256 + 330 oder y < 200 (geprüft auch im Start-Durchlauf). Ohne eigene Palette; CLOSE ändert
+ * Rout_Mod_Pal_Counter nicht und stellt nur bei 0 die Palette des Levels wieder her. Quelle: AG_GAME_LMONTAGNES.S,
+ * Label R_Sol_Guide; Abbild $4C55C–$4C6CE (gleich dem Quelltext).
+ */
+function solGuide(e: LevelEngine, a0: number, d: SolGuideDef): void {
+  const { V, ram } = e;
+  const a1 = ram.long(a0 + ROUT_PARAM_PTR);
+  const bank = ram.long(a0 + ROUT_AWO_PTR);
+  const a3 = a0 + ROUT_VARIABLES;
+  const a2 = bank + 4;
+  const mode = ram.word(a3);
+  ram.setLong(bank, 0x00010000);
+  if (mode === 0) {
+    ram.setWord(a2 + AWO_X, 256 + 320);
+    ram.setWord(a2 + AWO_Y, 256 + 178);
+    ram.setWord(a2 + AWO_OBJ_OFF, d.obj[0]!);
+    ram.setWord(a2 + AWO_ENERGY, 5);
+    ram.setLong(a2 + AWO_STATUS, 0);
+    ram.setWord(a3, 1);
+  } else if (mode === 1) {
+    const x = (ram.word(a2 + AWO_X) - 2) & 0xffff;
+    ram.setWord(a2 + AWO_X, x);
+    if (x === ram.word(a1)) {
+      // .mode1: Wortarithmetik wie im Original (sub/neg/cmp.w mit Vorzeichen)
+      let d0 = s16(x - e.w(V.sorcererX) - 20);
+      const right = d0 >= 0; // st d2 / moveq #0,d2
+      if (!right) d0 = s16(-d0);
+      const d1 = s16(310 - e.w(V.sorcererY));
+      let next: number;
+      if (d0 <= 40) next = 4;
+      else {
+        d0 = s16(d0 - d1);
+        if (d0 < 0) d0 = s16(-d0);
+        next = right ? (d0 <= 70 ? 3 : 2) : (d0 <= 70 ? 5 : 6);
+      }
+      ram.setWord(a3, next);
+    }
+  } else {
+    // Modus 2–6 (andere Werte kommen nicht vor)
+    const m = mode - 2;
+    ram.setWord(a2 + AWO_OBJ_OFF, d.obj[m + 1]!);
+    ram.setWord(a2 + AWO_X, (ram.word(a2 + AWO_X) + SG_DX[m]!) & 0xffff);
+    ram.setWord(a2 + AWO_Y, (ram.word(a2 + AWO_Y) + SG_DY[m]!) & 0xffff);
+  }
+  const x = s16(ram.word(a2 + AWO_X));
+  if (x < 200 || x > 256 + 330 || s16(ram.word(a2 + AWO_Y)) < 200) close(e, a0, bank, false);
 }

@@ -43,7 +43,9 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
     // R_Colonne_Flamme: Bank je Durchlauf (Kopfwort, x und Objekt der 4 Flammen)
     const cf: { f: number; count: number; x: number[]; obj: number[] }[] = [];
     let cfStart = -1, cfEnd = -1;
-    for (; f < 2000 && !e.unported && !e.result; f++) {
+    // R_Sol_Guide: je Lauf Startbild, Parameter P_SG_Launch und je Durchlauf Modus, Position und Objekt
+    const sg: { slot: number; open: boolean; start: number; launch: number; pos: number[][] }[] = [];
+    for (; f < 6000 && !e.unported && !e.result; f++) {
       let input = f === 49 || f === 50 ? JOY_FIRE : 0;
       if (f >= 58) {
         if (n === 0) { [n] = PATTERN[k % PATTERN.length]!; k++; }
@@ -54,8 +56,21 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
       if (e.ram.word(SHARED.life) < 3) e.ram.setWord(SHARED.life, 7);
       e.tick(display);
       let slot = -1;
-      for (let i = 0; i < 32; i++) if (e.ram.long(L.routStruct + 28 * i) === 0x4c276) slot = L.routStruct + 28 * i;
-      if (slot >= 0) {
+      for (let i = 0; i < 32; i++) {
+        const a0 = L.routStruct + 28 * i;
+        const code = e.ram.long(a0);
+        if (code === 0x4c276) slot = a0;
+        let run = sg.find((r) => r.open && r.slot === a0);
+        if (run && code !== 0x4c55c) run.open = false;
+        if (code !== 0x4c55c) continue;
+        if (!run) sg.push(run = { slot: a0, open: true, start: f, launch: e.ram.word(e.ram.long(a0 + 4)), pos: [] });
+        const bank = e.ram.long(a0 + 8);
+        const p = [e.ram.word(a0 + 12), e.ram.word(bank + 4), e.ram.word(bank + 6), e.ram.word(bank + 8)];
+        // Modus 0: der Eintrag ist belegt, die Routine aber noch nicht gelaufen; je Durchlauf ändert sich x oder y
+        const q = run.pos[run.pos.length - 1];
+        if (p[0] !== 0 && (!q || q[1] !== p[1] || q[2] !== p[2])) run.pos.push(p);
+      }
+      if (slot >= 0 && cfEnd < 0) {
         if (cfStart < 0) cfStart = f;
         const bank = e.ram.long(slot + 8);
         const a = [0, 1, 2, 3].map((i) => bank + 4 + 12 * i);
@@ -64,12 +79,12 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
       // ohne Regen und Zauber zeigen Sprite 6 und 7 die leere Liste
       if (f === 40) expect([e.ram.long(L.d + V.sprPtrB + 24), e.ram.long(L.d + V.sprPtrB + 28)]).toEqual([L.emptySpr, L.emptySpr]);
     }
-    // R_Bomber (WAIT $80) und R_Colonne_Flamme (WAIT $140) laufen, die Engine hält am ersten R_Sol_Guide ($4C55C, WAIT
-    // $280); Bildnummern aus dem Nachbau (Regression, gegen das Original ungeprüft)
+    // R_Bomber (WAIT $80), R_Colonne_Flamme (WAIT $140) und R_Sol_Guide (ab WAIT $280) laufen, die Engine hält am
+    // ersten R_Dragon ($4C710, WAIT $1180); Bildnummern aus dem Nachbau (Regression, gegen das Original ungeprüft)
     expect(e.result).toBeNull();
-    expect(e.unported).toContain("$4C55C");
-    expect(e.w(V.levelX)).toBeGreaterThanOrEqual(0x280);
-    expect(e.w(V.levelX)).toBeLessThan(0x290);
+    expect(e.unported).toContain("$4C710");
+    expect(e.w(V.levelX)).toBeGreaterThanOrEqual(0x1180);
+    expect(e.w(V.levelX)).toBeLessThan(0x1190);
     expect(f).toBe(UNPORTED_AT);
     // R_Colonne_Flamme (Quelle: AG_GAME_LMONTAGNES.S, Label R_Colonne_Flamme): Start-Durchlauf mit 4 Flammen bei
     // x 256 + 360, y 446, 411, 376, 341 und Obj_Grande_Flamme_1; Startphasen an den absoluten Adressen $2–$9 (O-018)
@@ -95,11 +110,35 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
       expect(r.obj).toEqual(Array(4).fill(0x198 + 0x12 * (j % 8)));
       expect(r.count).toBe(hight[Math.floor(j / 3) % 16]);
     }
-    // Ende bei x 200: Durchläufe 0–207 sichtbar, im Durchlauf 208 CLOSE
-    // lückenlos bis zum Halt; die Säule läuft dann noch (Ende bei x 200 in routines.test.ts)
+    // Ende bei x 200: Durchläufe 0–207 sichtbar, im Durchlauf 208 CLOSE (die zweite Säule ab WAIT $4D0 zählt nicht)
     expect(passes.size).toBe(Math.max(...passes) + 1);
-    expect(passes.size).toBe(CF_PASSES);
-    expect(cfEnd).toBe(-1);
+    expect(passes.size).toBe(208);
+    expect(cfEnd).toBe(CF_END);
+
+    // R_Sol_Guide (Quelle: AG_GAME_LMONTAGNES.S, Label R_Sol_Guide und Start_List): 9 Läufe bis zum Halt mit den
+    // Parametern aus der Startliste
+    expect(sg.map((r) => r.start)).toEqual(SG_START);
+    expect(sg.map((r) => r.launch)).toEqual([456, 456, 436, 406, 406, 456, 436, 406, 406]);
+    expect(sg.every((r) => !r.open)).toBe(true);
+    const step: Record<number, number[]> = { 2: [-3, -1, 0x3bc], 3: [-3, -3, 0x3d2], 4: [0, -3, 0x3e8], 5: [3, -3, 0x3fe], 6: [3, -1, 0x414] };
+    const modes: number[] = [];
+    for (const r of sg) {
+      // Start bei x 576, y 434 mit $3AA, dann 2 Pixel je Durchlauf bis x = Parameter; erst danach steht der Modus
+      const walk = (576 - r.launch) / 2;
+      for (let j = 0; j <= walk; j++) expect(r.pos[j]).toEqual([j < walk ? 1 : r.pos[walk]![0], 576 - 2 * j, 434, 0x3aa]);
+      const m = r.pos[walk]![0]!;
+      modes.push(m);
+      const [dx, dy, obj] = step[m]!;
+      for (let j = walk + 1; j < r.pos.length; j++) {
+        expect(r.pos[j]).toEqual([m, r.launch + dx! * (j - walk), 434 + dy! * (j - walk), obj]);
+      }
+      // nicht abgeschossen: Ende, weil der nächste Schritt den Rand überschreitet (x < 200, x > 586 oder y < 200)
+      const [, x, y] = r.pos[r.pos.length - 1]!;
+      const nx = x! + dx!, ny = y! + dy!;
+      expect(nx < 200 || nx > 586 || ny < 200).toBe(true);
+    }
+    // gewählte Richtung je Lauf (hängt von der Lage der Eule beim Abflug ab; Regression)
+    expect(modes).toEqual([3, 3, 3, 4, 4, 4, 4, 4, 5]);
   }, 60_000);
 });
 
@@ -108,6 +147,7 @@ const PATTERN: [number, number][] = [
   [25, JOY_UP], [30, 0], [25, JOY_DOWN], [20, 0], [15, JOY_RIGHT], [30, JOY_DOWN], [20, 0], [15, JOY_LEFT], [40, JOY_UP],
   [25, 0],
 ];
-const UNPORTED_AT = 724;
+const UNPORTED_AT = 4564;
 const CF_START = 402;
-const CF_PASSES = 161;
+const CF_END = 819;
+const SG_START = [722, 1618, 1681, 1746, 2387, 3028, 3090, 3155, 4084];

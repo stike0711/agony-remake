@@ -821,4 +821,76 @@ describe.skipIf(!hasAssets)("Gegner-Routinen von Level 4, aus Level 1–3 bekann
     expect([r.w(r.a2 + X), r.e.ram.long(r.a0), r.w(r.bank)]).toEqual([200, 0xffffffff, 0xffff]);
     expect(untouched(r)).toEqual([1, 0x12345678]);
   });
+
+  // Werte von Hand aus AG_GAME_LMONTAGNES.S (Label R_Sol_Guide), Abbild $4C55C–$4C6CE
+  it("R_Sol_Guide: läuft bis P_SG_Launch, fliegt je nach Lage der Eule in eine von 5 Richtungen, Ende am Rand", () => {
+    /** Start, 60 Durchläufe Laufen bis x = 456 (Parameter 256 + 200) mit der Eule bei (sx, sy): gewählter Modus */
+    const launch = (sx: number, sy: number): Rout => {
+      const r = start(0x4c55c, [456], MOUNTAINS);
+      busy(r);
+      r.e.setW(MV.sorcererX, sx);
+      r.e.setW(MV.sorcererY, sy);
+      r.run(1);
+      return r;
+    };
+    const r = launch(400, 300);
+    // Start: x 256 + 320, y 256 + 178, Obj_Sol_Guide_0 $3AA, Energie 5, Status 0
+    expect([r.w(r.a3), r.w(r.bank), r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)])
+      .toEqual([1, 1, 576, 434, 0x3aa, 5]);
+    expect(r.e.ram.long(r.a2 + STATUS)).toBe(0);
+    r.run(59);
+    expect([r.w(r.a3), r.w(r.a2 + X), r.w(r.a2 + Y)]).toEqual([1, 458, 434]);
+    // x 456 = Parameter: dx = 456 − (400 + 20) = 36 ≤ 40 → Modus 4, Bewegung erst im nächsten Durchlauf
+    r.run(1);
+    expect([r.w(r.a3), r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ)]).toEqual([4, 456, 434, 0x3aa]);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ)]).toEqual([456, 431, 0x3e8]);
+    // senkrecht 3 Pixel je Durchlauf: y 200 nach 78 Flug-Durchläufen läuft noch, bei 197 CLOSE ohne Zählerabzug
+    r.run(77);
+    expect([r.w(r.a2 + Y), r.e.ram.long(r.a0)]).toEqual([200, 0x4c55c]);
+    r.run(1);
+    expect([r.w(r.a2 + Y), r.e.ram.long(r.a0), r.w(r.bank)]).toEqual([197, 0xffffffff, 0xffff]);
+    expect(untouched(r)).toEqual([1, 0x12345678]);
+
+    /** Modus nach dem Abflugpunkt und der erste Flug-Durchlauf: [Modus, x, y, Objekt] */
+    const fly = (sx: number, sy: number): number[] => {
+      const g = launch(sx, sy);
+      g.run(60);
+      const m = g.w(g.a3);
+      g.run(1);
+      return [m, g.w(g.a2 + X), g.w(g.a2 + Y), g.w(g.a2 + OBJ)];
+    };
+    // Eule links (dx ≥ 0): ||dx| − (310 − Sorcerer_Y)| ≤ 70 → Modus 3 ($3D2, −3/−3), sonst Modus 2 ($3BC, −3/−1)
+    expect(fly(300, 244)).toEqual([3, 453, 431, 0x3d2]); // |136 − 66| = 70
+    expect(fly(300, 250)).toEqual([2, 453, 433, 0x3bc]); // |136 − 60| = 76
+    // dx = 41 ist schon zu weit für Modus 4
+    expect(fly(395, 300)).toEqual([3, 453, 431, 0x3d2]); // |41 − 10| = 31
+    // Eule rechts (dx < 0): Modus 5 ($3FE, +3/−3) bzw. Modus 6 ($414, +3/−1)
+    expect(fly(500, 300)).toEqual([5, 459, 431, 0x3fe]); // |64 − 10| = 54
+    expect(fly(600, 300)).toEqual([6, 459, 433, 0x414]); // |164 − 10| = 154
+    // dx = −40 → Modus 4
+    expect(fly(476, 300)).toEqual([4, 456, 431, 0x3e8]);
+
+    // Modus 6: Ende, sobald x > 256 + 330 (456 + 3 · 44 = 588)
+    const g = launch(600, 300);
+    g.run(60 + 43);
+    expect([g.w(g.a2 + X), g.e.ram.long(g.a0)]).toEqual([585, 0x4c55c]);
+    g.run(1);
+    expect([g.w(g.a2 + X), g.e.ram.long(g.a0)]).toEqual([588, 0xffffffff]);
+
+    // ungerader Parameter: x trifft ihn nie, das Monster läuft bis x < 200 (576 − 2 · 189 = 198)
+    const o = start(0x4c55c, [457], MOUNTAINS);
+    busy(o);
+    o.run(1 + 188);
+    expect([o.w(o.a3), o.w(o.a2 + X), o.e.ram.long(o.a0)]).toEqual([1, 200, 0x4c55c]);
+    o.run(1);
+    expect([o.w(o.a2 + X), o.e.ram.long(o.a0)]).toEqual([198, 0xffffffff]);
+
+    // CLOSE bei Rout_Mod_Pal_Counter = 0: Palette des Levels zurück
+    const z = start(0x4c55c, [457], MOUNTAINS);
+    z.e.setW(MV.routModPalCounter, 0);
+    z.e.setL(MV.routPalPtr, 0x12345678);
+    z.run(190);
+    expect([z.e.w(MV.routModPalCounter), z.e.l(MV.routPalPtr)]).toEqual([0, 0xffffffff]);
+  });
 });
