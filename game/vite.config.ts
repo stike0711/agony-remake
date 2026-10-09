@@ -27,5 +27,7 @@ export default defineConfig({
   test: {
     include: ["test/**/*.test.ts"],
     environment: "node",
+    // Viele Tests laden die Spieldaten; vom NAS und mit parallel laufenden Tests dauert das mehr als 5 s
+    testTimeout: 60_000,
   },
 });
