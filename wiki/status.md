@@ -15,8 +15,8 @@ Alle Gegner-Routinen, Bonus, Zaubermenü mit allen Zaubern, Äxte, Pause und Lev
 (gegen das Original noch ungeprüft); nach dem Levelende folgen das Ladebild und Level 2 (Abbild und Layout stehen,
 alle Gegner-Routinen samt Endgegner sind übertragen, das Level läuft bis zum Levelende), danach Ladebild und Level 3
 (Abbild und Layout stehen, alle Gegner-Routinen samt Endgegner sind übertragen, das Level läuft bis zum Levelende),
-danach Ladebild und Level 4 (Abbild und Layout stehen, die Wellen laufen bis zum Endgegner).
-Als Nächstes: der Endgegner von Level 4; am PC Aufnahmen von Level 1 über Bild 14.792 hinaus und
+danach Ladebild und Level 4 (ebenso bis zum Levelende), dann vorläufig ein Platzhalter.
+Als Nächstes: Level 5; am PC Aufnahmen von Level 1 über Bild 14.792 hinaus und
 von Level 2 zur Prüfung des Übertragenen, Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist
 eingeplant, sobald ein Mac zur Verfügung steht.
 
@@ -76,10 +76,11 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Level 4 – Endgegner `R_Final`** (nächster Cloud-Schritt, Ablauf B, Effort „hoch“): `$4C888`, ohne Parameter
-   (`AG_GAME_LMONTAGNES.S`, Abschnitt „MONSTRE FINAL“, Abbild `work/disasm/mountains_rout.txt`; `Masse_Shape`
-   davor); hier hält der Lauf (9.059 Bilder nach dem Start, WAIT `$2300`). Dazu Levelende wie in Level 3
-   (`Quit_Delay`, `Clean_Up`); Level 4 endet danach mit `ui.level5Stub` (`flow.ts`, `level4`).
+1. **Level 5 – Abbild und Layout** (nächster Cloud-Schritt, Effort „hoch“, Muster: Schritt „Level 4: Ladebild,
+   Abbild, Layout, Startliste“ im Verlauf): Level 4 ist bis zum Levelende übertragen (09.10.2026), danach steht der
+   Platzhalter `ui.level5Stub` (`flow.ts`, `level4`). Ladebild des Hochlands, Abbild mit `derive_layout.py`, Layout,
+   Pipeline-Blöcke, Startliste (`Ag_Game_LPLATEAUX.s`); dann die Gegner-Routinen (bekannte zuerst, je Schritt
+   Ablauf B).
 2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
    [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
 
@@ -195,9 +196,15 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 09.10.2026 | Level 4: `R_Colonne_Flamme` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 | 09.10.2026 | Level 4: `R_Sol_Guide` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 | 09.10.2026 | Level 4: `R_Dragon` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
+| 09.10.2026 | Level 4: Endgegner `R_Final` und Levelende (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; Sitzung nach Neustart des Workers, kein Compact |
 
 ## Verlauf
 
+- **09.10.2026 (Level 4: Endgegner `R_Final` und Levelende, Cloud-Session)** – Abbild `$4C888` gleich dem Quelltext
+  (`finalMontagnes` in `routines.ts`, Eintrag in `MOUNTAINS.routines`): steigt und sinkt, folgt der Eule, wirft alle
+  25 Durchläufe eine Masse aus; nach der Explosion `Quit_Delay` 25 und Levelende. `level4.test.ts` spielt bis zum
+  Levelende (12.032 Bilder, 32 Massen), danach `ui.level5Stub`. 1 neuer Kern-Test, 94 Tests. Im Browser nicht geprüft
+  (nur Kern). Gegen das Original ungeprüft. Vorher origin/main übernommen (Fast-Forward, `vite.config.ts`).
 - **09.10.2026 (Level 4: `R_Dragon`, Cloud-Session)** – Drache, der 2 Pixel je Durchlauf nach links fliegt und alle
   30 Durchläufe eine Feuerzunge ausstößt (Abbild `$4C710` gleich dem Quelltext, Tabellen aus dem Abbild bestätigt),
   als `dragon` in `routines.ts`. Level 4 läuft jetzt bis zum Endgegner `R_Final` (9.059 Bilder; 6 Drachen, die

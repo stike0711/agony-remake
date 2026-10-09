@@ -923,8 +923,8 @@ export const MOUNTAINS: LevelLayout = {
   // Quelle: AG_GAME_LMONTAGNES.S „ROUTINES“ (Disassembly work/disasm/mountains_rout.txt, je Routine ab ihrem Start
   // disassembliert): R_Volant_Missile $4BD54, R_Sol_Kamikaze $4C196, R_Colonne_Flamme $4C276, R_Araignee $4C368,
   // R_Bomber $4C412, R_Sol_Guide $4C55C, R_Dragon $4C710, R_Final $4C888. Übertragen sind die aus Level 1–3 bekannten
-  // (mit Quelltext per diff und Abbild Befehl für Befehl verglichen) und R_Colonne_Flamme, R_Sol_Guide, R_Dragon;
-  // noch nicht: R_Final
+  // (mit Quelltext per diff und Abbild Befehl für Befehl verglichen), dazu R_Colonne_Flamme, R_Sol_Guide, R_Dragon
+  // und R_Final (alle Routinen des Levels)
   routines: new Map<number, RoutineDef>([
     // Abbild $4BD54, wie Level 3 (ohne Palette, Schuss 2 Pixel je Durchlauf); Obj_Volant_Missile_1/2 $244/$25A
     // ($4BDC2/$4BDCC), Obj_Tir_1–8 aus den Zuweisungen $4BE20–$4C0C8
@@ -945,6 +945,9 @@ export const MOUNTAINS: LevelLayout = {
     // Abbild $4C710, eigener Code (AG_GAME_LMONTAGNES.S, R_Dragon); Dragon_Shape $4C6D6 ($4C766), Langue_Shape $4C6EA
     // ($4C828), Obj_Dragon_1 $54E ($4C732), Obj_Fire_1 $58E ($4C7C8), Obj_Fire_8 $64E ($4C800)
     [0x4c710, { kind: "dragon", shape: 0x4c6d6, langue: 0x4c6ea, obj: 0x54e, objFire: 0x58e, objFireLast: 0x64e }],
+    // Abbild $4C888 (gleich dem Quelltext); Masse_Shape $4C860 ($4C99E), Obj_Final_0 $676 ($4C8AC), Obj_Final_1 $6A6
+    // ($4C96E)
+    [0x4c888, { kind: "finalMontagnes", masseShape: 0x4c860, obj: 0x676, objMasse: 0x6a6 }],
   ]),
   relativeTracks: 0x4c9c4, // $2B58
   absoluteTracks: 0x4cf70, // $2CBA

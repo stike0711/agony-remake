@@ -10,8 +10,8 @@
 // Level 3 nutzt die bekannten Routinen ganz ohne eigene Paletten (auch ohne Rout_Mod_Pal_Counter bei R_Rapide,
 // R_Transporteur und R_Sol_Crache), hat einen eigenen R_Jumper (jumperMarais), R_Sol_Kamikaze und einen eigenen
 // Endgegner mit Zunge (finalMarais); gegen das Original ungeprüft. Level 4 nutzt R_Bomber, R_Volant_Missile,
-// R_Sol_Kamikaze und R_Araignee wie Level 1–3 und hat eine Feuersäule (colonneFlamme) und R_Sol_Guide (solGuide);
-// gegen das Original ungeprüft.
+// R_Sol_Kamikaze und R_Araignee wie Level 1–3 und hat eine Feuersäule (colonneFlamme), R_Sol_Guide (solGuide), einen
+// Drachen (dragon) und einen eigenen Endgegner (finalMontagnes); gegen das Original ungeprüft.
 // Unbekannte Routinen halten die Engine an (LevelEngine.unported).
 
 import type { LevelEngine } from "./engine.ts";
@@ -226,6 +226,15 @@ export interface SolGuideDef {
   obj: number[];
 }
 
+/** Endgegner von Level 4 (R_Final in AG_GAME_LMONTAGNES.S): steigt auf und ab, folgt der Eule, wirft eine Masse aus */
+export interface FinalMontagnesDef {
+  kind: "finalMontagnes";
+  /** Masse_Shape (20 Objektnummern), Obj_Final_0 (Endgegner), Obj_Final_1 (Masse beim Auswerfen) */
+  masseShape: number;
+  obj: number;
+  objMasse: number;
+}
+
 /** Drache, der nach links fliegt und alle 30 Durchläufe eine Feuerzunge ausstößt (R_Dragon, Level 4) */
 export interface DragonDef {
   kind: "dragon";
@@ -239,7 +248,7 @@ export interface DragonDef {
 
 export type RoutineDef = SolCracheDef | AraigneeDef | TransporteurDef | TirEtoileDef | SpectreDef | RapideDef |
   BomberDef | GrossiDef | VolantMissileDef | FinalDef | KamikazeDef | SolEtoileDef | FinalForetDef | JumperMaraisDef |
-  SolKamikazeDef | FinalMaraisDef | ColonneFlammeDef | SolGuideDef | DragonDef;
+  SolKamikazeDef | FinalMaraisDef | ColonneFlammeDef | SolGuideDef | DragonDef | FinalMontagnesDef;
 
 const ROUTS = 32;
 const ROUT_LEN = 28;
@@ -303,6 +312,7 @@ export function routineManager(e: LevelEngine): void {
       case "colonneFlamme": colonneFlamme(e, a0, def); break;
       case "solGuide": solGuide(e, a0, def); break;
       case "dragon": dragon(e, a0, def); break;
+      case "finalMontagnes": finalMontagnes(e, a0, def); break;
     }
   }
 }
@@ -1794,4 +1804,89 @@ function dragon(e: LevelEngine, a0: number, d: DragonDef): void {
   const step = (ram.word(a3 + D_LANGUE_STEP) + 2) & 0xffff;
   ram.setWord(a3 + D_LANGUE_STEP, step);
   ram.setWord(a4 + AWO_OBJ_OFF, ram.word(d.langue + step));
+}
+
+// R_Final von Level 4: Variablen +0 R_F_Mode (0 Start, 1 Monster, 2 Masse), +2 R_F_Masse_Delay, +4 R_F_Masse_Step,
+// +6 R_F_Sens (0 aufwärts, sonst abwärts)
+const FM_DELAY = 2;
+const FM_STEP = 4;
+const FM_SENS = 6;
+
+/**
+ * R_Final von Level 4: Der Endgegner (Obj_Final_0, Energie 200, Schussrate 10, keine eigene Palette) erscheint bei
+ * x 256 + 240, y 256 + 300. R_F_Mode 1: Er steigt mit 3 Pixeln je Durchlauf bis y ≤ 256 + 104 und sinkt bis
+ * y ≥ 256 + 230, im Wechsel; waagrecht hält er 1 Pixel je Durchlauf auf Eule x + 200 zu, nach rechts höchstens bis
+ * x 256 + 260. Alle 25 Durchläufe wirft er die Masse aus: zweiter Gegner der Bank bei (x − 210, y), Obj_Final_1,
+ * unverwundbar (Energie −1), Status 0 (schießt nicht). R_F_Mode 2: Er steht, die Masse zeigt Masse_Shape ab dem
+ * zweiten Eintrag (Schritt 2, 4 … 38, 19 Bilder), im 20. Durchlauf wieder Modus 1 (die Masse bleibt in der Bank, wird
+ * aber mit einem Gegner nicht mehr gezeigt). Endet die Explosion des Endgegners (unteres Halbbyte des Status $F): CLOSE,
+ * Quit_Delay = 25 und Clean_Up (Levelende). Quelle: AG_GAME_LMONTAGNES.S, Abschnitt „MONSTRE FINAL“, Label R_Final;
+ * Abbild $4C888–$4C9C2 (gleich dem Quelltext), Masse_Shape $4C860.
+ */
+function finalMontagnes(e: LevelEngine, a0: number, d: FinalMontagnesDef): void {
+  const { V, ram } = e;
+  const bank = ram.long(a0 + ROUT_AWO_PTR);
+  const a3 = a0 + ROUT_VARIABLES;
+  const a2 = bank + 4;
+  const a4 = a2 + AWO_LEN;
+  const mode = ram.word(a3);
+  ram.setLong(bank, 0x00010000);
+  if (mode === 0) {
+    ram.setWord(a2 + AWO_X, 256 + 240);
+    ram.setWord(a2 + AWO_Y, 256 + 300);
+    ram.setWord(a2 + AWO_OBJ_OFF, d.obj);
+    ram.setWord(a2 + AWO_ENERGY, 200);
+    ram.setLong(a2 + AWO_STATUS, 0x000a0000);
+    ram.setWord(a3, 1);
+    ram.setWord(a3 + FM_SENS, 0);
+    return;
+  }
+  if ((ram.byte(a2 + AWO_STATUS) & 0xf) === 0xf) {
+    // .close
+    ram.setLong(a0, 0xffffffff);
+    ram.setWord(bank, 0xffff);
+    e.setW(V.quitDelay, 25);
+    e.setB(V.cleanUp, 0xff);
+    return;
+  }
+  if (mode === 2) {
+    ram.setWord(bank, 2);
+    const step = (ram.word(a3 + FM_STEP) + 2) & 0xffff;
+    ram.setWord(a3 + FM_STEP, step);
+    if (step === 40) {
+      ram.setWord(a3, 1);
+      return;
+    }
+    ram.setWord(a4 + AWO_OBJ_OFF, ram.word(d.masseShape + s16(step)));
+    return;
+  }
+  // auf und ab zwischen 256 + 104 und 256 + 230
+  if (ram.word(a3 + FM_SENS) === 0) {
+    const y = (ram.word(a2 + AWO_Y) - 3) & 0xffff;
+    ram.setWord(a2 + AWO_Y, y);
+    if (s16(y) <= 256 + 104) ram.setWord(a3 + FM_SENS, ram.word(a3 + FM_SENS) + 1);
+  } else {
+    const y = (ram.word(a2 + AWO_Y) + 3) & 0xffff;
+    ram.setWord(a2 + AWO_Y, y);
+    if (s16(y) >= 256 + 230) ram.setWord(a3 + FM_SENS, (ram.word(a3 + FM_SENS) - 1) & 0xffff);
+  }
+  // waagrecht auf Eule x + 200 zu, rechts höchstens bis 256 + 260
+  const target = (e.w(V.sorcererX) + 200) & 0xffff;
+  const x = ram.word(a2 + AWO_X);
+  if (target !== x) {
+    if (s16(target) < s16(x)) ram.setWord(a2 + AWO_X, (x - 1) & 0xffff);
+    else if (x !== 256 + 260) ram.setWord(a2 + AWO_X, x + 1);
+  }
+  const delay = (ram.word(a3 + FM_DELAY) + 1) & 0xffff;
+  ram.setWord(a3 + FM_DELAY, delay);
+  if (delay !== 25) return;
+  // Masse auswerfen
+  ram.setWord(a3 + FM_DELAY, 0);
+  ram.setWord(a3 + FM_STEP, 0);
+  ram.setWord(a3, 2);
+  ram.setWord(a4 + AWO_X, (ram.word(a2 + AWO_X) - 210) & 0xffff);
+  ram.setWord(a4 + AWO_Y, ram.word(a2 + AWO_Y));
+  ram.setWord(a4 + AWO_OBJ_OFF, d.objMasse);
+  ram.setWord(a4 + AWO_ENERGY, 0xffff);
+  ram.setLong(a4 + AWO_STATUS, 0);
 }

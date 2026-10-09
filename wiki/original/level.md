@@ -298,9 +298,15 @@ endet bei 10.609.
 Startliste liegen in Quelltext-Reihenfolge (Startadressen aus den `START_C`-Einträgen): `R_Volant_Missile` `$4BD54`,
 `R_Sol_Kamikaze` `$4C196`, `R_Colonne_Flamme` `$4C276`, `R_Araignee` `$4C368`, `R_Bomber` `$4C412`, `R_Sol_Guide`
 `$4C55C` (mit Parameter, z. B. 256 + 200), `R_Dragon` `$4C710`, `R_Final` `$4C888` (`START_C` bei `WAIT $2300`;
-Disassembly `work/disasm/mountains_rout.txt`). `R_Rapide` steht im Quelltext, wird aber nicht gestartet. Noch nicht
-übertragen: Im Nachbau hält das Level beim Endgegner `R_Final` an (9.059 Bilder nach dem Start, `WAIT $2300`,
+Disassembly `work/disasm/mountains_rout.txt`). `R_Rapide` steht im Quelltext, wird aber nicht gestartet. Alle
+Routinen sind übertragen; im Nachbau läuft Level 4 mit Dauerfeuer bis zum Levelende (12.032 Bilder nach dem Start,
 `level4.test.ts`).
+
+Endgegner `R_Final` (09.10.2026, Abbild `$4C888` gleich dem Quelltext, gegen das Original noch ungeprüft): erscheint
+bei x 256 + 240, y 256 + 300 (Energie 200, Schussrate 10, keine eigene Palette), steigt und sinkt mit 3 Pixeln je
+Durchlauf zwischen y 256 + 104 und 256 + 230 und hält waagrecht auf Eule x + 200 zu (höchstens x 256 + 260). Alle 25
+Durchläufe wirft er eine unverwundbare Masse aus (x − 210, `Masse_Shape` `$4C860`, 19 Bilder), währenddessen steht er.
+Nach seiner Explosion `Quit_Delay` 25 und `Clean_Up` (Levelende).
 
 Aus Level 1–3 bekannt (Quelltext per `diff`, Abbild Befehl für Befehl verglichen, 09.10.2026, gegen das Original
 noch ungeprüft): `R_Bomber` wie Level 1 (Sack `$DC`, Kugel `Obj_Boulle_1` `$F6`, `Sin_Table1` `$4D43C`),

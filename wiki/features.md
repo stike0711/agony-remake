@@ -73,8 +73,9 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
       `derive_layout.py` aus Level 3 übertragen (gemeinsamer Code Befehl für Befehl gleich), ohne Regen; gemeinsame
       Variablen aus Level 3; die aus Level 1–3 bekannten Routinen `R_Bomber`, `R_Volant_Missile`, `R_Sol_Kamikaze`,
       `R_Araignee` übertragen (09.10.2026); `R_Colonne_Flamme` (Feuersäule) und `R_Sol_Guide` (Monster, das in eine
-      von 5 Richtungen auffliegt) übertragen; `R_Dragon` (Drache mit Feuerzunge) übertragen, Lauf bis zum Endgegner (WAIT
-      `$2300`) (09.10.2026, gegen das Original noch ungeprüft); offen: Endgegner, Prüfung mit einer Aufnahme
+      von 5 Richtungen auffliegt) übertragen; `R_Dragon` (Drache mit Feuerzunge) übertragen; Endgegner `R_Final`
+      (steigt und sinkt, wirft eine Masse aus) und Levelende übertragen, danach `ui.level5Stub` (09.10.2026, gegen das
+      Original noch ungeprüft); offen: Prüfung mit einer Aufnahme
 - [ ] Level 5 – Hochland (`LPLATEAUX`)
 - [ ] Level 6 – Feuer (`LFEUX`)
 

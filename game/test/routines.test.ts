@@ -964,4 +964,31 @@ describe.skipIf(!hasAssets)("Gegner-Routinen von Level 4, aus Level 1–3 bekann
     t.run(1);
     expect([t.w(t.a3), t.w(t.bank), t.w(t.a2 + AWO_LEN + X), t.w(t.a2 + AWO_LEN + OBJ)]).toEqual([1, 2, 100, 0x58e]);
   });
+
+  it("R_Final (Level 4): steigt und sinkt, folgt der Eule, wirft alle 25 Durchläufe die Masse aus, Levelende", () => {
+    // Werte aus AG_GAME_LMONTAGNES.S, Abschnitt „MONSTRE FINAL“; Masse_Shape $4C860
+    const r = start(0x4c888, [], MOUNTAINS);
+    busy(r);
+    r.e.setW(MV.sorcererX, 256 + 100);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY), r.e.ram.byte(r.a2 + STATUS + 1)])
+      .toEqual([496, 556, 0x676, 200, 10]);
+    // aufwärts 3 je Durchlauf, waagrecht auf Eule x + 200 = 556 zu (rechts höchstens 256 + 260 = 516)
+    r.run(24);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a3)]).toEqual([496 + 20, 556 - 3 * 24, 1]);
+    // 25. Durchlauf: Masse bei x − 210, Obj_Final_1, unverwundbar
+    r.run(1);
+    const m = r.a2 + AWO_LEN;
+    expect([r.w(r.a3), r.w(m + X), r.w(m + Y), r.w(m + OBJ), r.w(m + ENERGY)]).toEqual([2, 516 - 210, 556 - 75, 0x6a6, 0xffff]);
+    // Modus 2: Masse_Shape ab Schritt 2, der Endgegner steht; nach 20 Durchläufen wieder Modus 1
+    r.run(1);
+    expect([r.w(r.bank), r.w(m + OBJ), r.w(r.a2 + Y)]).toEqual([2, r.w(0x4c860 + 2), 556 - 75]);
+    r.run(19);
+    expect(r.w(r.a3)).toBe(1);
+    expect(untouched(r)).toEqual([1, 0x12345678]);
+    // Explosion zu Ende: CLOSE, Quit_Delay 25, Clean_Up
+    r.e.ram.setByte(r.a2 + STATUS, 0x0f);
+    r.run(1);
+    expect([r.e.ram.long(r.a0), r.w(r.bank), r.e.w(MV.quitDelay), r.e.b(MV.cleanUp)]).toEqual([0xffffffff, 0xffff, 25, 0xff]);
+  });
 });

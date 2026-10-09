@@ -1,6 +1,6 @@
 // Level 4 (Berge) ohne Aufnahme: Layout aus MARSHES übertragen (tools/analysis/derive_layout.py), Start mit den
-// gemeinsamen Variablen aus Level 3, mit Dauerfeuer bis zur ersten noch nicht übertragenen Gegner-Routine. Gegen das
-// Original noch ungeprüft.
+// gemeinsamen Variablen aus Level 3, mit Dauerfeuer durch alle Gegner-Routinen bis zum Levelende. Gegen das Original
+// noch ungeprüft.
 
 import { describe, expect, it } from "vitest";
 import { Display } from "../src/core/display.ts";
@@ -26,7 +26,7 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
       .toEqual([0x80, 0x8004c412, 0xffff]);
   });
 
-  it("übernimmt die gemeinsamen Variablen und läuft mit Dauerfeuer bis zum Endgegner", () => {
+  it("übernimmt die gemeinsamen Variablen und läuft mit Dauerfeuer bis zum Levelende", () => {
     const shared = new Uint8Array(SHARED_LENGTH);
     const put = (a: number, v: number, n: number): void => { for (let i = 0; i < n; i++) shared[a - SHARED_START + i] = (v >>> (8 * (n - 1 - i))) & 0xff; };
     put(SHARED.score, 0x54321, 4);
@@ -48,7 +48,9 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
     // R_Dragon: je Lauf Startbild, Parameter P_D_Y und je Durchlauf [Modus, Kopfwort, x, y, Objekt, Status-Byte,
     // x und Objekt der Zunge]
     const dr: { slot: number; open: boolean; start: number; y: number; pos: number[][] }[] = [];
-    for (; f < 12000 && !e.unported && !e.result; f++) {
+    // R_Final: erstes Bild, Anzahl der ausgeworfenen Massen (Wechsel von R_F_Mode 1 nach 2), Beginn des Levelendes
+    let finalAt = -1, finalMode = 0, masses = 0, quitAt = -1;
+    for (; f < 13000 && !e.unported && !e.result; f++) {
       let input = f === 49 || f === 50 ? JOY_FIRE : 0;
       if (f >= 58) {
         if (n === 0) { [n] = PATTERN[k % PATTERN.length]!; k++; }
@@ -63,6 +65,12 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
         const a0 = L.routStruct + 28 * i;
         const code = e.ram.long(a0);
         if (code === 0x4c276) slot = a0;
+        if (code === 0x4c888) {
+          if (finalAt < 0) finalAt = f;
+          const mode = e.ram.word(a0 + 12);
+          if (mode === 2 && finalMode === 1) masses++;
+          finalMode = mode;
+        }
         let drun = dr.find((r) => r.open && r.slot === a0);
         if (drun && code !== 0x4c710) drun.open = false;
         if (code === 0x4c710) {
@@ -90,17 +98,17 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
         const a = [0, 1, 2, 3].map((i) => bank + 4 + 12 * i);
         cf.push({ f, count: e.ram.word(bank), x: a.map((p) => e.ram.word(p)), obj: a.map((p) => e.ram.word(p + 4)) });
       } else if (cfStart >= 0 && cfEnd < 0) cfEnd = f;
+      if (quitAt < 0 && e.w(V.quitDelay) !== 0) quitAt = f;
       // ohne Regen und Zauber zeigen Sprite 6 und 7 die leere Liste
       if (f === 40) expect([e.ram.long(L.d + V.sprPtrB + 24), e.ram.long(L.d + V.sprPtrB + 28)]).toEqual([L.emptySpr, L.emptySpr]);
     }
-    // R_Bomber (WAIT $80), R_Colonne_Flamme (WAIT $140), R_Sol_Guide (ab WAIT $280) und R_Dragon (ab WAIT $1180)
-    // laufen, die Engine hält am Endgegner R_Final ($4C888, WAIT $2300); Bildnummern aus dem Nachbau (Regression,
-    // gegen das Original ungeprüft)
-    expect(e.result).toBeNull();
-    expect(e.unported).toContain("$4C888");
-    expect(e.w(V.levelX)).toBeGreaterThanOrEqual(0x2300);
-    expect(e.w(V.levelX)).toBeLessThan(0x2310);
-    expect(f).toBe(UNPORTED_AT);
+    // R_Bomber (WAIT $80), R_Colonne_Flamme (WAIT $140), R_Sol_Guide (ab WAIT $280), R_Dragon (ab WAIT $1180) und der
+    // Endgegner R_Final ($4C888, START_C bei WAIT $2300) im Bild FINAL_AT; er wirft MASSES-mal die Masse aus, nach
+    // seiner Explosion Quit_Delay 25 und Levelende. Bildnummern aus dem Nachbau (Regression, gegen das Original
+    // ungeprüft)
+    expect(e.unported).toBeNull();
+    expect(e.result).toBe("levelDone");
+    expect([finalAt, masses, quitAt, f]).toEqual([FINAL_AT, MASSES, QUIT_AT, END_AT]);
     // R_Colonne_Flamme (Quelle: AG_GAME_LMONTAGNES.S, Label R_Colonne_Flamme): Start-Durchlauf mit 4 Flammen bei
     // x 256 + 360, y 446, 411, 376, 341 und Obj_Grande_Flamme_1; Startphasen an den absoluten Adressen $2–$9 (O-018)
     expect(cfStart).toBe(CF_START);
@@ -181,7 +189,7 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
     expect(dr.map((r) => r.pos[r.pos.length - 1]![5]! & 0xf)).toEqual([15, 0, 15, 0, 15, 0]);
     const low = [30, 93, 147, 178, 209];
     expect(launches).toEqual([[], low, [30], low, [30], low]);
-  }, 60_000);
+  }, 180_000);
 });
 
 /** Bewegungsmuster des Planungs-Bots (wie explore-level.ts): Dauer in Bildern, Richtung */
@@ -189,7 +197,10 @@ const PATTERN: [number, number][] = [
   [25, JOY_UP], [30, 0], [25, JOY_DOWN], [20, 0], [15, JOY_RIGHT], [30, JOY_DOWN], [20, 0], [15, JOY_LEFT], [40, JOY_UP],
   [25, 0],
 ];
-const UNPORTED_AT = 9059;
+const FINAL_AT = 9058;
+const MASSES = 32;
+const QUIT_AT = 11984;
+const END_AT = 12032;
 const CF_START = 402;
 const CF_END = 819;
 const SG_START = [722, 1618, 1681, 1746, 2387, 3028, 3090, 3155, 4084, 4824, 4884, 4951, 6232, 6357, 6995, 7124, 7514,
