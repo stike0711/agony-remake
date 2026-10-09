@@ -777,6 +777,9 @@ export const MARSHES: LevelLayout = {
     [0x4fcd0, { kind: "jumperMarais", obj1: 0x15a, obj2: 0x174, obj3: 0x18e }],
     // Abbild $4FD7C; R_SK_Shape $4FD70 ($4FDD4), Obj_Sol_Kamikaze_1 $208 ($4FDA0)
     [0x4fd7c, { kind: "solKamikaze", shape: 0x4fd70, obj: 0x208 }],
+    // Abbild $4FE74 (gleich dem Quelltext); Final_Shape $4FE2C, Langue_Shape $4FE40, Obj_Final_1 $9E ($4FE98),
+    // Obj_Langue_1 $304 ($4FF86)
+    [0x4fe74, { kind: "finalMarais", shape: 0x4fe2c, langue: 0x4fe40, obj: 0x9e, objLangue: 0x304 }],
   ]),
   relativeTracks: 0x50000, // $2B58
   absoluteTracks: 0x50b7c, // $2CBA

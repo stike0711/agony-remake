@@ -1,6 +1,6 @@
 // Level 3 (Sumpf) ohne Aufnahme: Layout aus FOREST übertragen (tools/analysis/derive_layout.py), Start mit den
-// gemeinsamen Variablen aus Level 2, mit Dauerfeuer bis zur ersten noch nicht übertragenen Gegner-Routine
-// (Endgegner R_Final). Gegen das Original noch ungeprüft.
+// gemeinsamen Variablen aus Level 2, mit Dauerfeuer bis zum Levelende nach dem Endgegner R_Final. Gegen das Original
+// noch ungeprüft.
 
 import { describe, expect, it } from "vitest";
 import { Display } from "../src/core/display.ts";
@@ -24,7 +24,7 @@ describe.skipIf(!hasAssets)("Level 3 (ohne Aufnahme)", () => {
     expect([e.ram.word(L.startList + 30), e.ram.long(L.startList + 32)]).toEqual([0x140, 0x8004f6a2]);
   });
 
-  it("übernimmt die gemeinsamen Variablen und läuft mit Dauerfeuer bis zum Endgegner R_Final", () => {
+  it("übernimmt die gemeinsamen Variablen und läuft mit Dauerfeuer über den Endgegner R_Final bis zum Levelende", () => {
     const shared = new Uint8Array(SHARED_LENGTH);
     const put = (a: number, v: number, n: number): void => { for (let i = 0; i < n; i++) shared[a - SHARED_START + i] = (v >>> (8 * (n - 1 - i))) & 0xff; };
     put(SHARED.score, 0x54321, 4);
@@ -37,9 +37,9 @@ describe.skipIf(!hasAssets)("Level 3 (ohne Aufnahme)", () => {
     const display = new Display();
     display.setMode(true, false);
     // ab Bild 58 Dauerfeuer mit dem Bewegungsmuster von explore-level.ts (dort ab Bild 13170)
-    let kamikazeAt = -1, k = 0, n = 0, f = 0;
+    let kamikazeAt = -1, finalAt = -1, quitAt = -1, langues = 0, finalMode = 0, k = 0, n = 0, f = 0;
     const started = new Set<number>();
-    for (; f < 12000 && !e.unported && !e.result; f++) {
+    for (; f < 14000 && !e.unported && !e.result; f++) {
       let input = f === 49 || f === 50 ? JOY_FIRE : 0;
       if (f >= 58) {
         if (n === 0) { [n] = PATTERN[k % PATTERN.length]!; k++; }
@@ -53,18 +53,27 @@ describe.skipIf(!hasAssets)("Level 3 (ohne Aufnahme)", () => {
         const code = e.ram.long(L.routStruct + 28 * i);
         if (code !== 0xffffffff) started.add(code);
         if (code === 0x4fd7c && kamikazeAt < 0) kamikazeAt = f;
+        if (code === 0x4fe74) {
+          if (finalAt < 0) finalAt = f;
+          // Zunge: Wechsel von R_F_Mode 1 nach 2
+          const mode = e.ram.word(L.routStruct + 28 * i + 12);
+          if (mode === 2 && finalMode === 1) langues++;
+          finalMode = mode;
+        }
       }
+      if (quitAt < 0 && e.w(V.quitDelay) !== 0) quitAt = f;
       // ohne Regen und Zauber zeigen Sprite 6 und 7 die leere Liste
       if (f === 40) expect([e.ram.long(L.d + V.sprPtrB + 24), e.ram.long(L.d + V.sprPtrB + 28)]).toEqual([L.emptySpr, L.emptySpr]);
     }
-    // alle übrigen Routinen des Levels laufen, erster R_Sol_Kamikaze ($4FD7C) im Bild KAMIKAZE_AT; dann hält die
-    // Engine am Endgegner R_Final ($4FE74). Bildnummern aus dem Nachbau (Regression, gegen das Original ungeprüft)
-    expect(e.result).toBeNull();
-    expect(e.unported).toContain("$4FE74");
+    // alle Routinen des Levels laufen, erster R_Sol_Kamikaze ($4FD7C) im Bild KAMIKAZE_AT, zuletzt der Endgegner
+    // R_Final ($4FE74, START_C bei WAIT $2300) im Bild FINAL_AT; er streckt LANGUES-mal die Zunge aus, nach seiner
+    // Explosion Quit_Delay 25 und Levelende. Bildnummern aus dem Nachbau (Regression, gegen das Original ungeprüft)
+    expect(e.unported).toBeNull();
+    expect(e.result).toBe("levelDone");
     expect([...started].sort((a, b) => a - b)).toEqual([0x4ef2a, 0x4f122, 0x4f30a, 0x4f6a2, 0x4f740, 0x4f878, 0x4fa22,
       0x4fb7a, 0x4fcd0, 0x4fd7c, 0x4fe74]);
     expect(e.w(V.routModPalCounter)).toBe(0);
-    expect([kamikazeAt, f]).toEqual([KAMIKAZE_AT, UNPORTED_AT]);
+    expect([kamikazeAt, finalAt, langues, quitAt, f]).toEqual([KAMIKAZE_AT, FINAL_AT, LANGUES, QUIT_AT, END_AT]);
     expect(e.ram.long(SHARED.score)).toBeGreaterThan(0x54321);
   }, 180_000);
 });
@@ -75,4 +84,7 @@ const PATTERN: [number, number][] = [
   [25, 0],
 ];
 const KAMIKAZE_AT = 1363;
-const UNPORTED_AT = 9046;
+const FINAL_AT = 9045;
+const LANGUES = 10;
+const QUIT_AT = 10561;
+const END_AT = 10609;

@@ -231,8 +231,8 @@ Wechsel alle 8 Durchläufe, Energie 20000, ohne Schüsse). Keine eigene Palette;
 
 ### Level 3 – Sumpf (`AG_GAME_LMARAIS.S`, Wellen-Parameter in `lmarais_rtr.s`)
 
-🌐 Laut einer Rezension hat ein Endgegner einen blitzschnellen, sofort tödlichen Zungenangriff (Zuordnung zu
-Level 3 unsicher).
+🌐 Laut einer Rezension hat ein Endgegner einen blitzschnellen, sofort tödlichen Zungenangriff (✔ Level 3, siehe
+Endgegner unten).
 
 ✔ Objekte: `R_Jumper` (Springer), `R_Sol_Kamikaze`, `R_Rapide`, `R_Kamikaze`, `DGDP_Monster_1–4` und weitere
 `…_Monster`, `Rond_Monster` (rund), `R_Sol_Crache`, `R_Spectre`, `R_Sol_Etoile`, `R_Tir_Etoile`,
@@ -263,9 +263,27 @@ Befehl für Befehl mit `forest_rout.txt` bzw. `sea_rout.txt`; beide stimmen übe
   (`Sorcerer_Y` ≥ 256 + 120), stürmt es ab dem nächsten Durchlauf mit 10 Pixeln los, bis x ≤ 220 (Test auch im
   Start-Durchlauf).
 
-Im Nachbau (gegen das Original ungeprüft) laufen diese 10 Routinen; das Level hält beim Endgegner `R_Final` an
-(9.046 Bilder nach dem Start, `level3.test.ts`; erster `R_Sol_Kamikaze` 1.363 Bilder nach dem Start; alle übrigen
-Routinen des Levels sind bis dahin gestartet).
+✔ Endgegner `R_Final` (Abschnitt „MONSTRE FINAL“, `START_C` bei `WAIT $2300`; Abbild `$4FE74`–`$4FFFE`, gleich dem
+Quelltext, anders als in Level 1 und 2): eigener Code, ein einzelner Gegner mit Zunge, ohne Palette und ohne
+`Rout_Mod_Pal_Counter`.
+
+- Start bei x 256 + 300, y 256 + 80, Energie 170, Schussrate 12 (`Awo_Alien_Status` `$000C0000`); die Form wechselt
+  jeden Durchlauf reihum durch `Final_Shape` (`$4FE2C`, 10 Einträge `Obj_Final_1–6–2`).
+- Modus 1: hält mit 2 Pixeln je Durchlauf auf (Eule x + 150, y + 40) zu (wie `R_Kamikaze`). Alle 50 Durchläufe in
+  Modus 1 streckt er die Zunge aus: zweiter Gegner der Bank bei (x − 140, y), `Obj_Langue_1`, Energie 100,
+  Status 0 (Schussrate 0, schießt also nicht).
+- Modus 2: steht still, die Zunge zeigt die 26 Formen aus `Langue_Shape` (`$4FE40`: 12 × `Obj_Langue_1`, dann
+  `_2` … `_8` … `_1`), im 27. Durchlauf noch einmal die letzte, dann wieder Modus 1.
+- Getroffen bis zur Explosion (unteres Halbbyte des Status ≠ 0): Die Zunge verschwindet sofort, er folgt der Eule
+  aber weiter, bis die Explosion vorbei ist (Halbbyte `$F`); dann CLOSE, `Quit_Delay` 25 und `Clean_Up`
+  (Levelende). Keine Explosion in Schritten wie in Level 1 und 2.
+- Eigenheiten (O-016, O-017): Der Zähler der Zunge liegt an der absoluten Adresse `$2` statt in den Variablen; ein
+  Schreibzugriff für die Zunge landet in `Final_Shape` (ohne Wirkung).
+
+Im Nachbau (gegen das Original ungeprüft) laufen alle 11 Routinen (`finalMarais` in `routines.ts`). Im Lauf von
+`level3.test.ts` (Dauerfeuer mit dem Bewegungsmuster des Planungs-Bots, Leben aufgefüllt) startet `R_Sol_Kamikaze`
+1.363 Bilder nach dem Start, `R_Final` 9.045, er streckt 10-mal die Zunge aus, `Quit_Delay` ab 10.561, das Level
+endet bei 10.609.
 
 ### Level 4 – Berge (`AG_GAME_LMONTAGNES.S`, Wellen-Parameter in `lmontagnes_rtr.s`)
 

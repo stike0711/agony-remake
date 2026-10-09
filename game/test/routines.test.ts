@@ -676,4 +676,61 @@ describe.skipIf(!hasAssets)("Neue Gegner-Routinen von Level 3 (ohne Aufnahme)", 
     expect([r.e.ram.long(r.a0), r.w(r.bank)]).toEqual([0xffffffff, 0xffff]);
     expect([r.e.w(MV.routModPalCounter), r.e.l(MV.routPalPtr)]).toEqual([1, 0x12345678]);
   });
+
+  // Werte von Hand aus AG_GAME_LMARAIS.S (Abschnitt „MONSTRE FINAL“, Label R_Final), Abbild $4FE74–$4FFFE;
+  // Final_Shape $4FE2C ($9E $BE $DE $FA $11A $13A $11A $FA $DE $BE), Langue_Shape $4FE40 ($304 ×12, $316, $3CC, $3E8,
+  // $408, $42A, $450, $478, …)
+  it("R_Final: folgt der Eule, alle 50 Durchläufe die Zunge (Zähler bei $2), Ende nach der Explosion", () => {
+    const r = start(0x4fe74, [], MARSHES);
+    const a4 = r.a2 + AWO_LEN;
+    r.e.setW(MV.sorcererX, 300);
+    r.e.setW(MV.sorcererY, 300);
+    expect(r.w(2)).toBe(0);
+    r.run(1);
+    expect([r.w(r.bank), r.w(r.a3), r.e.w(MV.routModPalCounter)]).toEqual([1, 1, 0]);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY), r.e.ram.byte(r.a2 + F_RT_S)])
+      .toEqual([556, 336, 0x9e, 170, 12]);
+    // Ziel (Sorcerer_X + 150, Sorcerer_Y + 40) = (450, 340), 2 Pixel je Durchlauf bis auf ≤ 2 heran
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(2), r.w(r.a3 + 2)]).toEqual([554, 338, 0xbe, 1, 0]);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ)]).toEqual([552, 338, 0xde]);
+    // 50. Durchlauf in Modus 1: Zunge bei (x − 140, y), zwei Gegner in der Bank
+    r.run(47);
+    expect([r.w(r.a3), r.w(r.bank), r.w(2)]).toEqual([1, 1, 49]);
+    r.run(1);
+    expect([r.w(r.a3), r.w(r.a3 + 4), r.w(r.bank), r.w(2), r.w(r.a2 + X), r.w(r.a2 + OBJ)])
+      .toEqual([2, 0xfffe, 2, 0, 456, 0x9e]);
+    expect([r.w(a4 + X), r.w(a4 + Y), r.w(a4 + OBJ), r.w(a4 + ENERGY), r.e.ram.long(a4 + STATUS)])
+      .toEqual([316, 338, 0x304, 100, 0]);
+    // Modus 2: Endgegner steht, die Zunge zeigt Langue_Shape; 19. Durchlauf Obj_Langue_8
+    r.run(12);
+    expect([r.w(r.a2 + X), r.w(a4 + OBJ), r.w(r.bank)]).toEqual([456, 0x304, 2]);
+    r.run(1);
+    expect(r.w(a4 + OBJ)).toBe(0x316);
+    r.run(6);
+    expect(r.w(a4 + OBJ)).toBe(0x478);
+    r.run(7);
+    expect([r.w(r.a3), r.w(r.a3 + 4), r.w(a4 + OBJ), r.w(r.bank)]).toEqual([2, 50, 0x304, 2]);
+    // 27. Durchlauf: zurück in Modus 1, die Bank zählt noch zwei Gegner (Zunge mit $304); ab dem nächsten Durchlauf
+    // nur noch der Endgegner, erst dann läuft der Zähler weiter
+    r.run(1);
+    expect([r.w(r.a3), r.w(r.bank), r.w(2), r.w(r.a2 + X)]).toEqual([1, 2, 0, 456]);
+    r.run(1);
+    expect([r.w(r.bank), r.w(2), r.w(r.a2 + X)]).toEqual([1, 1, 454]);
+    // nächste Zunge, dann getroffen: Zunge weg, Modus 1; das Byte geht an Final_Shape + 8 (schon $01)
+    r.run(49);
+    expect([r.w(r.a3), r.w(r.bank), r.w(r.a2 + X), r.w(a4 + X)]).toEqual([2, 2, 452, 312]);
+    r.e.ram.setByte(r.a2 + STATUS, 1);
+    r.run(1);
+    expect([r.w(r.a3), r.w(r.bank), r.e.ram.byte(a4 + STATUS), r.w(0x4fe34)]).toEqual([1, 1, 0, 0x11a]);
+    // Explosion läuft: folgt der Eule weiter
+    r.e.setW(MV.sorcererX, 200);
+    r.run(1);
+    expect([r.e.ram.long(r.a0), r.w(r.a2 + X)]).toEqual([0x4fe74, 450]);
+    // Explosion vorbei (Halbbyte $F): CLOSE, Quit_Delay 25, Clean_Up
+    r.e.ram.setByte(r.a2 + STATUS, 0x0f);
+    r.run(1);
+    expect([r.e.ram.long(r.a0), r.w(r.bank), r.e.w(MV.quitDelay), r.e.b(MV.cleanUp)]).toEqual([0xffffffff, 0xffff, 25, 0xff]);
+  });
 });

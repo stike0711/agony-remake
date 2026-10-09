@@ -67,7 +67,9 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
       Variablen aus Level 2; Angriffswellen laufen bis zur ersten Gegner-Routine (`R_Rapide`, WAIT `$140`)
       (09.10.2026, gegen das Original noch ungeprüft); die 8 aus Level 1 und 2 bekannten Gegner-Routinen und der
       neue `R_Jumper` übertragen (09.10.2026, ungeprüft); `R_Sol_Kamikaze` übertragen, das Level läuft bis zum
-      Endgegner (09.10.2026, ungeprüft); offen: Endgegner `R_Final`, Levelende, Prüfung mit einer Aufnahme
+      Endgegner (09.10.2026, ungeprüft); Endgegner `R_Final` (eigener Code mit Zunge) übertragen, das Level läuft bis
+      zum Levelende, danach Platzhalter für Level 4 (09.10.2026, ungeprüft); offen: Ladebild Level 4, Prüfung mit
+      einer Aufnahme
 - [ ] Level 4 – Berge (`LMONTAGNES`)
 - [ ] Level 5 – Hochland (`LPLATEAUX`)
 - [ ] Level 6 – Feuer (`LFEUX`)

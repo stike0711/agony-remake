@@ -14,8 +14,8 @@ Eingabe bis nach dem Spielende pixelgenau wie im Emulator, ebenso ein Lauf mit D
 Alle Gegner-Routinen, Bonus, Zaubermenü mit allen Zaubern, Äxte, Pause und Levelende von Level 1 sind übertragen
 (gegen das Original noch ungeprüft); nach dem Levelende folgen das Ladebild und Level 2 (Abbild und Layout stehen,
 alle Gegner-Routinen samt Endgegner sind übertragen, das Level läuft bis zum Levelende), danach Ladebild und Level 3
-(Abbild und Layout stehen, alle Gegner-Routinen außer dem Endgegner sind übertragen, das Level läuft bis zum
-Endgegner). Als Nächstes: Endgegner und Levelende von Level 3; am PC Aufnahmen von Level 1 über Bild 14.792 hinaus und
+(Abbild und Layout stehen, alle Gegner-Routinen samt Endgegner sind übertragen, das Level läuft bis zum Levelende).
+Als Nächstes: Ladebild, Abbild und Layout von Level 4; am PC Aufnahmen von Level 1 über Bild 14.792 hinaus und
 von Level 2 zur Prüfung des Übertragenen, Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist
 eingeplant, sobald ein Mac zur Verfügung steht.
 
@@ -30,7 +30,7 @@ eingeplant, sobald ein Mac zur Verfügung steht.
 | 3. Referenz-Emulator mit den ADFs und Kickstart 1.3 einrichten | ✅ erledigt | vAmigaWeb als A500 (OCS, 512 + 512 KB), schrittweise steuerbar, siehe [Setup](setup.md#referenz-emulator) |
 | 4. Asset-Pipeline: Spieldateien entpacken; Grafiken, Paletten, Angriffswellen, Sounds und Musik extrahieren | 🟡 begonnen | Disketten ausgelesen, alle 15 Spieldateien entpackt, Lade- und Startadressen bestimmt; Titelbilder, Menübild, Menüschrift, Texttabelle und Ladebilder 1–2 lokalisiert und mit Python-Prototypen pixelgenau dekodiert; Startliste von Level 1 dekodiert. Pipeline in TypeScript für die Startsequenz fertig (`tools/pipeline/`); Level-Daten fehlen noch |
 | 5. Web-Grundgerüst: Spielschleife, Renderer, Eingabe, Audio, Build nach `server/` | ✅ erledigt | 06.10.2026, [Architektur → Umsetzung](architektur.md#umsetzung-web-grundgerüst); ProTracker-Abspieler inzwischen auch; offen: Vollbild, Tests auf echten Geräten |
-| 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026; übrige Gegner-Routinen, Bonus und Levelende übertragen, ungeprüft (08.10.2026); Level 2 bis zum Levelende übertragen, ungeprüft (09.10.2026); Level 3 bis zum Endgegner, ungeprüft (09.10.2026) |
+| 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026; übrige Gegner-Routinen, Bonus und Levelende übertragen, ungeprüft (08.10.2026); Level 2 bis zum Levelende übertragen, ungeprüft (09.10.2026); Level 3 bis zum Levelende, ungeprüft (09.10.2026) |
 | 7. Titel/Intro, Menü, Ladebilder, Highscore und Spielende; Gesamtabgleich und Bugfixing | 🟡 begonnen | Titelsequenz, Menü, Story-Seite, Ladebild Level 1 fertig und geprüft (06.10.2026); Ladebilder Level 2 und 3 übertragen, ungeprüft (08./09.10.2026); offen: Namenseingabe, Cheat, Ladebilder 4–6, Spielende |
 
 ### Aktueller Meilenstein: Start bis Level 1
@@ -75,10 +75,10 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Level 3 – Endgegner `R_Final`** (nächster Cloud-Schritt, Ablauf B, Effort „hoch“: eigener Code mit Zunge
-   `Langue_Shape`, `AG_GAME_LMARAIS.S` Abschnitt „MONSTRE FINAL“ (Labels `R_F_Mode` bis `R_Final`), Abbild `$4FE74`,
-   `work/disasm/marshes_rout.txt`): Der Lauf hält dort (`level3.test.ts`, Bild 9.046). Danach Levelende und
-   Ladebild von Level 4.
+1. **Level 4 – Ladebild `load_mountains`, Abbild `mountains`, Layout, Startliste** (nächster Cloud-Schritt, Ablauf E
+   und B, Effort „hoch“; Muster: Schritt „Level 3: Ladebild, Abbild, Layout, Startliste“ im Verlauf, `derive_layout.py`
+   aus MARSHES, Datei `$10` laut Abbild marshes `$3A9A`): Level 3 endet jetzt mit `ui.level4Stub`
+   (`flow.ts`, `level3`). Danach die Gegner-Routinen von Level 4.
 2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
    [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
 
@@ -90,6 +90,11 @@ Braucht Emulator, Aufnahmen, Messungen oder Geräte (je mit Empfehlung):
   zusammen laufen): nach `levelDone` die ersten ≈ 100 Bilder von `load_forest` bzw. `load_marshes` aufnehmen (Bild,
   Palette beim Einblenden, Lademusik) und mit `LoadingScreen(LOAD_FOREST)` bzw. `LOAD_MARSHES` vergleichen wie bei
   `load_sea`.
+- **Level 3 aufnehmen** (Ablauf C, Effort „hoch“; wie Level 2, kann im selben Durchgang laufen): Level 3 ist ganz
+  ohne Aufnahme übertragen. Erste Prüfpunkte: Wellen ab dem Start, `R_Jumper`, `R_Sol_Kamikaze` (im Nachbau 1.363
+  Bilder nach dem Start), `R_Final` (9.045; erste Zunge 100 Bilder später, Explosion und Levelende wie in
+  `level3.test.ts`). Dazu O-016 prüfen: Wort an Adresse `$2` beim Erreichen des Endgegners und nach einem Spielende
+  im Endgegner-Kampf (bleibt der Wert im nächsten Spiel erhalten? Dann im Nachbau zwischen Spielen übernehmen).
 - **Level 2 aufnehmen** (Ablauf C, Effort „hoch“; `R_Final` ist seit 09.10.2026 übertragen): Level 2 ist ganz ohne
   Aufnahme übertragen. Im Emulator Level 2 direkt starten (Schnappschuss nach dem Ladebild, oder Level 1 mit Cheat bzw. per
   Poke überspringen), mit Dauerfeuer und Bewegungsmuster wie `explore-level.ts --forest`, Leben aufgefüllt; Bilder
@@ -183,9 +188,16 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 09.10.2026 | Level 3: Ladebild, Abbild, Layout, Startliste (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 | 09.10.2026 | Level 3: bekannte Gegner-Routinen und `R_Jumper` (Cloud-Session) | mittel | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 | 09.10.2026 | Level 3: `R_Sol_Kamikaze` (Cloud-Session) | mittel | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
+| 09.10.2026 | Level 3: Endgegner `R_Final` und Levelende (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 
 ## Verlauf
 
+- **09.10.2026 (Level 3: Endgegner `R_Final` und Levelende, Cloud-Session)** – Abbild `$4FE74` gleich dem Quelltext
+  (`finalMarais` in `routines.ts`, [Level](original/level.md#level-3--sumpf-ag_game_lmaraiss-wellen-parameter-in-lmarais_rtrs)):
+  folgt der Eule, streckt alle 50 Durchläufe die Zunge aus, nach der Explosion `Quit_Delay` 25 und Levelende.
+  Zwei Eigenheiten des Originals: Zähler der Zunge an Adresse `$2` (O-016), Schreibzugriff in `Final_Shape` ohne
+  Wirkung (O-017). `level3.test.ts` spielt bis zum Levelende (10.609 Bilder), danach `ui.level4Stub`. 1 neuer
+  Test, 84 Tests. Im Browser nicht geprüft (nur Kern). Gegen das Original ungeprüft. origin/main war schon enthalten.
 - **09.10.2026 (Level 3: `R_Sol_Kamikaze`, Cloud-Session)** – Routine aus `AG_GAME_LMARAIS.S` und Abbild `$4FD7C`
   übertragen (`solKamikaze`, Eintrag in `MARSHES.routines`): läuft am Boden, stürmt bei tief fliegender Eule mit
   10 Pixeln los. Level 3 läuft jetzt bis zum Endgegner `R_Final` (Bild 9.046), alle anderen Routinen des Levels sind

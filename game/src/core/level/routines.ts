@@ -8,8 +8,8 @@
 // Unterschieden (meist ohne eigene Palette), die in den …Def-Feldern stehen, dazu R_Kamikaze und R_Sol_Etoile; gegen
 // das Original ungeprüft; der Endgegner von Level 2 (R_Final in Ag_Game_LFORET.s) hat eigenen Code (finalForet).
 // Level 3 nutzt die bekannten Routinen ganz ohne eigene Paletten (auch ohne Rout_Mod_Pal_Counter bei R_Rapide,
-// R_Transporteur und R_Sol_Crache), hat einen eigenen R_Jumper (jumperMarais) und R_Sol_Kamikaze; gegen das Original
-// ungeprüft.
+// R_Transporteur und R_Sol_Crache), hat einen eigenen R_Jumper (jumperMarais), R_Sol_Kamikaze und einen eigenen
+// Endgegner mit Zunge (finalMarais); gegen das Original ungeprüft.
 // Unbekannte Routinen halten die Engine an (LevelEngine.unported).
 
 import type { LevelEngine } from "./engine.ts";
@@ -198,9 +198,19 @@ export interface SolKamikazeDef {
   obj: number;
 }
 
+/** Endgegner von Level 3 (R_Final in AG_GAME_LMARAIS.S): folgt der Eule und streckt alle 50 Durchläufe die Zunge aus */
+export interface FinalMaraisDef {
+  kind: "finalMarais";
+  /** Final_Shape (10 Objektnummern), Langue_Shape (26 Objektnummern), Obj_Final_1, Obj_Langue_1 */
+  shape: number;
+  langue: number;
+  obj: number;
+  objLangue: number;
+}
+
 export type RoutineDef = SolCracheDef | AraigneeDef | TransporteurDef | TirEtoileDef | SpectreDef | RapideDef |
   BomberDef | GrossiDef | VolantMissileDef | FinalDef | KamikazeDef | SolEtoileDef | FinalForetDef | JumperMaraisDef |
-  SolKamikazeDef;
+  SolKamikazeDef | FinalMaraisDef;
 
 const ROUTS = 32;
 const ROUT_LEN = 28;
@@ -260,6 +270,7 @@ export function routineManager(e: LevelEngine): void {
       case "finalForet": finalForet(e, a0, def); break;
       case "jumperMarais": jumperMarais(e, a0, def); break;
       case "solKamikaze": solKamikaze(e, a0, def); break;
+      case "finalMarais": finalMarais(e, a0, def); break;
     }
   }
 }
@@ -1466,4 +1477,91 @@ function solKamikaze(e: LevelEngine, a0: number, d: SolKamikazeDef): void {
     }
   }
   if (s16(ram.word(a2 + AWO_X)) <= 220) close(e, a0, bank, false);
+}
+
+// R_Final (Level 3): Variablen +0 R_F_Mode, +2 R_F_Langue_Delay (wird wegen eines Fehlers nicht benutzt, siehe
+// FM_LANGUE_DELAY), +4 R_F_Langue_Step, +6 R_F_Shape
+const FM_LANGUE_STEP = 4;
+const FM_SHAPE = 6;
+/**
+ * `addq #1,R_F_langue_Delay` ohne `(a3)`: Der Zähler der Zunge liegt an der absoluten Adresse $2 (Wert des
+ * RS-Versatzes), nicht in den Variablen der Routine (O-016). Er wird nur hier geändert und beim Levelstart nicht gelöscht
+ * (Quelle: AG_GAME_LMARAIS.S, Label .cont7; Abbild $4FF50 `addq.w #$1, $2.l`). Im Nachbau beginnt er wie im ersten
+ * Spiel nach dem Einschalten bei 0 (Speicherabzüge des Emulators: $0–$3 = 0).
+ */
+const FM_LANGUE_DELAY = 2;
+
+/**
+ * R_Final von Level 3: ein Gegner (x 256 + 300, y 256 + 80, Energie 170, Schussrate 12, keine eigene Palette, kein
+ * Rout_Mod_Pal_Counter), der reihum die 10 Bilder aus Final_Shape zeigt (je Durchlauf eins). R_F_Mode 1: Er hält mit
+ * 2 Pixeln je Durchlauf auf (Eule x + 150, y + 40) zu (wie R_Kamikaze); alle 50 Durchläufe (Zähler bei $2) streckt er
+ * die Zunge aus: zweiter Gegner der Bank bei (x − 140, y), Obj_Langue_1, Energie 100, Status 0 (schießt nicht).
+ * R_F_Mode 2: Er steht, die Zunge zeigt die 26 Bilder aus Langue_Shape, im 27. Durchlauf noch einmal das letzte (die
+ * Bank zählt dann noch 2 Gegner), danach wieder Modus 1. Ist der
+ * Endgegner getroffen (unteres Halbbyte des Status ≠ 0, Explosion läuft), verschwindet die Zunge sofort (eine Bank mit
+ * 1 Gegner); er folgt der Eule weiter, bis die Explosion endet (Halbbyte $F): dann CLOSE, Quit_Delay = 25 und
+ * Clean_Up (Levelende). Eigenheit des Originals: In Modus 2 setzt `move.b #1,Awo_Alien_Status(a4)` bei getroffenem
+ * Endgegner nicht die Zunge, sondern das Byte Final_Shape + 8 (O-017) (a4 zeigt noch auf Final_Shape); dort steht schon $01
+ * (Obj_Final_5 = $011A), es ändert sich also nichts. Quelle: AG_GAME_LMARAIS.S, Abschnitt „MONSTRE FINAL“, Label
+ * R_Final; Abbild $4FE74–$4FFFE (gleich dem Quelltext), Final_Shape $4FE2C, Langue_Shape $4FE40.
+ */
+function finalMarais(e: LevelEngine, a0: number, d: FinalMaraisDef): void {
+  const { V, ram } = e;
+  const bank = ram.long(a0 + ROUT_AWO_PTR);
+  const a3 = a0 + ROUT_VARIABLES;
+  const a2 = bank + 4;
+  const mode = ram.word(a3);
+  ram.setLong(bank, 0x00010000);
+  if (mode === 0) {
+    ram.setWord(a2 + AWO_X, 256 + 300);
+    ram.setWord(a2 + AWO_Y, 256 + 80);
+    ram.setWord(a2 + AWO_OBJ_OFF, d.obj);
+    ram.setWord(a2 + AWO_ENERGY, 170);
+    ram.setLong(a2 + AWO_STATUS, 0x000c0000);
+    ram.setWord(a3, 1);
+    return;
+  }
+  let shape = (ram.word(a3 + FM_SHAPE) + 2) & 0xffff;
+  if (shape === 20) shape = 0;
+  ram.setWord(a3 + FM_SHAPE, shape);
+  ram.setWord(a2 + AWO_OBJ_OFF, ram.word(d.shape + shape));
+  const a4 = a2 + AWO_LEN;
+  if ((ram.byte(a2 + AWO_STATUS) & 0xf) === 0xf) {
+    // .close
+    ram.setLong(a0, 0xffffffff);
+    ram.setWord(bank, 0xffff);
+    e.setW(V.quitDelay, 25);
+    e.setB(V.cleanUp, 0xff);
+    return;
+  }
+  if (mode === 2) {
+    if ((ram.byte(a2 + AWO_STATUS) & 0xf) !== 0) {
+      ram.setByte(d.shape + AWO_STATUS, 1); // a4 = Final_Shape (siehe oben)
+      ram.setWord(a3, (mode - 1) & 0xffff);
+      return;
+    }
+    ram.setLong(bank, 0x00020000);
+    const step = (ram.word(a3 + FM_LANGUE_STEP) + 2) & 0xffff;
+    ram.setWord(a3 + FM_LANGUE_STEP, step);
+    if (step === 52) {
+      ram.setWord(a3, (mode - 1) & 0xffff);
+      return;
+    }
+    ram.setWord(a4 + AWO_OBJ_OFF, ram.word(d.langue + step));
+    return;
+  }
+  approach(e, a2 + AWO_X, (e.w(V.sorcererX) + 150) & 0xffff, 2);
+  approach(e, a2 + AWO_Y, (e.w(V.sorcererY) + 40) & 0xffff, 2);
+  const delay = (ram.word(FM_LANGUE_DELAY) + 1) & 0xffff;
+  ram.setWord(FM_LANGUE_DELAY, delay);
+  if (delay !== 50) return;
+  ram.setWord(FM_LANGUE_DELAY, 0);
+  ram.setLong(bank, 0x00020000);
+  ram.setWord(a4 + AWO_X, (ram.word(a2 + AWO_X) - 140) & 0xffff);
+  ram.setWord(a4 + AWO_Y, ram.word(a2 + AWO_Y));
+  ram.setWord(a4 + AWO_OBJ_OFF, d.objLangue);
+  ram.setWord(a4 + AWO_ENERGY, 100);
+  ram.setLong(a4 + AWO_STATUS, 0);
+  ram.setWord(a3, (mode + 1) & 0xffff);
+  ram.setWord(a3 + FM_LANGUE_STEP, 0xfffe);
 }
