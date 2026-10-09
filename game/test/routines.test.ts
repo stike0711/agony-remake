@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from "vitest";
 import { LevelEngine } from "../src/core/level/engine.ts";
-import { FOREST, type LevelLayout, SEA } from "../src/core/level/layout.ts";
+import { FOREST, type LevelLayout, MARSHES, SEA } from "../src/core/level/layout.ts";
 import { routineManager } from "../src/core/level/routines.ts";
 import { hasAssets, loadAssets } from "./load-assets.ts";
 
@@ -539,5 +539,112 @@ describe.skipIf(!hasAssets)("Neue Gegner-Routinen von Level 2 (ohne Aufnahme)", 
     expect([r.e.b(FV.cleanUp), r.e.w(FV.quitDelay), r.w(r.a2 + OBJ), r.w(a4 + OBJ)]).toEqual([0xff, 100, 0x73e, 0x73e]);
     r.run(50);
     expect(usedTracks(r.e, FOREST).length).toBe(8);
+  });
+});
+
+describe.skipIf(!hasAssets)("Gegner-Routinen von Level 3, aus Level 1 und 2 bekannt (ohne Aufnahme)", () => {
+  // Werte von Hand aus AG_GAME_LMARAIS.S, Abbild work/disasm/marshes_rout.txt
+  const MV = MARSHES.vars;
+  const busy = (r: Rout, n: number): void => {
+    r.e.setW(MV.routModPalCounter, n);
+    r.e.setL(MV.routPalPtr, 0x12345678);
+  };
+
+  it("R_Rapide: Energie 2, ohne Palette und ohne Rout_Mod_Pal_Counter", () => {
+    // Startliste: START_C R_Rapide, PAR Anim_…, 10, PAR_L Dummy_Pal, PAR 256 + 60; Anim_Base $4EEF0: $2CE, Ende
+    const r = start(0x4f6a2, [0, 10, 0x0004, 0xf68e, 316], MARSHES);
+    busy(r, 1);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)]).toEqual([596, 316, 0x2ce, 2]);
+    expect([r.e.w(MV.routModPalCounter), r.e.l(MV.routPalPtr)]).toEqual([1, 0x12345678]);
+    r.run(3);
+    expect(r.w(r.a2 + OBJ)).toBe(0x2ce);
+    // Ende im 41. Durchlauf; Zähler bleibt 1, Palette bleibt
+    r.run(36);
+    expect(r.e.ram.long(r.a0)).not.toBe(0xffffffff);
+    r.run(1);
+    expect(r.e.ram.long(r.a0)).toBe(0xffffffff);
+    expect([r.e.w(MV.routModPalCounter), r.e.l(MV.routPalPtr)]).toEqual([1, 0x12345678]);
+    // mit Zähler 0: Palette des Levels, Zähler bleibt 0 (nicht $FFFF)
+    const q = start(0x4f6a2, [0, 10, 0x0004, 0xf68e, 316], MARSHES);
+    busy(q, 0);
+    q.run(41);
+    expect([q.e.w(MV.routModPalCounter), q.e.l(MV.routPalPtr)]).toEqual([0, 0xffffffff]);
+  });
+
+  it("R_Transporteur: ohne Palette und Zähler, Objekt $256, zwei Wellen bei Launch_X", () => {
+    const r = start(0x4f878, [500], MARSHES);
+    busy(r, 1);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)]).toEqual([576, 400, 0x256, 0xffff]);
+    expect([r.e.w(MV.routModPalCounter), r.e.l(MV.routPalPtr)]).toEqual([1, 0x12345678]);
+    // 576 − 76 = 500: Wellen R_T_Transporteur1/2 ($4F838/$4F858)
+    r.run(75);
+    expect(usedTracks(r.e, MARSHES)).toHaveLength(0);
+    r.run(1);
+    const ts = usedTracks(r.e, MARSHES);
+    expect(ts.map((t) => r.e.ram.long(t + 4))).toEqual([0x4004f838, 0x4004f858]);
+    r.run(174);
+    expect(r.e.ram.long(r.a0)).not.toBe(0xffffffff);
+    r.run(1);
+    expect(r.e.ram.long(r.a0)).toBe(0xffffffff);
+    expect([r.e.w(MV.routModPalCounter), r.e.l(MV.routPalPtr)]).toEqual([1, 0x12345678]);
+  });
+
+  it("R_Sol_Crache: ohne Palette und Zähler, Pflanze $1A8, Feuerball $1F6", () => {
+    const r = start(0x4fa22, [30], MARSHES);
+    busy(r, 1);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)]).toEqual([576, 446, 0x1a8, 8]);
+    r.run(30);
+    expect([r.w(r.a3), r.w(r.a2 + AWO_LEN + OBJ), r.w(r.a2 + AWO_LEN + ENERGY)]).toEqual([2, 0x1f6, 2]);
+    // 576 − 2 · 188 = 200: Ende im 188. Durchlauf nach dem Start
+    r.run(157);
+    expect(r.e.ram.long(r.a0)).not.toBe(0xffffffff);
+    r.run(1);
+    expect(r.e.ram.long(r.a0)).toBe(0xffffffff);
+    expect([r.e.w(MV.routModPalCounter), r.e.l(MV.routPalPtr)]).toEqual([1, 0x12345678]);
+  });
+
+  it("R_Volant_Missile: ohne Palette, Monster $534, Schuss 2 Pixel je Durchlauf", () => {
+    const r = start(0x4f30a, [], MARSHES);
+    const a4 = r.a2 + AWO_LEN;
+    busy(r, 0);
+    r.e.setW(MV.sorcererX, 100);
+    r.e.setW(MV.sorcererY, 150);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)]).toEqual([456, 220, 0x534, 20]);
+    // wie Level 2: Schuss am Monster (382, 190) nach links (Tir_6 = $4FE), dann Tir_7 ($510) mit 2 Pixel
+    r.run(75);
+    expect([r.w(a4 + X), r.w(a4 + Y), r.w(r.a3 + 6), r.w(a4 + OBJ)]).toEqual([382, 190, 4, 0x4fe]);
+    r.run(1);
+    expect([r.w(r.bank), r.w(a4 + X), r.w(a4 + OBJ)]).toEqual([2, 380, 0x510]);
+  });
+});
+
+describe.skipIf(!hasAssets)("Neue Gegner-Routinen von Level 3 (ohne Aufnahme)", () => {
+  // Werte von Hand aus AG_GAME_LMARAIS.S (Label R_Jumper), Abbild $4FCD0–$4FD6E
+  const MV = MARSHES.vars;
+
+  it("R_Jumper: läuft bis 128 Pixel vor die Eule, springt dann schräg nach oben, Ende ab y ≤ 240", () => {
+    const r = start(0x4fcd0, [], MARSHES);
+    r.e.setW(MV.routModPalCounter, 1);
+    r.e.setL(MV.routPalPtr, 0x12345678);
+    r.e.setW(MV.sorcererX, 100);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)]).toEqual([596, 446, 0x15a, 5]);
+    // 596 − 2 · 184 = 228 = Sorcerer_X + 128: Absprung
+    r.run(183);
+    expect([r.w(r.a3), r.w(r.a2 + X), r.w(r.a2 + OBJ)]).toEqual([1, 230, 0x15a]);
+    r.run(1);
+    expect([r.w(r.a3), r.w(r.a2 + X), r.w(r.a2 + OBJ)]).toEqual([2, 228, 0x174]);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ)]).toEqual([222, 438, 0x18e]);
+    // 446 − 8 · 26 = 238 ≤ 240: Ende im 26. Sprung
+    r.run(24);
+    expect(r.e.ram.long(r.a0)).not.toBe(0xffffffff);
+    r.run(1);
+    expect(r.e.ram.long(r.a0)).toBe(0xffffffff);
+    expect([r.e.w(MV.routModPalCounter), r.e.l(MV.routPalPtr)]).toEqual([1, 0x12345678]);
   });
 });

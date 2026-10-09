@@ -7,6 +7,8 @@
 // übertragen, aber noch ungeprüft (Aufnahme über Bild 14792 hinaus fehlt). Level 2 nutzt dieselben Routinen mit kleinen
 // Unterschieden (meist ohne eigene Palette), die in den …Def-Feldern stehen, dazu R_Kamikaze und R_Sol_Etoile; gegen
 // das Original ungeprüft; der Endgegner von Level 2 (R_Final in Ag_Game_LFORET.s) hat eigenen Code (finalForet).
+// Level 3 nutzt die bekannten Routinen ganz ohne eigene Paletten (auch ohne Rout_Mod_Pal_Counter bei R_Rapide,
+// R_Transporteur und R_Sol_Crache) und hat einen eigenen R_Jumper (jumperMarais); gegen das Original ungeprüft.
 // Unbekannte Routinen halten die Engine an (LevelEngine.unported).
 
 import type { LevelEngine } from "./engine.ts";
@@ -16,8 +18,11 @@ import { WORK } from "./timing.ts";
 /** Pflanze am Boden, spuckt Feuerbälle (R_Sol_Crache) */
 export interface SolCracheDef {
   kind: "solCrache";
-  /** R_SC_Pal (6 Zeilen-Schalter, 7 Farben), R_Sol_Crache_Shape (11 Objektnummern), Sin_Table2 (Bytes) */
-  pal: number;
+  /**
+   * R_SC_Pal (6 Zeilen-Schalter, 7 Farben; null: keine eigene Palette, CLOSE ohne Zählerabzug wie in Level 3),
+   * R_Sol_Crache_Shape (11 Objektnummern), Sin_Table2 (Bytes)
+   */
+  pal: number | null;
   shape: number;
   sin: number;
   /** Obj_Sol_Crache_1, Obj_Fire_Ball */
@@ -38,8 +43,11 @@ export interface AraigneeDef {
 /** Großer Gegner, der zwei Wellen kleiner Gegner absetzt (R_Transporteur) */
 export interface TransporteurDef {
   kind: "transporteur";
-  /** R_T_Pal, R_Transporteur_Shape (4 Objektnummern), R_T_Transporteur1/2 (Wellen, AWS), Obj_Transporteur_1 */
-  pal: number;
+  /**
+   * R_T_Pal (null: keine eigene Palette, CLOSE ohne Zählerabzug wie in Level 3), R_Transporteur_Shape (4 Objektnummern),
+   * R_T_Transporteur1/2 (Wellen, AWS), Obj_Transporteur_1
+   */
+  pal: number | null;
   shape: number;
   wave1: number;
   wave2: number;
@@ -78,7 +86,9 @@ export interface RapideDef {
   kind: "rapide";
   /** MODE 0 setzt Rout_Pal_Ptr aus P_R_Pal_Ptr (Level 1); in Level 2 zählt er nur Rout_Mod_Pal_Counter hoch */
   pal: boolean;
-  /** Energie: 3 in Level 1, 2 in Level 2 */
+  /** Rout_Mod_Pal_Counter in MODE 0 hoch und beim CLOSE herunter (Level 1 und 2); in Level 3 beides nicht */
+  count: boolean;
+  /** Energie: 3 in Level 1, 2 in Level 2 und 3 */
   energy: number;
 }
 
@@ -115,7 +125,7 @@ export interface VolantMissileDef {
   obj1: number;
   obj2: number;
   shots: readonly number[];
-  /** Pixel je Durchlauf des Schusses: 3 in Level 1, 1 in Level 2 */
+  /** Pixel je Durchlauf des Schusses: 3 in Level 1, 1 in Level 2, 2 in Level 3 */
   shotSpeed: number;
 }
 
@@ -170,8 +180,17 @@ export interface FinalForetDef {
   explo3: number;
 }
 
+/** Monster am Boden, das auf die Eule zuläuft und dann schräg nach oben springt (R_Jumper in AG_GAME_LMARAIS.S) */
+export interface JumperMaraisDef {
+  kind: "jumperMarais";
+  /** Obj_Jumper_1 (Laufen), _2 (Absprung), _3 (Sprung) */
+  obj1: number;
+  obj2: number;
+  obj3: number;
+}
+
 export type RoutineDef = SolCracheDef | AraigneeDef | TransporteurDef | TirEtoileDef | SpectreDef | RapideDef |
-  BomberDef | GrossiDef | VolantMissileDef | FinalDef | KamikazeDef | SolEtoileDef | FinalForetDef;
+  BomberDef | GrossiDef | VolantMissileDef | FinalDef | KamikazeDef | SolEtoileDef | FinalForetDef | JumperMaraisDef;
 
 const ROUTS = 32;
 const ROUT_LEN = 28;
@@ -229,6 +248,7 @@ export function routineManager(e: LevelEngine): void {
       case "kamikaze": kamikaze(e, a0, def); break;
       case "solEtoile": solEtoile(e, a0, def); break;
       case "finalForet": finalForet(e, a0, def); break;
+      case "jumperMarais": jumperMarais(e, a0, def); break;
     }
   }
 }
@@ -275,7 +295,7 @@ function solCrache(e: LevelEngine, a0: number, d: SolCracheDef): void {
   const mode = ram.word(a3);
   ram.setLong(bank, 0x00010000);
   if (mode === 0) {
-    open(e, d.pal);
+    if (d.pal !== null) open(e, d.pal);
     ram.setWord(a2 + AWO_X, 256 + 320);
     ram.setWord(a2 + AWO_Y, 256 + 190);
     ram.setWord(a2 + AWO_OBJ_OFF, d.obj);
@@ -288,7 +308,7 @@ function solCrache(e: LevelEngine, a0: number, d: SolCracheDef): void {
   const x = (ram.word(a2 + AWO_X) - 2) & 0xffff;
   ram.setWord(a2 + AWO_X, x);
   if (s16(x) <= 200) {
-    close(e, a0, bank);
+    close(e, a0, bank, d.pal !== null);
     return;
   }
   const delay = ram.word(a3 + 4) ^ 1;
@@ -382,7 +402,7 @@ function transporteur(e: LevelEngine, a0: number, d: TransporteurDef): void {
   const a2 = bank + 4;
   const mode = ram.word(a3);
   if (mode === 0) {
-    open(e, d.pal);
+    if (d.pal !== null) open(e, d.pal);
     ram.setLong(bank, 0x00010000);
     ram.setWord(a2 + AWO_X, 256 + 320);
     ram.setWord(a2 + AWO_Y, 144 + 256);
@@ -416,7 +436,7 @@ function transporteur(e: LevelEngine, a0: number, d: TransporteurDef): void {
   const time = (ram.word(a3 + 6) + 1) & 0xffff;
   ram.setWord(a3 + 6, time);
   if (time === 25 * 6) ram.setByte(a2 + AWO_STATUS, 1);
-  if (time === 25 * 7) close(e, a0, bank);
+  if (time === 25 * 7) close(e, a0, bank, d.pal !== null);
 }
 
 /** Animationsschritt: Objektnummer aus der Tabelle, nach dem letzten von `last` + 1 Einträgen wieder von vorn */
@@ -670,7 +690,7 @@ function rapide(e: LevelEngine, a0: number, d: RapideDef): void {
       e.setL(V.routPalPtr, ram.long(a1 + 4));
       e.setB(V.refreshPal + 1, 0xff);
     }
-    e.setW(V.routModPalCounter, e.w(V.routModPalCounter) + 1);
+    if (d.count) e.setW(V.routModPalCounter, e.w(V.routModPalCounter) + 1);
     ram.setWord(a2 + AWO_X, 256 + 340);
     ram.setWord(a2 + AWO_Y, ram.word(a1 + 8));
     const a4 = (L.animBase + ram.sword(a1)) >>> 0;
@@ -699,7 +719,7 @@ function rapide(e: LevelEngine, a0: number, d: RapideDef): void {
     a4 = (L.animBase + ram.sword(a1)) >>> 0;
     ram.setLong(a3 + 2, a4);
   }
-  if (s16(ram.word(a2 + AWO_X)) <= 200) close(e, a0, bank);
+  if (s16(ram.word(a2 + AWO_X)) <= 200) close(e, a0, bank, d.count);
 }
 
 /** Variablen von R_Kamikaze: +0 R_VK_Mode, +2/+4 R_VK_Target_X/Y (ungenutzt), +6 R_VK_Time */
@@ -1360,4 +1380,42 @@ function finalForetWave(e: LevelEngine, a3: number, a2: number, d: FinalForetDef
   ram.setWord(a3 + FF_STEP, step);
   const aws = ram.long(d.waves + 4 * step);
   launchWave(e, (aws | 0x40000000) >>> 0, (ram.word(a2 + AWO_X) - 20) & 0xffff, (ram.word(a2 + AWO_Y) - 20) & 0xffff);
+}
+
+/**
+ * R_Jumper (Level 3): erscheint rechts am Boden (x 256 + 340, y 256 + 190, Energie 5) und läuft 2 Pixel je Durchlauf
+ * nach links, bis er höchstens 128 Pixel rechts der Eule steht (Sorcerer_X + 128 ≥ x). Dann springt er: je Durchlauf
+ * 6 Pixel nach links und 8 nach oben, bis y ≤ 240; CLOSE ohne Zählerabzug. Variablen: +0 Modus (0 Start, 1 Laufen,
+ * 2 Sprung). Quelle: AG_GAME_LMARAIS.S, Label R_Jumper; Abbild $4FCD0–$4FD6E (marshes).
+ */
+function jumperMarais(e: LevelEngine, a0: number, d: JumperMaraisDef): void {
+  const { V, ram } = e;
+  const bank = ram.long(a0 + ROUT_AWO_PTR);
+  const a3 = a0 + ROUT_VARIABLES;
+  const a2 = bank + 4;
+  const mode = ram.word(a3);
+  ram.setLong(bank, 0x00010000);
+  if (mode === 0) {
+    ram.setWord(a2 + AWO_X, 256 + 340);
+    ram.setWord(a2 + AWO_Y, 256 + 190);
+    ram.setWord(a2 + AWO_OBJ_OFF, d.obj1);
+    ram.setWord(a2 + AWO_ENERGY, 5);
+    ram.setLong(a2 + AWO_STATUS, 0);
+    ram.setWord(a3, 1);
+    return;
+  }
+  const x = (ram.word(a2 + AWO_X) - 2) & 0xffff;
+  ram.setWord(a2 + AWO_X, x);
+  if (mode === 1) {
+    // cmp AWO_Alien_X(a2),d1 / blt .end
+    if (s16((e.w(V.sorcererX) + 128) & 0xffff) < s16(x)) return;
+    ram.setWord(a3, 2);
+    ram.setWord(a2 + AWO_OBJ_OFF, d.obj2);
+    return;
+  }
+  ram.setWord(a2 + AWO_OBJ_OFF, d.obj3);
+  const y = (ram.word(a2 + AWO_Y) - 8) & 0xffff;
+  ram.setWord(a2 + AWO_Y, y);
+  ram.setWord(a2 + AWO_X, (x - 4) & 0xffff);
+  if (s16(y) <= 240) close(e, a0, bank, false);
 }

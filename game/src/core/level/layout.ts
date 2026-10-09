@@ -420,7 +420,7 @@ export const SEA: LevelLayout = {
     // Abbild $4E9F0; Obj_Spectre_Pot $35A ($4EA24 im MODE 0), Obj_Spectre_4/5 aus MODE 3 ($4EB08–$4EB1C)
     [0x4e9f0, { kind: "spectre", pal: 0x4e9d2, shape: 0x4e9e6, pot: 0x35a, obj4: 0x3b6, obj5: 0x3d4 }],
     // Abbild $4F8EE
-    [0x4f8ee, { kind: "rapide", pal: true, energy: 3 }],
+    [0x4f8ee, { kind: "rapide", pal: true, count: true, energy: 3 }],
     // Abbild $4EC00; Obj_Sac $BE ($4EC26), Obj_Boulle $32E ($4ECDC), Sin_Table1 $509C2 ($4ED10)
     [0x4ec00, { kind: "bomber", obj: 0xbe, bomb: 0x32e, sin: 0x509c2 }],
     // Abbild $4F696 (R_Volant_Grossi, nicht R_Jumper) und $4F75E (R_Jumper, in Level 1 nicht gestartet);
@@ -594,7 +594,7 @@ export const FOREST: LevelLayout = {
     // Abbild $4BEE4; Obj_Araignee $3F4 ($4BF06), R_A_Y_Mode bei +2 ($4BF26)
     [0x4bee4, { kind: "araignee", pal: null, obj: 0x3f4, yMode: 2 }],
     // Abbild $4BFA2; Energie 2 ($4BFDA), ohne Rout_Pal_Ptr ($4BFB4)
-    [0x4bfa2, { kind: "rapide", pal: false, energy: 2 }],
+    [0x4bfa2, { kind: "rapide", pal: false, count: true, energy: 2 }],
     // Abbild $4C048; Obj_Kamikaze $2EE ($4C06C)
     [0x4c048, { kind: "kamikaze", obj: 0x2ee }],
     // Abbild $4C160; R_SE_Shape $4C138 ($4C1B8), Obj_Sol_Etoile_1 $614 ($4C184), Obj_Tir_1/_2/_8 $416/$428/$494
@@ -745,9 +745,37 @@ export const MARSHES: LevelLayout = {
   frontMask: 0x54d06,
   trackTable: 0x5de56,
 
-  // Quelle: AG_GAME_LMARAIS.S „ROUTINES“ (Disassembly work/disasm/marshes_rout.txt); noch nicht übertragen: Der Lauf
-  // hält beim ersten START_C (R_Rapide bei WAIT $140) an
-  routines: new Map<number, RoutineDef>([]),
+  // Quelle: AG_GAME_LMARAIS.S „ROUTINES“ (Disassembly work/disasm/marshes_rout.txt, mit forest_rout.txt bzw.
+  // sea_rout.txt Befehl für Befehl verglichen). Keine Routine meldet eine eigene Palette an (pal: null bzw. false), auch
+  // R_Rapide, R_Transporteur und R_Sol_Crache zählen Rout_Mod_Pal_Counter nicht. Noch nicht übertragen: R_Sol_Kamikaze
+  // ($4FD7C) und R_Final ($4FE74).
+  routines: new Map<number, RoutineDef>([
+    // Abbild $4EF2A, wie Level 2; R_Spectre_Shape $4EF20 ($4EFF0), Obj_Spectre_Pot $342 ($4EF4E), Obj_Spectre_4/5
+    // $38A/$3A0 ($4F032–$4F046)
+    [0x4ef2a, { kind: "spectre", pal: null, shape: 0x4ef20, pot: 0x342, obj4: 0x38a, obj5: 0x3a0 }],
+    // Abbild $4F122, wie Level 2; R_Tir_Etoile_Shape $4F110 ($4F178), Obj_Tir_Etoile_1 $5CC ($4F146), Obj_Tir_1–8
+    // $4A4–$522 ($4F1CE–$4F1F8)
+    [0x4f122, { kind: "tirEtoile", pal: null, shape: 0x4f110, obj: 0x5cc,
+      shots: [0x4a4, 0x4b6, 0x4c8, 0x4da, 0x4ec, 0x4fe, 0x510, 0x522] }],
+    // Abbild $4F30A; Obj_Volant_Missile_1/2 $534/$54A ($4F378/$4F382), Schuss 2 Pixel je Durchlauf ($4F3D2–$4F420)
+    [0x4f30a, { kind: "volantMissile", pal: null, obj1: 0x534, obj2: 0x54a,
+      shots: [0x4a4, 0x4b6, 0x4c8, 0x4da, 0x4ec, 0x4fe, 0x510, 0x522], shotSpeed: 2 }],
+    // Abbild $4F6A2; Energie 2, ohne Rout_Pal_Ptr und ohne Rout_Mod_Pal_Counter (fehlen bei $4F6B4 und $4F72A)
+    [0x4f6a2, { kind: "rapide", pal: false, count: false, energy: 2 }],
+    // Abbild $4F740, wie Level 2; Obj_Kamikaze $330 ($4F764)
+    [0x4f740, { kind: "kamikaze", obj: 0x330 }],
+    // Abbild $4F878, ohne Palette und Zähler; R_Transporteur_Shape $4F830 ($4F8D4), R_T_Transporteur1/2 $4F838/$4F858
+    // ($4F908/$4F918), Obj_Transporteur_1 $256 ($4F89C)
+    [0x4f878, { kind: "transporteur", pal: null, shape: 0x4f830, wave1: 0x4f838, wave2: 0x4f858, obj: 0x256 }],
+    // Abbild $4FA22, ohne Palette und Zähler; R_Sol_Crache_Shape $4FA0C ($4FAA8), Sin_Table2 $512C6 ($4FB2A),
+    // Obj_Sol_Crache_1 $1A8 ($4FA46), Obj_Fire_Ball $1F6 ($4FAEA)
+    [0x4fa22, { kind: "solCrache", pal: null, shape: 0x4fa0c, sin: 0x512c6, obj: 0x1a8, fireBall: 0x1f6 }],
+    // Abbild $4FB7A, wie Level 2; R_SE_Shape $4FB52 ($4FBD2), Obj_Sol_Etoile_1 $692 ($4FB9E), Obj_Tir_1/_2/_8
+    // $4A4/$4B6/$522 ($4FC56–$4FC62)
+    [0x4fb7a, { kind: "solEtoile", shape: 0x4fb52, obj: 0x692, shots: [0x4a4, 0x4b6, 0x522] }],
+    // Abbild $4FCD0, eigener Code (nicht der R_Jumper von Level 1); Obj_Jumper_1–3 $15A/$174/$18E ($4FCF4–$4FD36)
+    [0x4fcd0, { kind: "jumperMarais", obj1: 0x15a, obj2: 0x174, obj3: 0x18e }],
+  ]),
   relativeTracks: 0x50000, // $2B58
   absoluteTracks: 0x50b7c, // $2CBA
   animBase: 0x4eef0,

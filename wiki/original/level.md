@@ -243,8 +243,23 @@ Level 3 unsicher).
 `WAIT $140`. Die 11 Gegner-Routinen liegen in Quelltext-Reihenfolge (Startadressen aus den `START_C`-Einträgen):
 `R_Spectre` `$4EF2A`, `R_Tir_Etoile` `$4F122`, `R_Volant_Missile` `$4F30A`, `R_Rapide` `$4F6A2`, `R_Kamikaze`
 `$4F740`, `R_Transporteur` `$4F878`, `R_Sol_Crache` `$4FA22`, `R_Sol_Etoile` `$4FB7A`, `R_Jumper` `$4FCD0`,
-`R_Sol_Kamikaze` `$4FD7C`, `R_Final` `$4FE74` (Disassembly `work/disasm/marshes_rout.txt`). Noch nicht übertragen:
-Im Nachbau hält das Level beim ersten `R_Rapide` an (403 Bilder nach dem Start, `level3.test.ts`).
+`R_Sol_Kamikaze` `$4FD7C`, `R_Final` `$4FE74` (Disassembly `work/disasm/marshes_rout.txt`).
+
+✔ Unterschiede zu Level 1 und 2 (Quelltext per `diff` mit `Ag_Game_LFORET.s` bzw. `Ag_Game_LMER.s` verglichen, Abbild
+Befehl für Befehl mit `forest_rout.txt` bzw. `sea_rout.txt`; beide stimmen überein):
+
+- `R_Spectre`, `R_Tir_Etoile`, `R_Kamikaze`, `R_Sol_Etoile`: wie Level 2, nur die Objektnummern des Levels.
+- `R_Volant_Missile`: wie Level 2 ohne Palette, der Schuss fliegt 2 Pixel je Durchlauf (Level 1: 3, Level 2: 1).
+- `R_Rapide`: Energie 2, ohne Palette und anders als in Level 2 auch ohne `Rout_Mod_Pal_Counter` (weder hoch noch
+  herunter); beim CLOSE bleibt nur der Test auf 0.
+- `R_Transporteur`, `R_Sol_Crache`: wie Level 1, aber ohne eigene Palette und ohne Zähler; die Wellen des
+  Transporteurs ändern keine Farben.
+- `R_Jumper`: eigener Code (in Level 1 eine Kopie von `R_Volant_Grossi`): Monster am Boden (x 256 + 340,
+  y 256 + 190, Energie 5) läuft 2 Pixel je Durchlauf nach links, bis es höchstens 128 Pixel rechts der Eule steht,
+  dann springt es (6 Pixel nach links, 8 nach oben je Durchlauf) bis y ≤ 240.
+
+Im Nachbau (gegen das Original ungeprüft) laufen diese 9 Routinen; das Level hält beim ersten `R_Sol_Kamikaze` an
+(1.365 Bilder nach dem Start, `level3.test.ts`; davor `R_Rapide`, `R_Tir_Etoile`, `R_Jumper`).
 
 ### Level 4 – Berge (`AG_GAME_LMONTAGNES.S`, Wellen-Parameter in `lmontagnes_rtr.s`)
 

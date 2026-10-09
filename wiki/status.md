@@ -14,7 +14,8 @@ Eingabe bis nach dem Spielende pixelgenau wie im Emulator, ebenso ein Lauf mit D
 Alle Gegner-Routinen, Bonus, Zaubermenü mit allen Zaubern, Äxte, Pause und Levelende von Level 1 sind übertragen
 (gegen das Original noch ungeprüft); nach dem Levelende folgen das Ladebild und Level 2 (Abbild und Layout stehen,
 alle Gegner-Routinen samt Endgegner sind übertragen, das Level läuft bis zum Levelende), danach Ladebild und Level 3
-(Abbild und Layout stehen, das Level läuft bis zur ersten Gegner-Routine). Als Nächstes: Gegner-Routinen von Level 3; am PC Aufnahmen von Level 1 über Bild 14.792 hinaus und
+(Abbild und Layout stehen, die bekannten Gegner-Routinen sind übertragen, das Level läuft bis zum ersten
+`R_Sol_Kamikaze`). Als Nächstes: `R_Sol_Kamikaze` und Endgegner von Level 3; am PC Aufnahmen von Level 1 über Bild 14.792 hinaus und
 von Level 2 zur Prüfung des Übertragenen, Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist
 eingeplant, sobald ein Mac zur Verfügung steht.
 
@@ -29,7 +30,7 @@ eingeplant, sobald ein Mac zur Verfügung steht.
 | 3. Referenz-Emulator mit den ADFs und Kickstart 1.3 einrichten | ✅ erledigt | vAmigaWeb als A500 (OCS, 512 + 512 KB), schrittweise steuerbar, siehe [Setup](setup.md#referenz-emulator) |
 | 4. Asset-Pipeline: Spieldateien entpacken; Grafiken, Paletten, Angriffswellen, Sounds und Musik extrahieren | 🟡 begonnen | Disketten ausgelesen, alle 15 Spieldateien entpackt, Lade- und Startadressen bestimmt; Titelbilder, Menübild, Menüschrift, Texttabelle und Ladebilder 1–2 lokalisiert und mit Python-Prototypen pixelgenau dekodiert; Startliste von Level 1 dekodiert. Pipeline in TypeScript für die Startsequenz fertig (`tools/pipeline/`); Level-Daten fehlen noch |
 | 5. Web-Grundgerüst: Spielschleife, Renderer, Eingabe, Audio, Build nach `server/` | ✅ erledigt | 06.10.2026, [Architektur → Umsetzung](architektur.md#umsetzung-web-grundgerüst); ProTracker-Abspieler inzwischen auch; offen: Vollbild, Tests auf echten Geräten |
-| 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026; übrige Gegner-Routinen, Bonus und Levelende übertragen, ungeprüft (08.10.2026); Level 2 bis zum Levelende übertragen, ungeprüft (09.10.2026); Level 3 bis zur ersten Gegner-Routine, ungeprüft (09.10.2026) |
+| 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026; übrige Gegner-Routinen, Bonus und Levelende übertragen, ungeprüft (08.10.2026); Level 2 bis zum Levelende übertragen, ungeprüft (09.10.2026); Level 3 bis zum ersten `R_Sol_Kamikaze`, ungeprüft (09.10.2026) |
 | 7. Titel/Intro, Menü, Ladebilder, Highscore und Spielende; Gesamtabgleich und Bugfixing | 🟡 begonnen | Titelsequenz, Menü, Story-Seite, Ladebild Level 1 fertig und geprüft (06.10.2026); Ladebilder Level 2 und 3 übertragen, ungeprüft (08./09.10.2026); offen: Namenseingabe, Cheat, Ladebilder 4–6, Spielende |
 
 ### Aktueller Meilenstein: Start bis Level 1
@@ -74,13 +75,10 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Level 3 – Gegner-Routinen** (nächster Cloud-Schritt, Ablauf B, Muster: Level 2 im Verlauf): Abbild, Layout
-   und Ladebild stehen (09.10.2026); der Lauf hält beim ersten `R_Rapide` (`$4F6A2`, `level3.test.ts`). Adressen aller
-   11 Routinen in [Level](original/level.md#level-3--sumpf-ag_game_lmaraiss-wellen-parameter-in-lmarais_rtrs),
-   Disassembly `work/disasm/marshes_rout.txt`. Zuerst die bekannten (`R_Rapide`, `R_Spectre`, `R_Tir_Etoile`,
-   `R_Volant_Missile`, `R_Kamikaze`, `R_Transporteur`, `R_Sol_Crache`, `R_Sol_Etoile`, `R_Jumper`) mit Quelltext und
-   Abbild vergleichen und als Einträge in `MARSHES.routines` (Effort „mittel“, Unterschiede als Felder der `…Def`-Typen),
-   dann die neue `R_Sol_Kamikaze` und der Endgegner `R_Final` (Effort „hoch“, je ein Schritt).
+1. **Level 3 – `R_Sol_Kamikaze`** (nächster Cloud-Schritt, Ablauf B, Effort „mittel“: kurze Routine, ≈ 100 Zeilen,
+   `AG_GAME_LMARAIS.S` ab Label `R_SK_Shape`, Abbild `$4FD7C`, `work/disasm/marshes_rout.txt`): Der Lauf hält dort
+   (`level3.test.ts`, Bild 1.365). Danach der Endgegner `R_Final` (`$4FE74`, Effort „hoch“, eigener Schritt), dann
+   Levelende und Ladebild von Level 4.
 2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
    [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
 
@@ -183,9 +181,16 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 09.10.2026 | Level 2: `R_Kamikaze`, `R_Sol_Etoile` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
 | 09.10.2026 | Level 2: Endgegner `R_Final` und Levelende (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 | 09.10.2026 | Level 3: Ladebild, Abbild, Layout, Startliste (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
+| 09.10.2026 | Level 3: bekannte Gegner-Routinen und `R_Jumper` (Cloud-Session) | mittel | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 
 ## Verlauf
 
+- **09.10.2026 (Level 3: bekannte Gegner-Routinen, Cloud-Session)** – Quelltext per `diff` und Abbild Befehl für Befehl
+  mit Level 1/2 verglichen: 8 Routinen als Einträge in `MARSHES.routines`, keine mit eigener Palette; neue Felder
+  `RapideDef.count`, `pal: null` bei Transporteur und Sol_Crache, Schuss von `R_Volant_Missile` 2 Pixel. `R_Jumper`
+  hat in Level 3 eigenen, kurzen Code (`jumperMarais`), gleich mit übertragen. Level 3 läuft bis zum ersten
+  `R_Sol_Kamikaze` (Bild 1.365). 5 neue Tests, 82 Tests. Im Browser nicht geprüft (nur Kern, Level 3 erst nach zwei
+  Leveln erreichbar). Gegen das Original ungeprüft. origin/main war schon enthalten.
 - **09.10.2026 (Level 3: Ladebild, Abbild, Layout, Startliste; Cloud-Session)** – `load_marshes` hat denselben Code wie
   `load_forest` (Bild `$686C4`); `marshes` hat denselben gemeinsamen Code wie `forest`, Befehl für Befehl. Neues
   Werkzeug `tools/analysis/derive_layout.py` überträgt ein Layout über die ausgerichteten Operanden (Selbsttest
