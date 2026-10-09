@@ -79,7 +79,10 @@ Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im 
    eigene Palette, `R_Tir_Etoile`, `R_Volant_Missile`, `R_Araignee`, `R_Rapide`; Unterschiede im Abbild prüfen),
    dann neu `R_Kamikaze`, `R_Sol_Etoile` und `R_Final`, dann Levelende → Platzhalter `ui.level3Stub`. Gegen das
    Original ungeprüft kennzeichnen.
-2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
+2. **Bedienung nach E-043** (Effort „mittel“, auch in der Cloud): Pause-Knopf für Touch (oben in einer Ecke) und
+   Gamepad (Start), automatische Pause im Hintergrund, im Optionsmenü „Spiel beenden“ (mit Rückfrage, wie Esc) und
+   die Option „Zaubermenü mit Feuer öffnen“ (`Menu_Mode`, Voreinstellung aus). Kann vor oder nach Punkt 1 kommen.
+3. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
    [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
 
 ### Für den PC

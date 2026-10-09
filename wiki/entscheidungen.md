@@ -460,5 +460,18 @@ Status: **gilt** · **vorgeschlagen** (noch nicht umgesetzt oder bestätigt) · 
 - Lösung: Der Zauber-Knopf des Remakes (`BTN_SPELL`, schon wegen Dauerfeuer vorgesehen) wirkt im Level wie die
   Leertaste, der neue Knopf `BTN_PAUSE` wie P (Tastatur: P). Drücken und Loslassen lösen wie im Original je einen
   Tastatur-Interrupt mit KEY TEST aus, zu Beginn des Takts (im Original irgendwann zwischen zwei Bildern).
-- Offen (Entscheidung des Nutzers): Pause-Knopf für Touch und Gamepad; Esc (im Remake Optionsmenü) und M (im Remake
-  Zauber-Knopf) haben im Original andere Aufgaben (Abbruch, `Menu_Mode`); beide bleiben vorerst ohne Taste.
+- Die offenen Punkte (Pause für Touch und Gamepad, Esc, M) hat der Nutzer am 09.10.2026 entschieden: E-043.
+
+### E-043 Pause-Knopf, „Spiel beenden“ und Zaubermenü per Feuer als Option
+- Datum: 09.10.2026 · Status: gilt (vom Nutzer beschlossen), noch nicht umgesetzt
+- Ergänzt E-042 für Touch, Gamepad und die Tasten Esc/M des Originals:
+  - **Pause:** Touch-Knopf klein oben in einer Ecke neben dem Optionsmenü, außerhalb der Daumenzonen; Gamepad über
+    die Start-Taste; dazu pausiert das Spiel automatisch, wenn die App in den Hintergrund geht (Sichtbarkeit bzw.
+    Lebenszyklus über die Plattformschicht). Alle Wege lösen denselben Knopf `BTN_PAUSE` aus (wie Taste P).
+  - **Esc (Abbruch im Original):** als Eintrag „Spiel beenden“ im Optionsmenü, mit Rückfrage; wirkt im Level wie
+    Esc im Original.
+  - **M (`Menu_Mode` im Original):** als Option „Zaubermenü mit Feuer öffnen“ im Optionsmenü, Voreinstellung aus wie
+    beim Spielstart des Originals; an = `Menu_Mode` gesetzt (gehaltenes Feuer öffnet nach 30 Bildern das Menü).
+- Begründung: Das Verhalten des Originals bleibt vollständig erreichbar, ohne Tasten doppelt zu belegen; auf dem
+  Tablet ist die automatische Pause beim Wechsel der App nötig.
+- Texte über Sprachschlüssel (E-021), Deutsch und Englisch.
