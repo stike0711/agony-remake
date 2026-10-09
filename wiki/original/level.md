@@ -299,7 +299,7 @@ Startliste liegen in Quelltext-Reihenfolge (Startadressen aus den `START_C`-Eint
 `R_Sol_Kamikaze` `$4C196`, `R_Colonne_Flamme` `$4C276`, `R_Araignee` `$4C368`, `R_Bomber` `$4C412`, `R_Sol_Guide`
 `$4C55C` (mit Parameter, z. B. 256 + 200), `R_Dragon` `$4C710`, `R_Final` `$4C888` (`START_C` bei `WAIT $2300`;
 Disassembly `work/disasm/mountains_rout.txt`). `R_Rapide` steht im Quelltext, wird aber nicht gestartet. Noch nicht
-übertragen: Im Nachbau hält das Level beim ersten `R_Dragon` an (4.564 Bilder nach dem Start, `WAIT $1180`,
+übertragen: Im Nachbau hält das Level beim Endgegner `R_Final` an (9.059 Bilder nach dem Start, `WAIT $2300`,
 `level4.test.ts`).
 
 Aus Level 1–3 bekannt (Quelltext per `diff`, Abbild Befehl für Befehl verglichen, 09.10.2026, gegen das Original
@@ -326,6 +326,18 @@ h = 310 − `Sorcerer_Y` geht es bei |dx| ≤ 40 senkrecht hoch (Modus 4, `$3E8`
 (Modus 3 nach links `$3D2` bzw. 5 nach rechts `$3FE`, je 3 Pixel hoch), andernfalls flach (Modus 2 `$3BC` bzw. 6
 `$414`, 1 Pixel hoch), jeweils in Richtung der Eule. Ende, wenn x < 200, x > 256 + 330 oder y < 200; CLOSE ändert
 `Rout_Mod_Pal_Counter` nicht und stellt nur bei 0 die Palette des Levels wieder her.
+
+✔ `R_Dragon` (`$4C710`–`$4C85E`, gleich dem Quelltext; übertragen 09.10.2026, gegen das Original noch ungeprüft):
+6 Drachen in der Startliste (`WAIT $1180`–`$1400`, Parameter `P_D_Y` abwechselnd 256 + 60 und 256 + 140). Ein
+Gegner bei x 256 + 350 (`Obj_Dragon_1` `$54E`, Energie 8, Schussrate 10, ohne eigene Palette), der 2 Pixel je
+Durchlauf nach links fliegt und reihum die 10 Bilder aus `Dragon_Shape` (`$4C6D6`: 7 × `$54E`, 3 × `$56E`) zeigt;
+Ende, sobald x ≤ 180 (213 Durchläufe, auch nach dem Abschuss). Alle 30 Durchläufe stößt er eine Feuerzunge aus,
+solange seine Explosion nicht beendet ist: zweiter Gegner der Bank bei (x − 190, y), `Obj_Fire_1` `$58E`,
+Energie 100, schießt nicht. Die Zunge wandert 2 Pixel je Durchlauf nach links und zeigt `Langue_Shape` (`$4C6EA`:
+12 × `$58E`, dann `Obj_Fire_2–8` `$5A0`, `$5B6`, `$5CE`, `$5EA`, `$608`, `$62A`, `$64E`); ab `Obj_Fire_8` bleibt das
+Bild, und sie wandert 14 Pixel je Durchlauf. Bei x ≤ 130 oder wenn der Drache getroffen ist, verschwindet sie
+(zurück in Modus 1; die nächste Zunge 30 Durchläufe später). Da die Zunge bei x − 190 startet, endet sie ab
+Drachen-x ≤ 320 schon im ersten Zug. CLOSE wie bei `R_Sol_Guide` (ohne `Rout_Mod_Pal_Counter`).
 
 ### Level 5 – Hochland (`Ag_Game_LPLATEAUX.s`)
 

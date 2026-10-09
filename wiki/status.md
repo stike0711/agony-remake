@@ -15,8 +15,8 @@ Alle Gegner-Routinen, Bonus, Zaubermenü mit allen Zaubern, Äxte, Pause und Lev
 (gegen das Original noch ungeprüft); nach dem Levelende folgen das Ladebild und Level 2 (Abbild und Layout stehen,
 alle Gegner-Routinen samt Endgegner sind übertragen, das Level läuft bis zum Levelende), danach Ladebild und Level 3
 (Abbild und Layout stehen, alle Gegner-Routinen samt Endgegner sind übertragen, das Level läuft bis zum Levelende),
-danach Ladebild und Level 4 (Abbild und Layout stehen, die Wellen laufen bis zum ersten `R_Dragon`).
-Als Nächstes: die übrigen Gegner-Routinen von Level 4; am PC Aufnahmen von Level 1 über Bild 14.792 hinaus und
+danach Ladebild und Level 4 (Abbild und Layout stehen, die Wellen laufen bis zum Endgegner).
+Als Nächstes: der Endgegner von Level 4; am PC Aufnahmen von Level 1 über Bild 14.792 hinaus und
 von Level 2 zur Prüfung des Übertragenen, Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist
 eingeplant, sobald ein Mac zur Verfügung steht.
 
@@ -31,7 +31,7 @@ eingeplant, sobald ein Mac zur Verfügung steht.
 | 3. Referenz-Emulator mit den ADFs und Kickstart 1.3 einrichten | ✅ erledigt | vAmigaWeb als A500 (OCS, 512 + 512 KB), schrittweise steuerbar, siehe [Setup](setup.md#referenz-emulator) |
 | 4. Asset-Pipeline: Spieldateien entpacken; Grafiken, Paletten, Angriffswellen, Sounds und Musik extrahieren | 🟡 begonnen | Disketten ausgelesen, alle 15 Spieldateien entpackt, Lade- und Startadressen bestimmt; Titelbilder, Menübild, Menüschrift, Texttabelle und Ladebilder 1–2 lokalisiert und mit Python-Prototypen pixelgenau dekodiert; Startliste von Level 1 dekodiert. Pipeline in TypeScript für die Startsequenz fertig (`tools/pipeline/`); Level-Daten fehlen noch |
 | 5. Web-Grundgerüst: Spielschleife, Renderer, Eingabe, Audio, Build nach `server/` | ✅ erledigt | 06.10.2026, [Architektur → Umsetzung](architektur.md#umsetzung-web-grundgerüst); ProTracker-Abspieler inzwischen auch; offen: Vollbild, Tests auf echten Geräten |
-| 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026; übrige Gegner-Routinen, Bonus und Levelende übertragen, ungeprüft (08.10.2026); Level 2 bis zum Levelende übertragen, ungeprüft (09.10.2026); Level 3 bis zum Levelende, ungeprüft (09.10.2026); Level 4: Abbild, Layout, Startliste, 6 von 8 Gegner-Routinen, ungeprüft (09.10.2026) |
+| 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026; übrige Gegner-Routinen, Bonus und Levelende übertragen, ungeprüft (08.10.2026); Level 2 bis zum Levelende übertragen, ungeprüft (09.10.2026); Level 3 bis zum Levelende, ungeprüft (09.10.2026); Level 4: Abbild, Layout, Startliste, 7 von 8 Gegner-Routinen, ungeprüft (09.10.2026) |
 | 7. Titel/Intro, Menü, Ladebilder, Highscore und Spielende; Gesamtabgleich und Bugfixing | 🟡 begonnen | Titelsequenz, Menü, Story-Seite, Ladebild Level 1 fertig und geprüft (06.10.2026); Ladebilder Level 2–4 übertragen, ungeprüft (08./09.10.2026); offen: Namenseingabe, Cheat, Ladebilder 5–6, Spielende |
 
 ### Aktueller Meilenstein: Start bis Level 1
@@ -76,10 +76,10 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Level 4 – `R_Dragon`** (nächster Cloud-Schritt, Ablauf B, Effort „hoch“): `$4C710` mit Parameter (z. B.
-   256 + 60; `AG_GAME_LMONTAGNES.S`, Abschnitt „DRAGON“, Abbild `work/disasm/mountains_rout.txt`); hier hält der Lauf
-   (4.564 Bilder nach dem Start, WAIT `$1180`). Danach der Endgegner `R_Final` `$4C888` (Effort „hoch“). Level 4 endet
-   mit `ui.level5Stub` (`flow.ts`, `level4`).
+1. **Level 4 – Endgegner `R_Final`** (nächster Cloud-Schritt, Ablauf B, Effort „hoch“): `$4C888`, ohne Parameter
+   (`AG_GAME_LMONTAGNES.S`, Abschnitt „MONSTRE FINAL“, Abbild `work/disasm/mountains_rout.txt`; `Masse_Shape`
+   davor); hier hält der Lauf (9.059 Bilder nach dem Start, WAIT `$2300`). Dazu Levelende wie in Level 3
+   (`Quit_Delay`, `Clean_Up`); Level 4 endet danach mit `ui.level5Stub` (`flow.ts`, `level4`).
 2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
    [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
 
@@ -194,9 +194,16 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 09.10.2026 | Level 4: bekannte Gegner-Routinen (Cloud-Session) | mittel | – | – | in der Cloud nicht abfragbar; Sitzung nach Neustart des Workers, kein Compact |
 | 09.10.2026 | Level 4: `R_Colonne_Flamme` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 | 09.10.2026 | Level 4: `R_Sol_Guide` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
+| 09.10.2026 | Level 4: `R_Dragon` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 
 ## Verlauf
 
+- **09.10.2026 (Level 4: `R_Dragon`, Cloud-Session)** – Drache, der 2 Pixel je Durchlauf nach links fliegt und alle
+  30 Durchläufe eine Feuerzunge ausstößt (Abbild `$4C710` gleich dem Quelltext, Tabellen aus dem Abbild bestätigt),
+  als `dragon` in `routines.ts`. Level 4 läuft jetzt bis zum Endgegner `R_Final` (9.059 Bilder; 6 Drachen, die
+  oberen 3 werden abgeschossen). 1 neuer Kern-Test, `level4.test.ts` erweitert, 93 Tests; Bilder per
+  `explore-level.ts --ppm` angesehen (Drache mit Zunge plausibel). Gegen das Original ungeprüft. origin/main war schon
+  enthalten.
 - **09.10.2026 (Level 4: `R_Sol_Guide`, Cloud-Session)** – Monster am Boden, das am Abflugpunkt (Parameter, Vergleich auf
   Gleichheit) je nach Lage der Eule in eine von 5 Richtungen auffliegt (Abbild `$4C55C` gleich dem Quelltext), als
   `solGuide` in `routines.ts`. Level 4 läuft jetzt bis zum ersten `R_Dragon` (4.564 Bilder, 9 Läufe von

@@ -893,4 +893,75 @@ describe.skipIf(!hasAssets)("Gegner-Routinen von Level 4, aus Level 1–3 bekann
     z.run(190);
     expect([z.e.w(MV.routModPalCounter), z.e.l(MV.routPalPtr)]).toEqual([0, 0xffffffff]);
   });
+
+  // Werte von Hand aus AG_GAME_LMONTAGNES.S (Label R_Dragon), Abbild $4C710–$4C85E
+  it("R_Dragon: fliegt 2 Pixel je Durchlauf, alle 30 Durchläufe eine Feuerzunge, Ende bei x 180", () => {
+    const r = start(0x4c710, [256 + 60], MOUNTAINS);
+    busy(r);
+    const a4 = r.a2 + AWO_LEN;
+    // Dragon_Shape: 7 × Obj_Dragon_1 $54E, 3 × Obj_Dragon_2 $56E; Langue_Shape: 12 × Obj_Fire_1 $58E, dann Obj_Fire_2–8
+    const langue = [...Array(12).fill(0x58e), 0x5a0, 0x5b6, 0x5ce, 0x5ea, 0x608, 0x62a, 0x64e];
+    expect([...Array(10).keys()].map((i) => r.w(0x4c6d6 + 2 * i))).toEqual([...Array(7).fill(0x54e), 0x56e, 0x56e, 0x56e]);
+    expect(langue.map((_, i) => r.w(0x4c6ea + 2 * i))).toEqual(langue);
+    // Start: x 256 + 350, y = P_D_Y, Obj_Dragon_1, Energie 8, Schussrate 10
+    r.run(1);
+    expect([r.w(r.a3), r.w(r.bank), r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)])
+      .toEqual([1, 1, 606, 316, 0x54e, 8]);
+    expect(r.e.ram.long(r.a2 + STATUS)).toBe(0x000a0000);
+    // Durchlauf k: x = 606 − 2k, Bild Dragon_Shape[k mod 10], R_D_Langue_Delay = k
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + OBJ), r.w(r.a3 + 2), r.w(r.a3 + 6)]).toEqual([604, 0x54e, 1, 2]);
+    r.run(6);
+    expect([r.w(r.a2 + X), r.w(r.a2 + OBJ)]).toEqual([592, 0x56e]);
+    r.run(3);
+    expect([r.w(r.a2 + X), r.w(r.a2 + OBJ), r.w(r.a3 + 6)]).toEqual([586, 0x54e, 0]);
+    // Durchlauf 30: Zunge bei (x − 190, y), Obj_Fire_1, Energie 100, Status 0; Modus 2, R_D_Langue_Step −2
+    r.run(19);
+    expect([r.w(r.a3), r.w(r.bank), r.w(r.a3 + 2)]).toEqual([1, 1, 29]);
+    r.run(1);
+    expect([r.w(r.a3), r.w(r.bank), r.w(r.a3 + 2), r.w(r.a3 + 4), r.w(r.a2 + X)]).toEqual([2, 2, 0, 0xfffe, 546]);
+    expect([r.w(a4 + X), r.w(a4 + Y), r.w(a4 + OBJ), r.w(a4 + ENERGY), r.e.ram.long(a4 + STATUS)])
+      .toEqual([356, 316, 0x58e, 100, 0]);
+    // Modus 2, Zug m: Zunge x 356 − 2m mit Langue_Shape[m − 1]; ab Obj_Fire_8 (Zug 19, x 318) 14 Pixel je Zug
+    const tongue: number[][] = [];
+    for (let m = 1; m <= 21; m++) {
+      r.run(1);
+      tongue.push([r.w(r.a3), r.w(r.bank), r.w(a4 + X), r.w(a4 + OBJ)]);
+    }
+    expect(tongue.slice(0, 19)).toEqual(langue.map((o, i) => [2, 2, 354 - 2 * i, o]));
+    expect(tongue.slice(19)).toEqual([[2, 2, 304, 0x64e], [2, 2, 290, 0x64e]]);
+    // Zug 33: x 122 ≤ 130 → Modus 1, die Bank zählt in diesem Zug noch 2 Gegner; R_D_Langue_Delay zählt erst danach
+    r.run(11);
+    expect([r.w(r.a3), r.w(r.bank), r.w(a4 + X)]).toEqual([2, 2, 136]);
+    r.run(1);
+    expect([r.w(r.a3), r.w(r.bank), r.w(a4 + X), r.w(r.a3 + 2), r.w(r.a2 + X)]).toEqual([1, 2, 122, 0, 480]);
+    r.run(1);
+    expect([r.w(r.a3), r.w(r.bank), r.w(r.a3 + 2)]).toEqual([1, 1, 1]);
+    // nächste Zunge 30 Durchläufe später; Drache getroffen (Halbbyte ≠ 0): Zunge sofort weg, Modus 1
+    r.run(29);
+    expect([r.w(r.a3), r.w(r.bank), r.w(r.a2 + X), r.w(a4 + X)]).toEqual([2, 2, 420, 230]);
+    r.run(1);
+    r.e.ram.setByte(r.a2 + STATUS, 0x01);
+    r.run(1);
+    expect([r.w(r.a3), r.w(r.bank), r.w(a4 + X), r.w(r.a3 + 2)]).toEqual([1, 1, 228, 0]);
+    // Explosion beendet (Halbbyte $F): keine Zunge mehr, R_D_Langue_Delay zählt über 30 hinaus
+    r.e.ram.setByte(r.a2 + STATUS, 0x0f);
+    r.run(31);
+    expect([r.w(r.a3), r.w(r.bank), r.w(r.a3 + 2), r.w(r.a2 + X), r.e.ram.long(r.a0)]).toEqual([1, 1, 31, 354, 0x4c710]);
+    // weiter 2 Pixel je Durchlauf: x 182 läuft noch, bei x 180 CLOSE ohne Zählerabzug
+    r.run(86);
+    expect([r.w(r.a2 + X), r.e.ram.long(r.a0)]).toEqual([182, 0x4c710]);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.e.ram.long(r.a0), r.w(r.bank)]).toEqual([180, 0xffffffff, 0xffff]);
+    expect(untouched(r)).toEqual([1, 0x12345678]);
+
+    // tief geflogene Zunge: Start bei Drachen-x ≤ 320 → x ≤ 130 schon im ersten Zug
+    const t = start(0x4c710, [256 + 140], MOUNTAINS);
+    t.run(1);
+    t.e.ram.setWord(t.a2 + X, 352);
+    t.run(30);
+    expect([t.w(t.a3), t.w(t.bank), t.w(t.a2 + X), t.w(t.a2 + AWO_LEN + X)]).toEqual([2, 2, 292, 102]);
+    t.run(1);
+    expect([t.w(t.a3), t.w(t.bank), t.w(t.a2 + AWO_LEN + X), t.w(t.a2 + AWO_LEN + OBJ)]).toEqual([1, 2, 100, 0x58e]);
+  });
 });
