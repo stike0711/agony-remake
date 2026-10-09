@@ -411,7 +411,7 @@ export const SEA: LevelLayout = {
   // Quelle: Ag_Game_LMER.s „ROUTINES“, Adressen und Werte aus der Disassembly ab $4E9F0 (work/disasm/sea_rout.txt)
   routines: new Map<number, RoutineDef>([
     [0x4f19a, { kind: "solCrache", pal: 0x4f170, shape: 0x4f184, sin: 0x50a24, obj: 0x196, fireBall: 0x1f0 }],
-    [0x4f81c, { kind: "araignee", pal: 0x4f808, obj: 0xea }],
+    [0x4f81c, { kind: "araignee", pal: 0x4f808, obj: 0xea, yMode: 4 }],
     // Abbild $4EFC8 (Disassembly mit disasm68k.py aus sea.game.bin)
     [0x4efc8, { kind: "transporteur", pal: 0x4ef6c, shape: 0x4ef80, wave1: 0x4ef88, wave2: 0x4efa8, obj: 0x122 }],
     // Abbild $4ED70; Obj_Tir_1–8 aus den move.w #…,Awo_Alien_Obj_Off(a4) bei $4EE2C–$4EE56
@@ -420,7 +420,7 @@ export const SEA: LevelLayout = {
     // Abbild $4E9F0; Obj_Spectre_Pot $35A ($4EA24 im MODE 0), Obj_Spectre_4/5 aus MODE 3 ($4EB08–$4EB1C)
     [0x4e9f0, { kind: "spectre", pal: 0x4e9d2, shape: 0x4e9e6, pot: 0x35a, obj4: 0x3b6, obj5: 0x3d4 }],
     // Abbild $4F8EE
-    [0x4f8ee, { kind: "rapide" }],
+    [0x4f8ee, { kind: "rapide", pal: true, energy: 3 }],
     // Abbild $4EC00; Obj_Sac $BE ($4EC26), Obj_Boulle $32E ($4ECDC), Sin_Table1 $509C2 ($4ED10)
     [0x4ec00, { kind: "bomber", obj: 0xbe, bomb: 0x32e, sin: 0x509c2 }],
     // Abbild $4F696 (R_Volant_Grossi, nicht R_Jumper) und $4F75E (R_Jumper, in Level 1 nicht gestartet);
@@ -429,7 +429,7 @@ export const SEA: LevelLayout = {
     [0x4f75e, { kind: "jumper", pal: 0x4f74a, obj1: 0x5a8, obj2: 0x58e, obj3: 0x570 }],
     // Abbild $4F2F2; Obj_Volant_Missile_1/2 = $29E/$2B4 ($4F36C/$4F376), Obj_Tir_1–8 wie bei R_Tir_Etoile
     [0x4f2f2, { kind: "volantMissile", pal: 0x4f2de, obj1: 0x29e, obj2: 0x2b4,
-      shots: [0x4d0, 0x4e2, 0x4f8, 0x50a, 0x520, 0x532, 0x548, 0x55a] }],
+      shots: [0x4d0, 0x4e2, 0x4f8, 0x50a, 0x520, 0x532, 0x548, 0x55a], shotSpeed: 3 }],
     // Abbild $4FA3A; Obj_Final $5C2 ($4FA66), Obj_Big_Explo_1–3 $5D8/$60A/$640, Front_Screens $607B2–$73F3A ($4FB3C)
     [0x4fa3a, { kind: "final", palFlash: 0x4f9fe, palNormal: 0x4fa12, palExplo: 0x4fa26, wave1: 0x4f99e,
       wave2: 0x4f9be, wave3: 0x4f9de, obj: 0x5c2, explo1: 0x5d8, explo2: 0x60a, explo3: 0x640, frontScreens: 0x607b2,
@@ -579,8 +579,22 @@ export const FOREST: LevelLayout = {
   trackTable: 0x59402,
 
   // Quelle: Ag_Game_LFORET.s „ROUTINES“; Startliste ab $4AF44 startet $4B76C, $4B964, $4BB60, $4BEE4, $4BFA2, $4C048,
-  // $4C160 und $4C39E (Disassembly work/disasm/forest_rout.txt)
+  // $4C160 und $4C39E (Disassembly work/disasm/forest_rout.txt). Die aus Level 1 bekannten Routinen melden hier keine
+  // eigene Palette an (pal: null bzw. false); Unterschiede siehe die …Def-Typen in routines.ts.
   routines: new Map<number, RoutineDef>([
+    // Abbild $4B76C; R_Spectre_Shape $4B762 ($4B832), Obj_Spectre_Pot $300 ($4B790), Obj_Spectre_4/5 $348/$35E ($4B874)
+    [0x4b76c, { kind: "spectre", pal: null, shape: 0x4b762, pot: 0x300, obj4: 0x348, obj5: 0x35e }],
+    // Abbild $4B964; R_Tir_Etoile_Shape $4B952 ($4B9BA), Obj_Tir_Etoile_1 $54E ($4B988), Obj_Tir_1–8 $416–$494
+    // ($4BA10–$4BA3A)
+    [0x4b964, { kind: "tirEtoile", pal: null, shape: 0x4b952, obj: 0x54e,
+      shots: [0x416, 0x428, 0x43a, 0x44c, 0x45e, 0x470, 0x482, 0x494] }],
+    // Abbild $4BB60; Obj_Volant_Missile_1/2 $4A6/$4BC ($4BBCE/$4BBD8), Schuss 1 Pixel je Durchlauf ($4BC28–$4BC76)
+    [0x4bb60, { kind: "volantMissile", pal: null, obj1: 0x4a6, obj2: 0x4bc,
+      shots: [0x416, 0x428, 0x43a, 0x44c, 0x45e, 0x470, 0x482, 0x494], shotSpeed: 1 }],
+    // Abbild $4BEE4; Obj_Araignee $3F4 ($4BF06), R_A_Y_Mode bei +2 ($4BF26)
+    [0x4bee4, { kind: "araignee", pal: null, obj: 0x3f4, yMode: 2 }],
+    // Abbild $4BFA2; Energie 2 ($4BFDA), ohne Rout_Pal_Ptr ($4BFB4)
+    [0x4bfa2, { kind: "rapide", pal: false, energy: 2 }],
   ]),
   relativeTracks: 0x4c658,
   absoluteTracks: 0x4c658,

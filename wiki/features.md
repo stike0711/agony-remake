@@ -56,7 +56,9 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
       Bild 14792 hinaus
 - [ ] Level 2 – Wald (`LFORET`) – Abbild als Speicherblöcke, Layout über die ausgerichtete Disassembly, ohne Regen;
       Punkte, Leben, Äxte, Waffe und Zauber aus Level 1 übernommen; Angriffswellen laufen bis zur ersten Gegner-Routine
-      (09.10.2026, gegen das Original noch ungeprüft); offen: Gegner-Routinen, Endgegner, Levelende
+      (09.10.2026, gegen das Original noch ungeprüft); die fünf aus Level 1 bekannten Gegner-Routinen (`R_Spectre`,
+      `R_Tir_Etoile`, `R_Volant_Missile`, `R_Araignee`, `R_Rapide`) mit ihren Unterschieden übertragen (09.10.2026,
+      ungeprüft); offen: `R_Kamikaze`, `R_Sol_Etoile`, Endgegner `R_Final`, Levelende
 - [ ] Level 3 – Sumpf (`LMARAIS`)
 - [ ] Level 4 – Berge (`LMONTAGNES`)
 - [ ] Level 5 – Hochland (`LPLATEAUX`)

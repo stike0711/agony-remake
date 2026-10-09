@@ -13,7 +13,8 @@ Gegner mit eigener Routine, Tod der Eule, Schild beim Wiedereinstieg und Spielen
 Eingabe bis nach dem Spielende pixelgenau wie im Emulator, ebenso ein Lauf mit Dauerfeuer, Abschüssen und Ausweichen.
 Alle Gegner-Routinen, Bonus, Zaubermenü mit allen Zaubern, Äxte, Pause und Levelende von Level 1 sind übertragen
 (gegen das Original noch ungeprüft); nach dem Levelende folgen das Ladebild und Level 2 (Abbild und Layout stehen,
-Angriffswellen laufen bis zur ersten Gegner-Routine, danach Platzhalter). Als Nächstes: Gegner-Routinen von Level 2; am PC eine Aufnahme über Bild 14.792 hinaus zur Prüfung des Übertragenen,
+Angriffswellen laufen bis zur ersten neuen Gegner-Routine, danach Platzhalter; die fünf aus Level 1 bekannten Routinen
+sind übertragen). Als Nächstes: die neuen Gegner-Routinen von Level 2 (`R_Kamikaze`, `R_Sol_Etoile`, `R_Final`); am PC eine Aufnahme über Bild 14.792 hinaus zur Prüfung des Übertragenen,
 Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist eingeplant, sobald ein
 Mac zur Verfügung steht.
 
@@ -73,11 +74,11 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Level 2 – Gegner-Routinen** (nächster Cloud-Schritt, Ablauf B, Effort „hoch“): Abbild, Layout und Startliste
-   stehen (`FOREST`); es fehlen die Routinen des Level-Moduls (`work/disasm/forest_rout.txt`, Adressen in
-   [Level](original/level.md#level-2--wald-ag_game_lforets)): zuerst die aus Level 1 bekannten (`R_Spectre` ohne
-   eigene Palette, `R_Tir_Etoile`, `R_Volant_Missile`, `R_Araignee`, `R_Rapide`; Unterschiede im Abbild prüfen),
-   dann neu `R_Kamikaze`, `R_Sol_Etoile` und `R_Final`, dann Levelende → Platzhalter `ui.level3Stub`. Gegen das
+1. **Level 2 – neue Gegner-Routinen** (nächster Cloud-Schritt, Ablauf B, Effort „hoch“): Die fünf aus Level 1
+   bekannten Routinen sind übertragen (09.10.2026). Es fehlen `R_Kamikaze` (`$4C048`, erster Start bei `WAIT $170`,
+   bis dahin hält der Lauf an) und `R_Sol_Etoile` (`$4C160`) aus `work/disasm/forest_rout.txt` bzw.
+   `Ag_Game_LFORET.s`; danach in einem eigenen Schritt `R_Final` (`$4C39E`) und das Levelende → Platzhalter
+   `ui.level3Stub`. Mit Kamikaze den Test `level2.test.ts` bis zur nächsten fehlenden Routine verlängern. Gegen das
    Original ungeprüft kennzeichnen.
 2. **Bedienung nach E-043** (Effort „mittel“, auch in der Cloud): Pause-Knopf für Touch (oben in einer Ecke) und
    Gamepad (Start), automatische Pause im Hintergrund, im Optionsmenü „Spiel beenden“ (mit Rückfrage, wie Esc) und
@@ -121,8 +122,6 @@ Braucht Emulator, Aufnahmen, Messungen oder Geräte (je mit Empfehlung):
 
 Für den Nutzer zu entscheiden:
 
-- Pause-Knopf für Touch und Gamepad; Esc und M haben im Original andere Aufgaben (Abbruch, `Menu_Mode`) als im Remake
-  (E-042).
 - Ton im Level: Soundeffekte (`Sound.bin`) und die Musik von Jeroen Tel (offene Frage: Treiber portieren oder vorab
   aufnehmen).
 
@@ -173,8 +172,16 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 08.10.2026 | Levelende Level 1 (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung, kein Compact |
 | 09.10.2026 | Zaubermenü, Zauber, Äxte, Pause (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
 | 09.10.2026 | Level 2: Abbild und Layout (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
+| 09.10.2026 | Level 2: bekannte Gegner-Routinen (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
 
 ## Verlauf
+
+- **09.10.2026 (Level 2: bekannte Gegner-Routinen, Cloud-Session)** – `R_Spectre`, `R_Tir_Etoile`,
+  `R_Volant_Missile`, `R_Araignee` und `R_Rapide` von Level 2 nach Quelltext und Abbild verglichen und als Einträge in
+  `FOREST.routines` übertragen; die Unterschiede (keine eigene Palette, CLOSE ohne Zählerabzug, Energie, Tempo des
+  Schusses, Lage einer Variablen) stehen als Felder der `…Def`-Typen ([Level](original/level.md#level-2--wald-ag_game_lforets)).
+  5 neue Tests in `routines.test.ts`, 67 Tests. Im Spiel noch nicht zu sehen: Der Lauf hält vorher an `R_Kamikaze`.
+  Gegen das Original ungeprüft. Vorher origin/main mit E-043 übernommen.
 
 - **09.10.2026 (Level 2: Abbild und Layout, Cloud-Session)** – Neues Werkzeug `tools/analysis/align_levels.py`
   richtet die Disassemblies von `sea` und `forest` Befehl für Befehl aus: Der gemeinsame Code ist bis auf den Regen

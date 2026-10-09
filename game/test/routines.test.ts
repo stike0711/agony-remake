@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from "vitest";
 import { LevelEngine } from "../src/core/level/engine.ts";
-import { SEA } from "../src/core/level/layout.ts";
+import { FOREST, type LevelLayout, SEA } from "../src/core/level/layout.ts";
 import { routineManager } from "../src/core/level/routines.ts";
 import { hasAssets, loadAssets } from "./load-assets.ts";
 
@@ -34,15 +34,15 @@ interface Rout {
 }
 
 /** Routine `code` mit Parametern wie ROUTINE START ($2AA0) in den ersten Eintrag und die erste freie Bank setzen */
-function start(code: number, params: number[]): Rout {
-  const e = new LevelEngine(SEA, loadAssets().memory);
+function start(code: number, params: number[], L: LevelLayout = SEA): Rout {
+  const e = new LevelEngine(L, loadAssets().memory);
   e.start();
   const { ram } = e;
-  const a0 = SEA.routStruct;
+  const a0 = L.routStruct;
   params.forEach((p, i) => ram.setWord(PARAMS + 2 * i, p));
   ram.setLong(a0, code);
   ram.setLong(a0 + 4, PARAMS);
-  let bank = SEA.awoStruct;
+  let bank = L.awoStruct;
   while ((ram.word(bank) & 0x8000) === 0) bank += BANK_LEN;
   ram.setLong(a0 + 8, bank);
   ram.setLong(bank, 0);
@@ -277,5 +277,128 @@ describe.skipIf(!hasAssets)("Gegner-Routinen von Level 1 (ohne Aufnahme)", () =>
     expect(r.e.b(V.cleanUp)).toBe(0);
     r.run(1);
     expect([r.e.b(V.cleanUp), r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ)]).toEqual([0xff, 506, 376, 0x640]);
+  });
+});
+
+// Level 2: dieselben Routinen mit den Unterschieden aus Ag_Game_LFORET.s (Abbild-Fassung work/disasm/forest_rout.txt).
+// Startliste ab $4AF44; Parameter wie dort.
+describe.skipIf(!hasAssets)("Gegner-Routinen von Level 2, aus Level 1 bekannt (ohne Aufnahme)", () => {
+  const FV = FOREST.vars;
+  /** Rout_Mod_Pal_Counter und Rout_Pal_Ptr auf einen Testwert setzen (andere Routine mit eigener Palette läuft) */
+  const busy = (r: Rout, n: number): void => {
+    r.e.setW(FV.routModPalCounter, n);
+    r.e.setL(FV.routPalPtr, 0x12345678);
+  };
+
+  it("R_Spectre: ohne eigene Palette, Objekte des Levels; CLOSE ohne Zählerabzug", () => {
+    // Startliste: START_C R_Spectre, PAR 200 + 256, 25, 2, 1
+    const r = start(0x4b76c, [456, 25, 2, 1], FOREST);
+    const a4 = r.a2 + AWO_LEN;
+    busy(r, 1);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)]).toEqual([556, 416, 0x300, 5]);
+    expect([r.e.w(FV.routModPalCounter), r.e.l(FV.routPalPtr)]).toEqual([1, 0x12345678]);
+    r.run(50);
+    expect([r.w(r.a3), r.w(a4 + OBJ), r.e.ram.byte(a4 + F_RT_S)]).toEqual([2, 0x312, 25]);
+    // R_Spectre_Shape $4B762: $312 $324 $336 $348 $35E, dann MODE 3 mit Flattern $35E → $348
+    r.run(10);
+    expect([r.w(r.a3), r.w(a4 + OBJ)]).toEqual([3, 0x35e]);
+    r.run(1);
+    expect(r.w(a4 + OBJ)).toBe(0x348);
+    r.run(198);
+    expect(r.e.ram.long(r.a0)).not.toBe(0xffffffff);
+    r.run(1);
+    // Zähler bleibt 1: Rout_Pal_Ptr unverändert; mit Zähler 0 wird die Palette des Levels wiederhergestellt
+    expect([r.e.ram.long(r.a0), r.e.ram.byte(a4 + STATUS), r.e.w(FV.routModPalCounter), r.e.l(FV.routPalPtr)])
+      .toEqual([0xffffffff, 1, 1, 0x12345678]);
+    const z = start(0x4b76c, [456, 25, 2, 1], FOREST);
+    busy(z, 0);
+    z.e.ram.setByte(z.a2 + STATUS, 1);
+    z.run(1);
+    z.e.ram.setWord(z.a2 + X, 200);
+    z.e.ram.setByte(z.a2 + STATUS, 1);
+    z.run(1);
+    expect([z.e.ram.long(z.a0), z.e.w(FV.routModPalCounter), z.e.l(FV.routPalPtr)]).toEqual([0xffffffff, 0, 0xffffffff]);
+  });
+
+  it("R_Tir_Etoile: ohne eigene Palette, Monster $54E, Schüsse $416–$494", () => {
+    // Startliste: START_C R_Tir_Etoile, PAR 200 + 256, 80 + 256
+    const r = start(0x4b964, [456, 336], FOREST);
+    busy(r, 2);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)]).toEqual([556, 336, 0x54e, 50]);
+    expect(r.e.w(FV.routModPalCounter)).toBe(2);
+    // Animation R_Tir_Etoile_Shape $4B952 (jedes zweite Mal): erstes Bild im zweiten Durchlauf
+    r.run(1);
+    expect(r.w(r.a2 + OBJ)).toBe(0x54e);
+    r.run(2);
+    expect(r.w(r.a2 + OBJ)).toBe(0x564);
+    r.run(47);
+    expect(r.w(r.a3)).toBe(2);
+    const shots = [0x416, 0x428, 0x43a, 0x44c, 0x45e, 0x470, 0x482, 0x494];
+    expect(shots.map((_, i) => r.w(r.a2 + AWO_LEN * (i + 1) + OBJ))).toEqual(shots);
+    // wie in Level 1: 33 Durchläufe 1 Pixel, dann 4 Pixel nach links; 423 − 4 · 50 = 223 ≤ 224 im 83. Durchlauf
+    r.run(82);
+    expect(r.e.ram.long(r.a0)).not.toBe(0xffffffff);
+    r.run(1);
+    expect(r.e.ram.long(r.a0)).toBe(0xffffffff);
+    expect([r.e.w(FV.routModPalCounter), r.e.l(FV.routPalPtr)]).toEqual([2, 0x12345678]);
+  });
+
+  it("R_Volant_Missile: ohne Palette, Schuss 1 Pixel je Durchlauf", () => {
+    const r = start(0x4bb60, [], FOREST);
+    const a4 = r.a2 + AWO_LEN;
+    busy(r, 0);
+    r.e.setW(FV.sorcererX, 100);
+    r.e.setW(FV.sorcererY, 150);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)]).toEqual([456, 220, 0x4a6, 20]);
+    expect(r.e.l(FV.routPalPtr)).toBe(0x12345678);
+    // Takt 200 (Durchlauf 76): Schuss am Monster (382, 190), Ziel (116, 190) links davon: Tir_6 ($470)
+    r.run(75);
+    expect([r.w(a4 + X), r.w(a4 + Y), r.w(r.a3 + 6), r.w(a4 + OBJ)]).toEqual([382, 190, 4, 0x470]);
+    r.run(1);
+    expect([r.w(r.bank), r.w(a4 + X), r.w(a4 + OBJ)]).toEqual([2, 381, 0x482]);
+    // nach 1.125 Durchläufen Ende; Zähler 0 → Palette des Levels
+    r.run(1125 - 77);
+    expect(r.e.ram.long(r.a0)).toBe(0xffffffff);
+    expect([r.e.w(FV.routModPalCounter), r.e.l(FV.routPalPtr)]).toEqual([0, 0xffffffff]);
+  });
+
+  it("R_Araignee: ohne Palette, Richtung bei +2", () => {
+    // Startliste: START_C R_Araignee, PAR 50, 2
+    const r = start(0x4bee4, [50, 2], FOREST);
+    busy(r, 1);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)]).toEqual([596, 50, 0x3f4, 10]);
+    // abwärts 2 je Durchlauf bis 340 (146 Durchläufe), dann aufwärts
+    r.run(145);
+    expect([r.w(r.a2 + Y), r.w(r.a3 + 2)]).toEqual([340, 0x00ff]);
+    r.run(1);
+    expect(r.w(r.a2 + Y)).toBe(338);
+    // 596 − 2 · 198 = 200: Ende im 198. Durchlauf nach dem Start
+    r.run(51);
+    expect(r.e.ram.long(r.a0)).not.toBe(0xffffffff);
+    r.run(1);
+    expect(r.e.ram.long(r.a0)).toBe(0xffffffff);
+    expect([r.e.w(FV.routModPalCounter), r.e.l(FV.routPalPtr)]).toEqual([1, 0x12345678]);
+  });
+
+  it("R_Rapide: Energie 2, zählt Rout_Mod_Pal_Counter ohne Palette", () => {
+    // Startliste: START_C R_Rapide, PAR Anim_Speedy, 10, PAR_L Dummy_Pal, PAR 256 + 60
+    const r = start(0x4bfa2, [0, 10, 0x0004, 0xbf8e, 316], FOREST);
+    busy(r, 0);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)]).toEqual([596, 316, 0x4ce, 2]);
+    expect([r.e.w(FV.routModPalCounter), r.e.l(FV.routPalPtr)]).toEqual([1, 0x12345678]);
+    // Anim_Speedy $4B70E: $4CE, $4EA, Ende
+    r.run(3);
+    expect(r.w(r.a2 + OBJ)).toBe(0x4ce);
+    // 596 − 10 · 40 = 196 ≤ 200: Ende im 41. Durchlauf; Zähler zurück auf 0 → Palette des Levels
+    r.run(36);
+    expect(r.e.ram.long(r.a0)).not.toBe(0xffffffff);
+    r.run(1);
+    expect(r.e.ram.long(r.a0)).toBe(0xffffffff);
+    expect([r.e.w(FV.routModPalCounter), r.e.l(FV.routPalPtr)]).toEqual([0, 0xffffffff]);
   });
 });

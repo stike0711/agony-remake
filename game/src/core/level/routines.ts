@@ -4,8 +4,9 @@
 // Code-Zeiger ist die Adresse der Routine im Level-Abbild; die Engine ordnet ihn über LevelLayout.routines der
 // Umsetzung hier zu. Was im Code des Levels fest steht (Paletten, Animationen, Objektnummern), steht dort mit.
 // Stand: alle Routinen von Level 1. R_Sol_Crache und R_Araignee sind gegen das Original geprüft, die übrigen
-// übertragen, aber noch ungeprüft (Aufnahme über Bild 14792 hinaus fehlt). Unbekannte Routinen halten die Engine an
-// (LevelEngine.unported).
+// übertragen, aber noch ungeprüft (Aufnahme über Bild 14792 hinaus fehlt). Level 2 nutzt dieselben Routinen mit kleinen
+// Unterschieden (meist ohne eigene Palette), die in den …Def-Feldern stehen; gegen das Original ungeprüft. Unbekannte
+// Routinen halten die Engine an (LevelEngine.unported).
 
 import type { LevelEngine } from "./engine.ts";
 import { soundStart } from "./sounds.ts";
@@ -26,9 +27,11 @@ export interface SolCracheDef {
 /** Spinne, die an ihrem Faden auf und ab läuft (R_Araignee) */
 export interface AraigneeDef {
   kind: "araignee";
-  /** R_A_Pal, Obj_Araignee */
-  pal: number;
+  /** R_A_Pal (null: keine eigene Palette, CLOSE ohne Zählerabzug wie in Level 2), Obj_Araignee */
+  pal: number | null;
   obj: number;
+  /** Versatz von R_A_Y_Mode in den Variablen: 4 in Level 1 (davor R_A_Anim_Step), 2 in Level 2 */
+  yMode: number;
 }
 
 /** Großer Gegner, der zwei Wellen kleiner Gegner absetzt (R_Transporteur) */
@@ -45,8 +48,11 @@ export interface TransporteurDef {
 /** Monster, das acht Schüsse sternförmig auseinanderfliegen lässt (R_Tir_Etoile) */
 export interface TirEtoileDef {
   kind: "tirEtoile";
-  /** R_TE_Pal, R_Tir_Etoile_Shape (9 Objektnummern), Obj_Tir_Etoile_1, Obj_Tir_1–8 */
-  pal: number;
+  /**
+   * R_TE_Pal (null: keine eigene Palette, CLOSE ohne Zählerabzug wie in Level 2), R_Tir_Etoile_Shape (9 Objektnummern),
+   * Obj_Tir_Etoile_1, Obj_Tir_1–8
+   */
+  pal: number | null;
   shape: number;
   obj: number;
   shots: readonly number[];
@@ -55,8 +61,11 @@ export interface TirEtoileDef {
 /** Gespenst, das aus einer Phiole steigt und der Eule folgt (R_Spectre) */
 export interface SpectreDef {
   kind: "spectre";
-  /** R_S_Pal, R_Spectre_Shape (5 Objektnummern), Obj_Spectre_Pot, Obj_Spectre_4/5 (Flattern in MODE 3) */
-  pal: number;
+  /**
+   * R_S_Pal (null: keine eigene Palette, CLOSE ohne Zählerabzug wie in Level 2), R_Spectre_Shape (5 Objektnummern),
+   * Obj_Spectre_Pot, Obj_Spectre_4/5 (Flattern in MODE 3)
+   */
+  pal: number | null;
   shape: number;
   pot: number;
   obj4: number;
@@ -66,6 +75,10 @@ export interface SpectreDef {
 /** Schneller Gegner von rechts nach links; Animation, Tempo, Palette und Höhe aus den Parametern (R_Rapide) */
 export interface RapideDef {
   kind: "rapide";
+  /** MODE 0 setzt Rout_Pal_Ptr aus P_R_Pal_Ptr (Level 1); in Level 2 zählt er nur Rout_Mod_Pal_Counter hoch */
+  pal: boolean;
+  /** Energie: 3 in Level 1, 2 in Level 2 */
+  energy: number;
 }
 
 /** Sack, der bis zu vier Kugeln fallen lässt (R_Bomber, „gros monstre largueur de bombe“) */
@@ -93,11 +106,16 @@ export interface GrossiDef {
 /** Fliegendes Monster, das der Eule folgt und einen gelenkten Schuss abfeuert (R_Volant_Missile) */
 export interface VolantMissileDef {
   kind: "volantMissile";
-  /** R_VM_Pal, Obj_Volant_Missile_1/2, Obj_Tir_1–8 (Richtungen wie bei R_Tir_Etoile: oben, oben rechts … oben links) */
-  pal: number;
+  /**
+   * R_VM_Pal (null: in Level 2 auskommentiert), Obj_Volant_Missile_1/2, Obj_Tir_1–8 (Richtungen wie bei R_Tir_Etoile:
+   * oben, oben rechts … oben links)
+   */
+  pal: number | null;
   obj1: number;
   obj2: number;
   shots: readonly number[];
+  /** Pixel je Durchlauf des Schusses: 3 in Level 1, 1 in Level 2 */
+  shotSpeed: number;
 }
 
 /** Endgegner von Level 1 (R_Final) */
@@ -170,7 +188,7 @@ export function routineManager(e: LevelEngine): void {
       case "transporteur": transporteur(e, a0, def); break;
       case "tirEtoile": tirEtoile(e, a0, def); break;
       case "spectre": spectre(e, a0, def); break;
-      case "rapide": rapide(e, a0); break;
+      case "rapide": rapide(e, a0, def); break;
       case "bomber": bomber(e, a0, def); break;
       case "volantGrossi":
       case "jumper": grossi(e, a0, def); break;
@@ -188,13 +206,19 @@ function open(e: LevelEngine, pal: number): void {
   e.setW(V.routModPalCounter, e.w(V.routModPalCounter) + 1);
 }
 
-/** CLOSE: Eintrag und Bank frei, Farben abmelden; die letzte Routine stellt die Palette des Levels wieder her */
-function close(e: LevelEngine, a0: number, bank: number): void {
+/**
+ * CLOSE: Eintrag und Bank frei, Farben abmelden; die letzte Routine stellt die Palette des Levels wieder her. Ohne
+ * `count` (Routinen ohne eigene Palette, z. B. in Level 2) bleibt Rout_Mod_Pal_Counter unverändert, nur der Test folgt.
+ */
+function close(e: LevelEngine, a0: number, bank: number, count = true): void {
   const { V, ram } = e;
   ram.setLong(a0, 0xffffffff);
   ram.setWord(bank, 0xffff);
-  const n = (e.w(V.routModPalCounter) - 1) & 0xffff;
-  e.setW(V.routModPalCounter, n);
+  let n = e.w(V.routModPalCounter);
+  if (count) {
+    n = (n - 1) & 0xffff;
+    e.setW(V.routModPalCounter, n);
+  }
   if (n === 0) {
     e.setL(V.routPalPtr, 0xffffffff);
     e.setB(V.refreshPal + 1, 0xff);
@@ -269,7 +293,9 @@ function solCrache(e: LevelEngine, a0: number, d: SolCracheDef): void {
 
 /**
  * R_Araignee: kommt von rechts (x 256 + 340) und läuft mit dem Boden nach links, dabei an ihrem Faden zwischen y 150
- * und 340 auf und ab. Variablen: +0 Modus, +4 Richtung (0 = abwärts, sonst aufwärts). Parameter: Start-y, Schritt.
+ * und 340 auf und ab. Variablen: +0 Modus, +4 Richtung (0 = abwärts, sonst aufwärts; in Level 2 +2). Parameter:
+ * Start-y, Schritt. Quelle: Ag_Game_LMER.s bzw. Ag_Game_LFORET.s, Label R_Araignee; Abbild $4F81C (sea), $4BEE4–$4BF8C
+ * (forest).
  */
 function araignee(e: LevelEngine, a0: number, d: AraigneeDef): void {
   const { ram } = e;
@@ -278,30 +304,31 @@ function araignee(e: LevelEngine, a0: number, d: AraigneeDef): void {
   const a3 = a0 + ROUT_VARIABLES;
   const a2 = bank + 4;
   ram.setLong(bank, 0x00010000);
+  const yMode = a3 + d.yMode;
   if (ram.word(a3) === 0) {
-    open(e, d.pal);
+    if (d.pal !== null) open(e, d.pal);
     ram.setWord(a2 + AWO_X, 256 + 340);
     ram.setWord(a2 + AWO_Y, ram.word(a1));
     ram.setWord(a2 + AWO_OBJ_OFF, d.obj);
     ram.setWord(a2 + AWO_ENERGY, 10);
     ram.setLong(a2 + AWO_STATUS, 0);
     ram.setWord(a3, 1);
-    ram.setWord(a3 + 4, 0);
+    ram.setWord(yMode, 0);
     return;
   }
   const step = ram.word(a1 + 2);
-  if (ram.word(a3 + 4) === 0) {
+  if (ram.word(yMode) === 0) {
     const y = (ram.word(a2 + AWO_Y) + step) & 0xffff;
     ram.setWord(a2 + AWO_Y, y);
-    if (s16(y) >= 340) ram.setByte(a3 + 5, 0xff);
+    if (s16(y) >= 340) ram.setByte(yMode + 1, 0xff);
   } else {
     const y = (ram.word(a2 + AWO_Y) - step) & 0xffff;
     ram.setWord(a2 + AWO_Y, y);
-    if (s16(y) <= 150) ram.setWord(a3 + 4, 0);
+    if (s16(y) <= 150) ram.setWord(yMode, 0);
   }
   const x = (ram.word(a2 + AWO_X) - 2) & 0xffff;
   ram.setWord(a2 + AWO_X, x);
-  if (s16(x) <= 200) close(e, a0, bank);
+  if (s16(x) <= 200) close(e, a0, bank, d.pal !== null);
 }
 
 /**
@@ -415,7 +442,8 @@ function launchWave(e: LevelEngine, d0: number, x: number, y: number): number {
  * unten, unten links, links, oben links). Das Monster zieht bis Abstand 100 mit 1 Pixel je Durchlauf nach links, dann
  * mit 4 Pixel nach links und 2 nach oben; ab x ≤ 224 endet die Routine. Variablen: +0 Modus (0 Start, 1 Monster,
  * 2 mit Schüssen), +2 Animationsschritt, +4 Animationstakt, +6 Abstand, +8/+10 Startpunkt der Schüsse.
- * Parameter: P_TE_Launch_X, P_TE_Pos_Y. Quelle: Ag_Game_LMER.s, Label R_Tir_Etoile; Abbild $4ED70–$4EF6A.
+ * Parameter: P_TE_Launch_X, P_TE_Pos_Y. Quelle: Ag_Game_LMER.s, Label R_Tir_Etoile; Abbild $4ED70–$4EF6A (sea),
+ * $4B964–$4BB4A (forest, Ag_Game_LFORET.s: ohne eigene Palette).
  */
 function tirEtoile(e: LevelEngine, a0: number, d: TirEtoileDef): void {
   const { ram } = e;
@@ -426,7 +454,7 @@ function tirEtoile(e: LevelEngine, a0: number, d: TirEtoileDef): void {
   const mode = ram.word(a3);
   ram.setLong(bank, 0x00010000);
   if (mode === 0) {
-    open(e, d.pal);
+    if (d.pal !== null) open(e, d.pal);
     ram.setWord(a2 + AWO_X, 256 + 300);
     ram.setWord(a2 + AWO_Y, ram.word(a1 + 2));
     ram.setWord(a2 + AWO_OBJ_OFF, d.obj);
@@ -472,7 +500,7 @@ function tirEtoile(e: LevelEngine, a0: number, d: TirEtoileDef): void {
     ram.setWord(a4 + AWO_X, (fx + STAR_DX[i]! * r) & 0xffff);
     ram.setWord(a4 + AWO_Y, (fy + STAR_DY[i]! * r) & 0xffff);
   }
-  if (s16(ram.word(a2 + AWO_X)) <= 256 - 32) close(e, a0, bank);
+  if (s16(ram.word(a2 + AWO_X)) <= 256 - 32) close(e, a0, bank, d.pal !== null);
 }
 
 /** Richtungen der 8 Schüsse von R_Tir_Etoile (Vorzeichen des Abstands für x und y) */
@@ -489,7 +517,8 @@ const STAR_DY = [-1, -1, 0, 1, 1, 1, 0, -1];
  * P_S_Y_Speed. Nach 200 Durchläufen in MODE 3 endet die Routine. Beim Ende bekommt das Gespenst Status 1 (Explosion),
  * auch wenn es noch nicht aufgestiegen war. Variablen: +0 Modus, +2 Animationsschritt, +4 Animationstakt, +6/+8 Ziel,
  * +10 Takt bis zum neuen Ziel, +12 Zeit. Parameter: Launch_X, Fire_Rate, X_Speed, Y_Speed.
- * Quelle: Ag_Game_LMER.s, Label R_Spectre; Abbild $4E9F0–$4EBE8.
+ * Quelle: Ag_Game_LMER.s, Label R_Spectre; Abbild $4E9F0–$4EBE8 (sea), $4B76C–$4B950 (forest, Ag_Game_LFORET.s: ohne
+ * eigene Palette).
  */
 function spectre(e: LevelEngine, a0: number, d: SpectreDef): void {
   const { V, ram } = e;
@@ -501,7 +530,7 @@ function spectre(e: LevelEngine, a0: number, d: SpectreDef): void {
   const mode = ram.word(a3);
   ram.setLong(bank, 0x00010000);
   if (mode === 0) {
-    open(e, d.pal);
+    if (d.pal !== null) open(e, d.pal);
     ram.setWord(a2 + AWO_X, 256 + 300);
     ram.setWord(a2 + AWO_Y, 256 + 160);
     ram.setWord(a2 + AWO_OBJ_OFF, d.pot);
@@ -514,7 +543,7 @@ function spectre(e: LevelEngine, a0: number, d: SpectreDef): void {
   const x = (ram.word(a2 + AWO_X) - 2) & 0xffff;
   ram.setWord(a2 + AWO_X, x);
   if ((ram.byte(a2 + AWO_STATUS) & 0xf) !== 0 && s16(x) < 200) {
-    spectreClose(e, a0, bank, a4);
+    spectreClose(e, a0, bank, a4, d);
     return;
   }
   if (ram.word(a1) === x && (ram.byte(a2 + AWO_STATUS) & 0xf) === 0) {
@@ -562,7 +591,7 @@ function spectre(e: LevelEngine, a0: number, d: SpectreDef): void {
   follow(e, a3, a4 + AWO_Y, a3 + 8, ram.word(a1 + 6));
   const time = (ram.word(a3 + 12) + 1) & 0xffff;
   ram.setWord(a3 + 12, time);
-  if (time === 25 * 8) spectreClose(e, a0, bank, a4);
+  if (time === 25 * 8) spectreClose(e, a0, bank, a4, d);
 }
 
 /**
@@ -581,8 +610,8 @@ function follow(e: LevelEngine, a3: number, pos: number, target: number, speed: 
 }
 
 /** CLOSE von R_Spectre: wie close, danach Status 1 für das Gespenst */
-function spectreClose(e: LevelEngine, a0: number, bank: number, a4: number): void {
-  close(e, a0, bank);
+function spectreClose(e: LevelEngine, a0: number, bank: number, a4: number, d: SpectreDef): void {
+  close(e, a0, bank, d.pal !== null);
   e.ram.setByte(a4 + AWO_STATUS, 1);
 }
 
@@ -591,9 +620,10 @@ function spectreClose(e: LevelEngine, a0: number, bank: number, a4: number): voi
  * je Durchlauf nach links; jeden Durchlauf das nächste Bild der Animation P_R_Anim_Ptr (Versatz zu Anim_Base, Ende
  * = negatives Wort, dann von vorn). Ab x ≤ 200 endet die Routine. Variablen: +0 Modus, +2 Zeiger in die Animation
  * (Langwort). Parameter: Anim_Ptr, Speed, Pal_Ptr (Langwort), Y. Quelle: Ag_Game_LMER.s, Label R_Rapide; Abbild
- * $4F8EE–$4F99C.
+ * $4F8EE–$4F99C. In Level 2 (Ag_Game_LFORET.s, Abbild $4BFA2–$4C046) Energie 2 und keine Palette: MODE 0 erhöht nur
+ * Rout_Mod_Pal_Counter, P_R_Pal_Ptr (Dummy_Pal) bleibt ungelesen; CLOSE wie in Level 1.
  */
-function rapide(e: LevelEngine, a0: number): void {
+function rapide(e: LevelEngine, a0: number, d: RapideDef): void {
   const { V, L, ram } = e;
   const a1 = ram.long(a0 + ROUT_PARAM_PTR);
   const bank = ram.long(a0 + ROUT_AWO_PTR);
@@ -601,15 +631,17 @@ function rapide(e: LevelEngine, a0: number): void {
   const a2 = bank + 4;
   ram.setLong(bank, 0x00010000);
   if (ram.word(a3) === 0) {
-    e.setL(V.routPalPtr, ram.long(a1 + 4));
-    e.setB(V.refreshPal + 1, 0xff);
+    if (d.pal) {
+      e.setL(V.routPalPtr, ram.long(a1 + 4));
+      e.setB(V.refreshPal + 1, 0xff);
+    }
     e.setW(V.routModPalCounter, e.w(V.routModPalCounter) + 1);
     ram.setWord(a2 + AWO_X, 256 + 340);
     ram.setWord(a2 + AWO_Y, ram.word(a1 + 8));
     const a4 = (L.animBase + ram.sword(a1)) >>> 0;
     ram.setLong(a3 + 2, a4);
     ram.setWord(a2 + AWO_OBJ_OFF, ram.word(a4));
-    ram.setWord(a2 + AWO_ENERGY, 3);
+    ram.setWord(a2 + AWO_ENERGY, d.energy);
     ram.setLong(a2 + AWO_STATUS, 0);
     ram.setWord(a3, 1);
     return;
@@ -778,7 +810,8 @@ const VM_TIME = 12;
  * Monster, sofern dieses nicht zerstört ist, und fliegt mit 3 Pixel je Durchlauf waagrecht oder senkrecht auf das Ziel
  * Eule + (16, 40) zu; erreicht er dessen Zeile bzw. Spalte, wählt er eine neue Richtung (Bild der Diagonale als Kurve).
  * Nach 175 Durchläufen oder wenn die Eule tot ist, explodiert er (Status 1). Parameter: keine.
- * Quelle: Ag_Game_LMER.s, Label R_Volant_Missile; Abbild $4F2F2–$4F680.
+ * Quelle: Ag_Game_LMER.s, Label R_Volant_Missile; Abbild $4F2F2–$4F680 (sea). In Level 2 (Ag_Game_LFORET.s, Abbild
+ * $4BB60–$4BEE0) ohne Palette (auskommentiert) und mit 1 statt 3 Pixel je Durchlauf für den Schuss.
  */
 function volantMissile(e: LevelEngine, a0: number, d: VolantMissileDef): void {
   const { V, ram } = e;
@@ -789,8 +822,10 @@ function volantMissile(e: LevelEngine, a0: number, d: VolantMissileDef): void {
   const mode = ram.word(a3);
   ram.setLong(bank, 0x00010000);
   if (mode === 0) {
-    e.setL(V.routPalPtr, d.pal);
-    e.setB(V.refreshPal + 1, 0xff);
+    if (d.pal !== null) {
+      e.setL(V.routPalPtr, d.pal);
+      e.setB(V.refreshPal + 1, 0xff);
+    }
     ram.setWord(a2 + AWO_X, 256 + 200);
     ram.setWord(a2 + AWO_Y, 220);
     ram.setWord(a2 + AWO_OBJ_OFF, d.obj1);
@@ -849,25 +884,25 @@ function volantMissileMode1(e: LevelEngine, a3: number, a2: number, a4: number, 
     const ty = s16(ram.word(a3 + VM_TARGET_Y));
     if (fireMode === 1) {
       // hoch
-      const y = (ram.word(a4 + AWO_Y) - 3) & 0xffff;
+      const y = (ram.word(a4 + AWO_Y) - d.shotSpeed) & 0xffff;
       ram.setWord(a4 + AWO_Y, y);
       ram.setWord(a4 + AWO_OBJ_OFF, d.shots[0]!);
       if (s16(y) <= ty) return vmDecisionX(e, a3, a4, d);
     } else if (fireMode === 2) {
       // rechts
-      const x = (ram.word(a4 + AWO_X) + 3) & 0xffff;
+      const x = (ram.word(a4 + AWO_X) + d.shotSpeed) & 0xffff;
       ram.setWord(a4 + AWO_X, x);
       ram.setWord(a4 + AWO_OBJ_OFF, d.shots[2]!);
       if (s16(x) >= tx) return vmDecisionY(e, a3, a4, d);
     } else if (fireMode === 3) {
       // runter: neue Richtung erst, wenn die Zeile überschritten ist (bgt)
-      const y = (ram.word(a4 + AWO_Y) + 3) & 0xffff;
+      const y = (ram.word(a4 + AWO_Y) + d.shotSpeed) & 0xffff;
       ram.setWord(a4 + AWO_Y, y);
       ram.setWord(a4 + AWO_OBJ_OFF, d.shots[4]!);
       if (s16(y) > ty) return vmDecisionX(e, a3, a4, d);
     } else {
       // links (jeder andere Wert)
-      const x = (ram.word(a4 + AWO_X) - 3) & 0xffff;
+      const x = (ram.word(a4 + AWO_X) - d.shotSpeed) & 0xffff;
       ram.setWord(a4 + AWO_X, x);
       ram.setWord(a4 + AWO_OBJ_OFF, d.shots[6]!);
       if (s16(x) <= tx) return vmDecisionY(e, a3, a4, d);

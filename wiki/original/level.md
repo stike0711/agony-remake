@@ -183,6 +183,17 @@ Levels wieder her.
 `$4BFA2`, `R_Kamikaze` `$4C048` (erster Start bei `WAIT $170`), `R_Sol_Etoile` `$4C160`, `R_Final` `$4C39E`. Level 2
 hat keinen Regen. Die Startliste enthält ein `WAIT $E00` nach `WAIT $E40` (wirkt sofort, da `Level_X` schon größer ist).
 
+✔ Unterschiede der aus Level 1 bekannten Routinen (Quelltext und Abbild verglichen, `work/disasm/forest_rout.txt`):
+- `R_Spectre`, `R_Tir_Etoile`, `R_Araignee`: keine eigene Palette (MODE 0 ohne `Rout_Pal_Ptr`/`Rout_Mod_Pal_Counter`);
+  CLOSE verringert den Zähler nicht, stellt aber die Palette des Levels wieder her, wenn er 0 ist. `R_Araignee` ohne
+  `R_A_Anim_Step`, Richtung daher bei +2 statt +4. Objekte: Phiole `$300`, Gespenst `$312`–`$35E`, Monster `$54E`
+  (Animation `$4B952`), Schüsse `Obj_Tir_1–8` `$416`–`$494`, Spinne `$3F4`.
+- `R_Volant_Missile`: Palette auskommentiert wie in Level 1 (dort aber gesetzt), der gelenkte Schuss fliegt 1 statt
+  3 Pixel je Durchlauf; Monster `$4A6`/`$4BC`.
+- `R_Rapide`: Energie 2 statt 3; MODE 0 erhöht `Rout_Mod_Pal_Counter`, setzt aber keine Palette (der Parameter
+  `Dummy_Pal` bleibt ungelesen); CLOSE wie in Level 1. Animation `Anim_Speedy` = `$4CE`, `$4EA`.
+- Übertragen als Felder der Routinen-Definitionen (`layout.ts`, `FOREST.routines`), gegen das Original ungeprüft.
+
 ### Level 3 – Sumpf (`AG_GAME_LMARAIS.S`, Wellen-Parameter in `lmarais_rtr.s`)
 
 🌐 Laut einer Rezension hat ein Endgegner einen blitzschnellen, sofort tödlichen Zungenangriff (Zuordnung zu
