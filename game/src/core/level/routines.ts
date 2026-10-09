@@ -226,9 +226,20 @@ export interface SolGuideDef {
   obj: number[];
 }
 
+/** Drache, der nach links fliegt und alle 30 Durchläufe eine Feuerzunge ausstößt (R_Dragon, Level 4) */
+export interface DragonDef {
+  kind: "dragon";
+  /** Dragon_Shape (10 Objektnummern), Langue_Shape (19 Objektnummern), Obj_Dragon_1, Obj_Fire_1, Obj_Fire_8 */
+  shape: number;
+  langue: number;
+  obj: number;
+  objFire: number;
+  objFireLast: number;
+}
+
 export type RoutineDef = SolCracheDef | AraigneeDef | TransporteurDef | TirEtoileDef | SpectreDef | RapideDef |
   BomberDef | GrossiDef | VolantMissileDef | FinalDef | KamikazeDef | SolEtoileDef | FinalForetDef | JumperMaraisDef |
-  SolKamikazeDef | FinalMaraisDef | ColonneFlammeDef | SolGuideDef;
+  SolKamikazeDef | FinalMaraisDef | ColonneFlammeDef | SolGuideDef | DragonDef;
 
 const ROUTS = 32;
 const ROUT_LEN = 28;
@@ -291,6 +302,7 @@ export function routineManager(e: LevelEngine): void {
       case "finalMarais": finalMarais(e, a0, def); break;
       case "colonneFlamme": colonneFlamme(e, a0, def); break;
       case "solGuide": solGuide(e, a0, def); break;
+      case "dragon": dragon(e, a0, def); break;
     }
   }
 }
@@ -1701,4 +1713,85 @@ function solGuide(e: LevelEngine, a0: number, d: SolGuideDef): void {
   }
   const x = s16(ram.word(a2 + AWO_X));
   if (x < 200 || x > 256 + 330 || s16(ram.word(a2 + AWO_Y)) < 200) close(e, a0, bank, false);
+}
+
+// R_Dragon: Variablen +0 R_D_Mode, +2 R_D_Langue_Delay, +4 R_D_Langue_Step, +6 R_D_Shape
+const D_LANGUE_DELAY = 2;
+const D_LANGUE_STEP = 4;
+const D_SHAPE = 6;
+
+/**
+ * R_Dragon (AG_GAME_LMONTAGNES.S, „DRAGON“): ein Drache (x 256 + 350, y = Parameter P_D_Y, Obj_Dragon_1, Energie 8,
+ * Schussrate 10, keine eigene Palette), der 2 Pixel je Durchlauf nach links fliegt und reihum die 10 Bilder aus
+ * Dragon_Shape zeigt; Ende, sobald x ≤ 180 (im Start-Durchlauf nicht geprüft, auch nicht, ob er abgeschossen ist).
+ * R_D_Mode 1: Alle 30 Durchläufe stößt er eine Feuerzunge aus, solange seine Explosion nicht beendet ist (unteres
+ * Halbbyte des Status ≠ $F; sonst zählt R_D_Langue_Delay über 30 hinaus weiter): zweiter Gegner der Bank bei
+ * (x − 190, y), Obj_Fire_1, Energie 100, Status 0 (schießt nicht). R_D_Mode 2: Die Zunge wandert 2 Pixel je Durchlauf
+ * nach links und zeigt Langue_Shape (12-mal Obj_Fire_1, dann Obj_Fire_2–8); ab Obj_Fire_8 bleibt das Bild, und sie
+ * wandert 14 Pixel je Durchlauf. Erreicht sie x ≤ 130 (die Bank zählt in diesem Durchlauf noch 2 Gegner) oder ist der
+ * Drache getroffen (Halbbyte ≠ 0, die Zunge verschwindet sofort), geht es zurück in Modus 1. Das Kopfwort der Bank
+ * setzt jeder Durchlauf erst auf 1, nur die Zunge setzt 2. CLOSE ändert Rout_Mod_Pal_Counter nicht und stellt nur bei
+ * 0 die Palette des Levels wieder her. Quelle: AG_GAME_LMONTAGNES.S, Label R_Dragon; Abbild $4C710–$4C85E (gleich dem
+ * Quelltext), Dragon_Shape $4C6D6, Langue_Shape $4C6EA.
+ */
+function dragon(e: LevelEngine, a0: number, d: DragonDef): void {
+  const { ram } = e;
+  const a1 = ram.long(a0 + ROUT_PARAM_PTR);
+  const bank = ram.long(a0 + ROUT_AWO_PTR);
+  const a3 = a0 + ROUT_VARIABLES;
+  const a2 = bank + 4;
+  const mode = ram.word(a3);
+  ram.setLong(bank, 0x00010000);
+  if (mode === 0) {
+    ram.setWord(a2 + AWO_X, 256 + 350);
+    ram.setWord(a2 + AWO_Y, ram.word(a1));
+    ram.setWord(a2 + AWO_OBJ_OFF, d.obj);
+    ram.setWord(a2 + AWO_ENERGY, 8);
+    ram.setLong(a2 + AWO_STATUS, 0x000a0000);
+    ram.setWord(a3, 1);
+    return;
+  }
+  let shape = (ram.word(a3 + D_SHAPE) + 2) & 0xffff;
+  if (shape === 20) shape = 0;
+  ram.setWord(a3 + D_SHAPE, shape);
+  ram.setWord(a2 + AWO_OBJ_OFF, ram.word(d.shape + shape));
+  const x = (ram.word(a2 + AWO_X) - 2) & 0xffff;
+  ram.setWord(a2 + AWO_X, x);
+  if (s16(x) <= 180) {
+    close(e, a0, bank, false);
+    return;
+  }
+  const a4 = a2 + AWO_LEN;
+  if (mode !== 2) {
+    const delay = (ram.word(a3 + D_LANGUE_DELAY) + 1) & 0xffff;
+    ram.setWord(a3 + D_LANGUE_DELAY, delay);
+    if (delay !== 30 || (ram.byte(a2 + AWO_STATUS) & 0xf) === 0xf) return;
+    ram.setWord(a3 + D_LANGUE_DELAY, 0);
+    ram.setLong(bank, 0x00020000);
+    ram.setWord(a4 + AWO_X, (x - 190) & 0xffff);
+    ram.setWord(a4 + AWO_Y, ram.word(a2 + AWO_Y));
+    ram.setWord(a4 + AWO_OBJ_OFF, d.objFire);
+    ram.setWord(a4 + AWO_ENERGY, 100);
+    ram.setLong(a4 + AWO_STATUS, 0);
+    ram.setWord(a3, (mode + 1) & 0xffff);
+    ram.setWord(a3 + D_LANGUE_STEP, 0xfffe);
+    return;
+  }
+  // .mode2
+  if ((ram.byte(a2 + AWO_STATUS) & 0xf) !== 0) {
+    ram.setWord(a3, mode - 1); // .end_l
+    return;
+  }
+  ram.setLong(bank, 0x00020000);
+  const last = ram.word(a4 + AWO_OBJ_OFF) === d.objFireLast;
+  const lx = (ram.word(a4 + AWO_X) - (last ? 14 : 2)) & 0xffff;
+  ram.setWord(a4 + AWO_X, lx);
+  if (s16(lx) <= 130) {
+    ram.setWord(a3, mode - 1); // .end_l
+    return;
+  }
+  if (last) return;
+  const step = (ram.word(a3 + D_LANGUE_STEP) + 2) & 0xffff;
+  ram.setWord(a3 + D_LANGUE_STEP, step);
+  ram.setWord(a4 + AWO_OBJ_OFF, ram.word(d.langue + step));
 }

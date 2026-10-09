@@ -26,7 +26,7 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
       .toEqual([0x80, 0x8004c412, 0xffff]);
   });
 
-  it("übernimmt die gemeinsamen Variablen und läuft mit Dauerfeuer bis zur ersten Gegner-Routine", () => {
+  it("übernimmt die gemeinsamen Variablen und läuft mit Dauerfeuer bis zum Endgegner", () => {
     const shared = new Uint8Array(SHARED_LENGTH);
     const put = (a: number, v: number, n: number): void => { for (let i = 0; i < n; i++) shared[a - SHARED_START + i] = (v >>> (8 * (n - 1 - i))) & 0xff; };
     put(SHARED.score, 0x54321, 4);
@@ -45,7 +45,10 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
     let cfStart = -1, cfEnd = -1;
     // R_Sol_Guide: je Lauf Startbild, Parameter P_SG_Launch und je Durchlauf Modus, Position und Objekt
     const sg: { slot: number; open: boolean; start: number; launch: number; pos: number[][] }[] = [];
-    for (; f < 6000 && !e.unported && !e.result; f++) {
+    // R_Dragon: je Lauf Startbild, Parameter P_D_Y und je Durchlauf [Modus, Kopfwort, x, y, Objekt, Status-Byte,
+    // x und Objekt der Zunge]
+    const dr: { slot: number; open: boolean; start: number; y: number; pos: number[][] }[] = [];
+    for (; f < 12000 && !e.unported && !e.result; f++) {
       let input = f === 49 || f === 50 ? JOY_FIRE : 0;
       if (f >= 58) {
         if (n === 0) { [n] = PATTERN[k % PATTERN.length]!; k++; }
@@ -60,6 +63,17 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
         const a0 = L.routStruct + 28 * i;
         const code = e.ram.long(a0);
         if (code === 0x4c276) slot = a0;
+        let drun = dr.find((r) => r.open && r.slot === a0);
+        if (drun && code !== 0x4c710) drun.open = false;
+        if (code === 0x4c710) {
+          if (!drun) dr.push(drun = { slot: a0, open: true, start: f, y: e.ram.word(e.ram.long(a0 + 4)), pos: [] });
+          const bank = e.ram.long(a0 + 8);
+          const p = [e.ram.word(a0 + 12), e.ram.word(bank), e.ram.word(bank + 4), e.ram.word(bank + 6),
+            e.ram.word(bank + 8), e.ram.byte(bank + 12), e.ram.word(bank + 16), e.ram.word(bank + 20)];
+          // je Durchlauf 2 Pixel nach links
+          const q = drun.pos[drun.pos.length - 1];
+          if (p[0] !== 0 && (!q || q[2] !== p[2])) drun.pos.push(p);
+        }
         let run = sg.find((r) => r.open && r.slot === a0);
         if (run && code !== 0x4c55c) run.open = false;
         if (code !== 0x4c55c) continue;
@@ -79,12 +93,13 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
       // ohne Regen und Zauber zeigen Sprite 6 und 7 die leere Liste
       if (f === 40) expect([e.ram.long(L.d + V.sprPtrB + 24), e.ram.long(L.d + V.sprPtrB + 28)]).toEqual([L.emptySpr, L.emptySpr]);
     }
-    // R_Bomber (WAIT $80), R_Colonne_Flamme (WAIT $140) und R_Sol_Guide (ab WAIT $280) laufen, die Engine hält am
-    // ersten R_Dragon ($4C710, WAIT $1180); Bildnummern aus dem Nachbau (Regression, gegen das Original ungeprüft)
+    // R_Bomber (WAIT $80), R_Colonne_Flamme (WAIT $140), R_Sol_Guide (ab WAIT $280) und R_Dragon (ab WAIT $1180)
+    // laufen, die Engine hält am Endgegner R_Final ($4C888, WAIT $2300); Bildnummern aus dem Nachbau (Regression,
+    // gegen das Original ungeprüft)
     expect(e.result).toBeNull();
-    expect(e.unported).toContain("$4C710");
-    expect(e.w(V.levelX)).toBeGreaterThanOrEqual(0x1180);
-    expect(e.w(V.levelX)).toBeLessThan(0x1190);
+    expect(e.unported).toContain("$4C888");
+    expect(e.w(V.levelX)).toBeGreaterThanOrEqual(0x2300);
+    expect(e.w(V.levelX)).toBeLessThan(0x2310);
     expect(f).toBe(UNPORTED_AT);
     // R_Colonne_Flamme (Quelle: AG_GAME_LMONTAGNES.S, Label R_Colonne_Flamme): Start-Durchlauf mit 4 Flammen bei
     // x 256 + 360, y 446, 411, 376, 341 und Obj_Grande_Flamme_1; Startphasen an den absoluten Adressen $2–$9 (O-018)
@@ -115,10 +130,11 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
     expect(passes.size).toBe(208);
     expect(cfEnd).toBe(CF_END);
 
-    // R_Sol_Guide (Quelle: AG_GAME_LMONTAGNES.S, Label R_Sol_Guide und Start_List): 9 Läufe bis zum Halt mit den
+    // R_Sol_Guide (Quelle: AG_GAME_LMONTAGNES.S, Label R_Sol_Guide und Start_List): 18 Läufe bis zum Halt mit den
     // Parametern aus der Startliste
     expect(sg.map((r) => r.start)).toEqual(SG_START);
-    expect(sg.map((r) => r.launch)).toEqual([456, 456, 436, 406, 406, 456, 436, 406, 406]);
+    expect(sg.map((r) => r.launch)).toEqual([456, 456, 436, 406, 406, 456, 436, 406, 406, 456, 436, 406, 406, 406, 406,
+      406, 406, 406]);
     expect(sg.every((r) => !r.open)).toBe(true);
     const step: Record<number, number[]> = { 2: [-3, -1, 0x3bc], 3: [-3, -3, 0x3d2], 4: [0, -3, 0x3e8], 5: [3, -3, 0x3fe], 6: [3, -1, 0x414] };
     const modes: number[] = [];
@@ -138,7 +154,33 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
       expect(nx < 200 || nx > 586 || ny < 200).toBe(true);
     }
     // gewählte Richtung je Lauf (hängt von der Lage der Eule beim Abflug ab; Regression)
-    expect(modes).toEqual([3, 3, 3, 4, 4, 4, 4, 4, 5]);
+    expect(modes).toEqual([3, 3, 3, 4, 4, 4, 4, 4, 5, 4, 4, 5, 6, 6, 6, 6, 5, 6]);
+
+    // R_Dragon (Quelle: AG_GAME_LMONTAGNES.S, Label R_Dragon und Start_List): 6 Läufe mit P_D_Y 256 + 60 bzw. 256 + 140
+    expect(dr.map((r) => r.start)).toEqual(DR_START);
+    expect(dr.map((r) => r.y)).toEqual([316, 396, 316, 396, 316, 396]);
+    expect(dr.every((r) => !r.open)).toBe(true);
+    const launches: number[][] = [];
+    for (const r of dr) {
+      // Start bei x 256 + 350, je Durchlauf 2 Pixel nach links mit Dragon_Shape (7 × $54E, 3 × $56E), CLOSE bei x 180
+      // (auch abgeschossen): 213 Durchläufe von x 606 bis 182
+      expect(r.pos.length).toBe(213);
+      r.pos.forEach((p, j) => expect(p.slice(2, 5)).toEqual([606 - 2 * j, r.y, j % 10 < 7 ? 0x54e : 0x56e]));
+      // Zunge: im Durchlauf des Wechsels in Modus 2 zwei Gegner, Zunge bei x − 190 mit Obj_Fire_1
+      const l: number[] = [];
+      r.pos.forEach((p, j) => {
+        if (p[0] !== 2 || r.pos[j - 1]![0] !== 1) return;
+        l.push(j);
+        expect([p[1], p[6], p[7]]).toEqual([2, (p[2]! - 190) & 0xffff, 0x58e]);
+      });
+      launches.push(l);
+    }
+    // Die tief fliegenden Drachen überleben das Dauerfeuer (alle 30 Durchläufe eine Zunge, die letzten drei enden
+    // schon im ersten Zug bei x ≤ 130), die oberen werden abgeschossen (Explosion beendet: Halbbyte $F, keine Zunge
+    // mehr); Regression
+    expect(dr.map((r) => r.pos[r.pos.length - 1]![5]! & 0xf)).toEqual([15, 0, 15, 0, 15, 0]);
+    const low = [30, 93, 147, 178, 209];
+    expect(launches).toEqual([[], low, [30], low, [30], low]);
   }, 60_000);
 });
 
@@ -147,7 +189,9 @@ const PATTERN: [number, number][] = [
   [25, JOY_UP], [30, 0], [25, JOY_DOWN], [20, 0], [15, JOY_RIGHT], [30, JOY_DOWN], [20, 0], [15, JOY_LEFT], [40, JOY_UP],
   [25, 0],
 ];
-const UNPORTED_AT = 4564;
+const UNPORTED_AT = 9059;
 const CF_START = 402;
 const CF_END = 819;
-const SG_START = [722, 1618, 1681, 1746, 2387, 3028, 3090, 3155, 4084];
+const SG_START = [722, 1618, 1681, 1746, 2387, 3028, 3090, 3155, 4084, 4824, 4884, 4951, 6232, 6357, 6995, 7124, 7514,
+  7643];
+const DR_START = [4563, 4690, 4820, 4946, 5075, 5203];
