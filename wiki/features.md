@@ -15,7 +15,7 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
       Original-Schrift, Highscore-Tabelle, Spielstart per Feuer, Story-Seite, Cheat „FANTASY“ – alles außer dem
       Cheat umgesetzt und bildgenau geprüft (06.10.2026)
 - [ ] Ladebilder vor jedem Level (6 Gemälde von Franck Sauer) mit Lademusik – Level 1 umgesetzt und geprüft, Level 2
-      umgesetzt, gegen das Original noch ungeprüft (08.10.2026); Level 3 ebenso (09.10.2026)
+      umgesetzt, gegen das Original noch ungeprüft (08.10.2026); Level 3 und 4 ebenso (09.10.2026)
 - [ ] Highscore-Liste (6 Einträge) inklusive Namenseingabe und Speichern – Anzeige im Menü steht
 - [ ] Spielende (`ending`) mit Musik
 - [ ] Game Over und Rückkehr ins Menü – „GAME OVER“, stehendes Level, dann das Menü (07.10.2026, E-036); offen:
@@ -68,9 +68,12 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
       (09.10.2026, gegen das Original noch ungeprüft); die 8 aus Level 1 und 2 bekannten Gegner-Routinen und der
       neue `R_Jumper` übertragen (09.10.2026, ungeprüft); `R_Sol_Kamikaze` übertragen, das Level läuft bis zum
       Endgegner (09.10.2026, ungeprüft); Endgegner `R_Final` (eigener Code mit Zunge) übertragen, das Level läuft bis
-      zum Levelende, danach Platzhalter für Level 4 (09.10.2026, ungeprüft); offen: Ladebild Level 4, Prüfung mit
-      einer Aufnahme
-- [ ] Level 4 – Berge (`LMONTAGNES`)
+      zum Levelende, danach Ladebild und Level 4 (09.10.2026, ungeprüft); offen: Prüfung mit einer Aufnahme
+- [ ] Level 4 – Berge (`LMONTAGNES`) – Ladebild `load_mountains`, Abbild `mountains` als Speicherblöcke, Layout per
+      `derive_layout.py` aus Level 3 übertragen (gemeinsamer Code Befehl für Befehl gleich), ohne Regen; gemeinsame
+      Variablen aus Level 3; Angriffswellen laufen bis zur ersten Gegner-Routine (`R_Bomber`, WAIT `$80`)
+      (09.10.2026, gegen das Original noch ungeprüft); offen: 8 Gegner-Routinen samt Endgegner, Prüfung mit einer
+      Aufnahme
 - [ ] Level 5 – Hochland (`LPLATEAUX`)
 - [ ] Level 6 – Feuer (`LFEUX`)
 

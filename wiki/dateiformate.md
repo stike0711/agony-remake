@@ -243,7 +243,10 @@ je Level prüfen):
   „loading_marshes“ bei `$6323C` (21.640 Byte), Bild `$686C4`, Palette `$7B1D4`, Copperliste `$7B214`, Variablen des
   Einblendens `$7B31C`/`$7B31E`, 6 Byte bis zum Dateiende. Die ersten 4 Byte des Bilds (`ffd55540`) löscht `mt_init`
   (O-001).
-- Die übrigen Ladebild-Dateien (Level 4–6) noch prüfen.
+- `load_mountains` ✔ (Disassembly `work/disasm/load_mountains_code.txt`): derselbe Code wie `load_marshes`; Modul
+  „loading_mountains“ bei `$6323C` (24.690 Byte), Bild `$692AE`, Palette `$7BDBE`, Copperliste `$7BDFE`, Variablen des
+  Einblendens `$7BF06`/`$7BF08`, 6 Byte bis zum Dateiende. Der Code lädt danach Datei `$11` (`mountains`).
+- Die übrigen Ladebild-Dateien (Level 5–6) noch prüfen.
 
 ## Präsentation (`present`)
 
@@ -446,6 +449,9 @@ Level 2 (`forest`): `sprites` `$15396`–`$1E08A`, `sky` `$1E08A`–`$1F70A`, `b
 Level 3 (`marshes`): `sprites` `$164F2`–`$1F1E6`, `sky` `$1F1E6`–`$20866`, `back` `$20866`–`$30766`, `game`
 `$30766`–`$51370`, `rel` `$51370`–`$60530`.
 
+Level 4 (`mountains`): `sprites` `$15970`–`$1E664`, `sky` `$1E664`–`$1FCE6`, `back` `$1FCE6`–`$2C9E6`, `game`
+`$2C9E6`–`$4D548`, `rel` `$4D548`–`$5CB84`.
+
 ### Adressen der anderen Level ✔
 
 Alle Level enthalten denselben Code aus `Agony_Parent_.s` und seinen Modulen; nur Daten, Variablen und die
@@ -469,6 +475,14 @@ von Level 1 der Wert im anderen Level (derselbe Befehl, anderer Operand).
   `Front_Pal` `$53E7A`, Startliste `$4E74E`, Anim_Base `$4EEF0`, Relative_Tracks `$50000` und Absolute_Tracks
   `$50B7C` (hier getrennt), Copperlisten `$5E438`/`$5F4C4`, Clear_Start `$60530`. Alle Werte: `MARSHES` in
   `layout.ts`. Routinen des Level-Moduls `$4EF2A`–`$50000` (`work/disasm/marshes_rout.txt`).
+- **Level 4 (`mountains`, `Agony.11`):** Der gemeinsame Code ist Befehl für Befehl derselbe wie in `marshes` (gleiche
+  Adressen, nur andere Operanden), also ebenfalls ohne Regen. Sonst anders: `Pre_Comp` mit 80 Teilbildern
+  (`move.w #$4F,d2` bei `$694`) und das Laden des nächsten Levels (`#$12` = `load_highlands` bei `$3A9A`). Übertragen
+  mit `derive_layout.py` aus `MARSHES`: `D = a5 = $55548`, Variablen ab `a5 + $74C0` (alle um `+$47C` gegenüber
+  `marshes`), `Front_Pal` `$50308`, Startliste `$4B4FA`, Anim_Base `$4BCE8`, Relative_Tracks `$4C9C4`,
+  Absolute_Tracks `$4CF70`, Copperlisten `$5A8E0`/`$5BA48`, Clear_Start `$5CB84`. Alle Werte: `MOUNTAINS` in
+  `layout.ts`. Routinen des Level-Moduls `$4BD54`–`$4C9C4` (`work/disasm/mountains_rout.txt`, je Routine ab ihrem
+  Start disassembliert, weil Tabellen dazwischen die lineare Disassembly verschieben).
 
 ## Angriffswellen-Startliste (Binärformat)
 

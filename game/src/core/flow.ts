@@ -1,12 +1,12 @@
 // Reihenfolge der Bildschirme: Titelsequenz → Menü (Feuer: Story-Seite) → Ladebild → Level 1 → Ladebild → Level 2 →
-// Ladebild → Level 3.
+// Ladebild → Level 3 → Ladebild → Level 4.
 // Hier zentral verdrahtet, damit sich die Bildschirme nicht gegenseitig importieren.
 
 import type { Screen } from "./game.ts";
-import { FOREST, MARSHES, SEA } from "./level/layout.ts";
+import { FOREST, MARSHES, MOUNTAINS, SEA } from "./level/layout.ts";
 import { LevelScreen } from "./screens/level.ts";
 import { LevelStub } from "./screens/level-stub.ts";
-import { LOAD_FOREST, LOAD_MARSHES, LOAD_SEA, LoadingScreen } from "./screens/loading.ts";
+import { LOAD_FOREST, LOAD_MARSHES, LOAD_MOUNTAINS, LOAD_SEA, LoadingScreen } from "./screens/loading.ts";
 import { MenuScreen } from "./screens/menu.ts";
 import { TitleSequence } from "./screens/title.ts";
 
@@ -39,11 +39,20 @@ function level2(shared: Uint8Array): Screen {
 }
 
 function level3(shared: Uint8Array): Screen {
-  // Nach dem Levelende vorläufig der Platzhalter für Level 4 (das Original lädt load_mountains, Abbild marshes $3A9A:
-  // Datei $10)
+  // Nach dem Levelende Ladebild load_mountains (Abbild marshes $3A9A: Datei $10), danach Level 4
   return new LevelScreen(MARSHES, {
     gameOver: menu,
-    levelDone: () => new LevelStub(menu, "ui.level4Stub"),
+    levelDone: (next) => new LoadingScreen(LOAD_MOUNTAINS, () => level4(next)),
     unported: () => new LevelStub(menu, "ui.level3Stub"),
+  }, shared);
+}
+
+function level4(shared: Uint8Array): Screen {
+  // Nach dem Levelende vorläufig der Platzhalter für Level 5 (das Original lädt load_highlands, Abbild mountains
+  // $3A9A: Datei $12)
+  return new LevelScreen(MOUNTAINS, {
+    gameOver: menu,
+    levelDone: () => new LevelStub(menu, "ui.level5Stub"),
+    unported: () => new LevelStub(menu, "ui.level4Stub"),
   }, shared);
 }

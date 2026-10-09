@@ -293,6 +293,14 @@ endet bei 10.609.
 `R_Sol_Kamikaze`, `R_Volant_missile`, `R_Dragon` (Drache), `R_Colonne_Flamme` (Flammensäule), `R_Araignee`,
 `…_Boulle`, `Pont_Boulle` (Brücke + Kugel – passt zur Hängebrücke), `R_Bomber`, relative Bahnen `Awsrt…`, `R_Final`.
 
+✔ Abbild `mountains` (Startliste `$4B4FA` gegen den Quelltext geprüft, 123 Einträge): Die Startliste beginnt mit
+`START_A` `DGDP_Boulle` bei `WAIT $40`, gleich danach `START_C` `R_Bomber` bei `WAIT $80`. Die 8 Gegner-Routinen der
+Startliste liegen in Quelltext-Reihenfolge (Startadressen aus den `START_C`-Einträgen): `R_Volant_Missile` `$4BD54`,
+`R_Sol_Kamikaze` `$4C196`, `R_Colonne_Flamme` `$4C276`, `R_Araignee` `$4C368`, `R_Bomber` `$4C412`, `R_Sol_Guide`
+`$4C55C` (mit Parameter, z. B. 256 + 200), `R_Dragon` `$4C710`, `R_Final` `$4C888` (`START_C` bei `WAIT $2300`;
+Disassembly `work/disasm/mountains_rout.txt`). `R_Rapide` steht im Quelltext, wird aber nicht gestartet. Noch nicht
+übertragen: Im Nachbau hält das Level beim ersten `R_Bomber` an (211 Bilder nach dem Start, `level4.test.ts`).
+
 ### Level 5 – Hochland (`Ag_Game_LPLATEAUX.s`)
 
 🌐 Fortsetzung mit Grabsteinen; einer trägt als Gag die Aufschrift „Bitmap Brothers 1989–1992“ (Zuordnung zu Level 5

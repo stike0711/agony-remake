@@ -164,6 +164,7 @@ Hilfe- oder Anleitungsseite (Enhanced) und fürs Wiki; Tabelle mit Wirkung in
 | `ui.level2Stub` | LEVEL 2 / COMING SOON | LEVEL 2 / KOMMT BALD |
 | `ui.level3Stub` | LEVEL 3 / COMING SOON | LEVEL 3 / KOMMT BALD |
 | `ui.level4Stub` | LEVEL 4 / COMING SOON | LEVEL 4 / KOMMT BALD |
+| `ui.level5Stub` | LEVEL 5 / COMING SOON | LEVEL 5 / KOMMT BALD |
 | `ui.pressFire` | PRESS FIRE | FEUER DRÜCKEN |
 | `ui.spellFire` | FIRE MENU | FEUERMENÜ |
 | `ui.on` / `ui.off` | ON / OFF | AN / AUS |
@@ -175,9 +176,8 @@ längere Fassung passte nicht in den Bildausschnitt. „SPIEL BEENDEN“ steht n
 „WIRKLICH BEENDEN“, zweites bestätigt. Die Menüschrift hat kein Fragezeichen.
 
 `ui.pressFire` ist der Bedienhinweis an ersetzten Ladezeiten (E-039), gezeichnet in der auf 50 % verkleinerten
-Menüschrift. `ui.levelStub`, `ui.level2Stub` und `ui.level3Stub` sind vorläufige Platzhalter an noch nicht
-übertragenen Stellen von Level 1, 2 bzw. 3, `ui.level4Stub` nach dem Levelende von Level 3, bis alles nachgebaut ist;
-alle verschwinden dann.
+Menüschrift. `ui.levelStub` bis `ui.level4Stub` sind vorläufige Platzhalter an noch nicht übertragenen Stellen von
+Level 1 bis 4, `ui.level5Stub` nach dem Levelende von Level 4, bis alles nachgebaut ist; alle verschwinden dann.
 
 Sprachnamen stehen immer in ihrer eigenen Sprache, damit man sie auch in der falschen Sprache findet. „/“ steht hier
 für einen Zeilenumbruch (im Code `|`): „ZUM STARTEN TIPPEN“ ist mit 360 Pixeln zu breit für eine Zeile.

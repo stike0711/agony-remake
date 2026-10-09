@@ -298,6 +298,47 @@
    ],
    "ehb": true,
    "source": "load_marshes $686C4"
+  },
+  "load.mountains": {
+   "file": "img/load.mountains.idx",
+   "width": 352,
+   "height": 290,
+   "palette": [
+    0,
+    4093,
+    4072,
+    4038,
+    4006,
+    3716,
+    3186,
+    2659,
+    2131,
+    1603,
+    1347,
+    2183,
+    2456,
+    2166,
+    2148,
+    1620,
+    2181,
+    1893,
+    3293,
+    2747,
+    2201,
+    1656,
+    1127,
+    854,
+    581,
+    308,
+    1074,
+    1636,
+    1638,
+    1092,
+    2676,
+    3222
+   ],
+   "ehb": true,
+   "source": "load_mountains $692AE"
   }
  },
  "fonts": {
@@ -795,6 +836,12 @@
    "name": "loading_marshes",
    "length": 21640,
    "source": "load_marshes $6323C"
+  },
+  "load.mountains": {
+   "file": "mod/load.mountains.mod",
+   "name": "MOD.Loading_Mountain",
+   "length": 24690,
+   "source": "load_mountains $6323C"
   }
  },
  "highscores": [
@@ -1706,6 +1753,36 @@
    "address": 332656,
    "length": 61888,
    "source": "marshes $51370: relative Daten (Rel_Start … Clear_Start) inklusive Copperlisten"
+  },
+  "mountains.sprites": {
+   "file": "level/mountains.sprites.bin",
+   "address": 88432,
+   "length": 36084,
+   "source": "mountains $15970: Sprites (Main_Char/*.bin): Eule, Schüsse, Bonusse, Gegnerschüsse, Tod"
+  },
+  "mountains.sky": {
+   "file": "level/mountains.sky.bin",
+   "address": 124516,
+   "length": 5762,
+   "source": "mountains $1E664: statische Ebene (Sky.bin): 4 Blöcke à 40 Zeilen × 36 Byte"
+  },
+  "mountains.back": {
+   "file": "level/mountains.back.bin",
+   "address": 130278,
+   "length": 52480,
+   "source": "mountains $1FCE6: Kacheln des hinteren Playfields (Back.bin), 32 × 32 Pixel, 2 Planes"
+  },
+  "mountains.game": {
+   "file": "level/mountains.game.bin",
+   "address": 182758,
+   "length": 133986,
+   "source": "mountains $2C9E6: Front.Bin, Objects.bin/.obj, Strukturen, Level-Modul AG_GAME_LMONTAGNES.S"
+  },
+  "mountains.rel": {
+   "file": "level/mountains.rel.bin",
+   "address": 316744,
+   "length": 63036,
+   "source": "mountains $4D548: relative Daten (Rel_Start … Clear_Start) inklusive Copperlisten"
   }
  }
 }
