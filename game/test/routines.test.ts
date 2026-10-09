@@ -781,4 +781,44 @@ describe.skipIf(!hasAssets)("Gegner-Routinen von Level 4, aus Level 1–3 bekann
     expect([k.w(k.a2 + X), k.w(k.a2 + Y), k.w(k.a2 + OBJ), k.w(k.a2 + ENERGY)]).toEqual([596, 446, 0x4ca, 3]);
     expect(untouched(k)).toEqual([1, 0x12345678]);
   });
+
+  it("R_Colonne_Flamme: 4 Flammen im Gleichtakt (O-018), Höhe aus R_CF_Hight alle 3 Durchläufe, Ende bei x 200", () => {
+    const r = start(0x4c276, [], MOUNTAINS);
+    busy(r);
+    const flames = (o: number): number[] => [0, 1, 2, 3].map((i) => r.w(r.a2 + AWO_LEN * i + o));
+    r.run(1);
+    // Start: x 256 + 360, y ab 256 + 190 je 35 höher, Obj_Grande_Flamme_1 $198, Energie 32767, Status 0, 1 Flamme
+    expect(r.w(r.bank)).toBe(1);
+    expect(flames(X)).toEqual([616, 616, 616, 616]);
+    expect(flames(Y)).toEqual([446, 411, 376, 341]);
+    expect(flames(OBJ)).toEqual([0x198, 0x198, 0x198, 0x198]);
+    expect(flames(ENERGY)).toEqual([32767, 32767, 32767, 32767]);
+    expect([0, 1, 2, 3].map((i) => r.e.ram.long(r.a2 + AWO_LEN * i + STATUS))).toEqual([0, 0, 0, 0]);
+    // move.l #$2,$2.l / move.l #$40006,$6.l statt in die Variablen +2–+8
+    expect([2, 4, 6, 8].map((a) => r.w(a))).toEqual([0, 2, 4, 6]);
+    expect([2, 4, 6, 8].map((o) => r.w(r.a3 + o))).toEqual([0, 0, 0, 0]);
+    // 1. Durchlauf: alle Phasen 2 → Obj_Grande_Flamme_2 $1AA ($4C248)
+    r.run(1);
+    expect(flames(X)).toEqual([614, 614, 614, 614]);
+    expect(flames(OBJ)).toEqual([0x1aa, 0x1aa, 0x1aa, 0x1aa]);
+    // 8. Durchlauf: Phase 16 & $F = 0 → wieder $198; Höhe nach dem 6. Durchlauf R_CF_Hight[2] = 1
+    r.run(7);
+    expect(flames(OBJ)).toEqual([0x198, 0x198, 0x198, 0x198]);
+    expect(r.w(r.bank)).toBe(1);
+    // nach dem 21., 24., 27. Durchlauf R_CF_Hight[7], [8], [9] = 2, 3, 4; nach dem 42. [14] = 3
+    r.run(13);
+    expect(r.w(r.bank)).toBe(2);
+    r.run(3);
+    expect(r.w(r.bank)).toBe(3);
+    r.run(3);
+    expect(r.w(r.bank)).toBe(4);
+    r.run(15);
+    expect(r.w(r.bank)).toBe(3);
+    // 207 Durchläufe: x 202, läuft noch; im 208. x 200 → CLOSE ohne Zählerabzug
+    r.run(207 - 42);
+    expect([r.w(r.a2 + X), r.e.ram.long(r.a0)]).toEqual([202, 0x4c276]);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.e.ram.long(r.a0), r.w(r.bank)]).toEqual([200, 0xffffffff, 0xffff]);
+    expect(untouched(r)).toEqual([1, 0x12345678]);
+  });
 });
