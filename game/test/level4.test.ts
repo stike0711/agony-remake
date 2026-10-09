@@ -53,12 +53,12 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
       // ohne Regen und Zauber zeigen Sprite 6 und 7 die leere Liste
       if (f === 40) expect([e.ram.long(L.d + V.sprPtrB + 24), e.ram.long(L.d + V.sprPtrB + 28)]).toEqual([L.emptySpr, L.emptySpr]);
     }
-    // die erste START_A-Welle läuft, dann hält die Engine am ersten START_C (R_Bomber, WAIT $80); Bildnummer aus dem
-    // Nachbau (Regression, gegen das Original ungeprüft)
+    // R_Bomber (WAIT $80) läuft (übertragen wie Level 1), die Engine hält am ersten R_Colonne_Flamme (WAIT $140); Bildnummer aus
+    // dem Nachbau (Regression, gegen das Original ungeprüft)
     expect(e.result).toBeNull();
-    expect(e.unported).toContain("$4C412");
-    expect(e.w(V.levelX)).toBeGreaterThanOrEqual(0x80);
-    expect(e.w(V.levelX)).toBeLessThan(0x90);
+    expect(e.unported).toContain("$4C276");
+    expect(e.w(V.levelX)).toBeGreaterThanOrEqual(0x140);
+    expect(e.w(V.levelX)).toBeLessThan(0x150);
     expect(f).toBe(UNPORTED_AT);
   }, 60_000);
 });
@@ -68,4 +68,4 @@ const PATTERN: [number, number][] = [
   [25, JOY_UP], [30, 0], [25, JOY_DOWN], [20, 0], [15, JOY_RIGHT], [30, JOY_DOWN], [20, 0], [15, JOY_LEFT], [40, JOY_UP],
   [25, 0],
 ];
-const UNPORTED_AT = 211;
+const UNPORTED_AT = 403;

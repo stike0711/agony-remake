@@ -922,9 +922,21 @@ export const MOUNTAINS: LevelLayout = {
   trackTable: 0x5a2fe,
   // Quelle: AG_GAME_LMONTAGNES.S „ROUTINES“ (Disassembly work/disasm/mountains_rout.txt, je Routine ab ihrem Start
   // disassembliert): R_Volant_Missile $4BD54, R_Sol_Kamikaze $4C196, R_Colonne_Flamme $4C276, R_Araignee $4C368,
-  // R_Bomber $4C412, R_Sol_Guide $4C55C, R_Dragon $4C710, R_Final $4C888. Noch nicht übertragen: Der Lauf hält beim
-  // ersten START_C (R_Bomber bei WAIT $80) an
-  routines: new Map<number, RoutineDef>([]),
+  // R_Bomber $4C412, R_Sol_Guide $4C55C, R_Dragon $4C710, R_Final $4C888. Übertragen sind die aus Level 1–3 bekannten
+  // (mit Quelltext per diff und Abbild Befehl für Befehl verglichen); noch nicht: R_Colonne_Flamme, R_Sol_Guide,
+  // R_Dragon, R_Final
+  routines: new Map<number, RoutineDef>([
+    // Abbild $4BD54, wie Level 3 (ohne Palette, Schuss 2 Pixel je Durchlauf); Obj_Volant_Missile_1/2 $244/$25A
+    // ($4BDC2/$4BDCC), Obj_Tir_1–8 aus den Zuweisungen $4BE20–$4C0C8
+    [0x4bd54, { kind: "volantMissile", pal: null, obj1: 0x244, obj2: 0x25a,
+      shots: [0x42a, 0x43c, 0x452, 0x464, 0x47a, 0x48c, 0x4a2, 0x4b4], shotSpeed: 2 }],
+    // Abbild $4C196, wie Level 3; R_SK_Shape $4C18A ($4C1EE), Obj_Sol_Kamikaze_1 $4CA ($4C1BA)
+    [0x4c196, { kind: "solKamikaze", shape: 0x4c18a, obj: 0x4ca }],
+    // Abbild $4C368, wie Level 2 ohne Palette, Richtung in Variable +4 wie Level 1; Obj_Araignee $9C ($4C38A)
+    [0x4c368, { kind: "araignee", pal: null, obj: 0x9c, yMode: 4 }],
+    // Abbild $4C412, wie Level 1; Obj_Sac $DC ($4C438), Obj_Boulle_1 $F6 ($4C4EE), Sin_Table1 $4D43C ($4C522)
+    [0x4c412, { kind: "bomber", obj: 0xdc, bomb: 0xf6, sin: 0x4d43c }],
+  ]),
   relativeTracks: 0x4c9c4, // $2B58
   absoluteTracks: 0x4cf70, // $2CBA
   animBase: 0x4bce8,

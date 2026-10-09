@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from "vitest";
 import { LevelEngine } from "../src/core/level/engine.ts";
-import { FOREST, type LevelLayout, MARSHES, SEA } from "../src/core/level/layout.ts";
+import { FOREST, type LevelLayout, MARSHES, MOUNTAINS, SEA } from "../src/core/level/layout.ts";
 import { routineManager } from "../src/core/level/routines.ts";
 import { hasAssets, loadAssets } from "./load-assets.ts";
 
@@ -732,5 +732,53 @@ describe.skipIf(!hasAssets)("Neue Gegner-Routinen von Level 3 (ohne Aufnahme)", 
     r.e.ram.setByte(r.a2 + STATUS, 0x0f);
     r.run(1);
     expect([r.e.ram.long(r.a0), r.w(r.bank), r.e.w(MV.quitDelay), r.e.b(MV.cleanUp)]).toEqual([0xffffffff, 0xffff, 25, 0xff]);
+  });
+});
+
+describe.skipIf(!hasAssets)("Gegner-Routinen von Level 4, aus Level 1–3 bekannt (ohne Aufnahme)", () => {
+  // Werte von Hand aus AG_GAME_LMONTAGNES.S, Abbild work/disasm/mountains_rout.txt; keine meldet eine Palette an
+  const MV = MOUNTAINS.vars;
+  const busy = (r: Rout): void => {
+    r.e.setW(MV.routModPalCounter, 1);
+    r.e.setL(MV.routPalPtr, 0x12345678);
+  };
+  const untouched = (r: Rout): number[] => [r.e.w(MV.routModPalCounter), r.e.l(MV.routPalPtr)];
+
+  it("R_Bomber: Sack $DC, alle 24 Durchläufe eine Kugel $F6 auf Sin_Table1 ($4D43C)", () => {
+    const r = start(0x4c412, [], MOUNTAINS);
+    busy(r);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)]).toEqual([596, 288, 0xdc, 15]);
+    r.run(24);
+    const b1 = r.a2 + AWO_LEN;
+    expect([r.w(b1 + OBJ), r.w(b1 + ENERGY)]).toEqual([0xf6, 3]);
+    r.run(1);
+    expect([r.w(b1 + X), r.w(b1 + Y)]).toEqual([596 - 2 * 25 - 30, 428 - r.e.ram.byte(0x4d43c)]);
+    expect(untouched(r)).toEqual([1, 0x12345678]);
+  });
+
+  it("R_Araignee: Spinne $9C ohne Palette, Richtung in Variable +4", () => {
+    const r = start(0x4c368, [200, 3], MOUNTAINS);
+    busy(r);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)]).toEqual([596, 200, 0x9c, 10]);
+    r.run(47);
+    // abwärts 3 je Durchlauf bis y ≥ 340 (200 + 3 · 47 = 341), dann st.b +5
+    expect([r.w(r.a2 + Y), r.w(r.a3 + 4)]).toEqual([341, 0xff]);
+    expect(untouched(r)).toEqual([1, 0x12345678]);
+  });
+
+  it("R_Volant_Missile: Monster $244 ohne Palette; R_Sol_Kamikaze: $4CA", () => {
+    const r = start(0x4bd54, [], MOUNTAINS);
+    busy(r);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)]).toEqual([456, 220, 0x244, 20]);
+    expect(untouched(r)).toEqual([1, 0x12345678]);
+    const k = start(0x4c196, [], MOUNTAINS);
+    busy(k);
+    k.e.setW(MV.sorcererY, 256 + 119);
+    k.run(1);
+    expect([k.w(k.a2 + X), k.w(k.a2 + Y), k.w(k.a2 + OBJ), k.w(k.a2 + ENERGY)]).toEqual([596, 446, 0x4ca, 3]);
+    expect(untouched(k)).toEqual([1, 0x12345678]);
   });
 });

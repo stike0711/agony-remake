@@ -76,13 +76,10 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Level 4 – bekannte Gegner-Routinen** (nächster Cloud-Schritt, Ablauf B, Effort „mittel“; Muster: Schritt „Level 3:
-   bekannte Gegner-Routinen“ im Verlauf): `R_Bomber` `$4C412` (hier hält der Lauf, 211 Bilder nach dem Start),
-   `R_Volant_Missile` `$4BD54`, `R_Sol_Kamikaze` `$4C196`, `R_Araignee` `$4C368` per `diff` gegen
-   `AG_GAME_LMARAIS.S`/`Ag_Game_LMER.s` und Abbild (`work/disasm/mountains_rout.txt`) vergleichen, als Einträge in
-   `MOUNTAINS.routines`. Danach die neuen Routinen `R_Colonne_Flamme` `$4C276`, `R_Sol_Guide` `$4C55C`, `R_Dragon`
-   `$4C710` (Effort „hoch“) und der Endgegner `R_Final` `$4C888` (Effort „hoch“). Level 4 endet mit
-   `ui.level5Stub` (`flow.ts`, `level4`).
+1. **Level 4 – `R_Colonne_Flamme`** (nächster Cloud-Schritt, Ablauf B, Effort „hoch“): `$4C276`
+   (`AG_GAME_LMONTAGNES.S`, Abbild `work/disasm/mountains_rout.txt`); hier hält der Lauf (403 Bilder nach dem Start,
+   WAIT `$140`). Danach `R_Sol_Guide` `$4C55C`, `R_Dragon` `$4C710` (Effort „hoch“) und der Endgegner `R_Final`
+   `$4C888` (Effort „hoch“). Level 4 endet mit `ui.level5Stub` (`flow.ts`, `level4`).
 2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
    [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
 
@@ -194,9 +191,14 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 09.10.2026 | Level 3: `R_Sol_Kamikaze` (Cloud-Session) | mittel | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 | 09.10.2026 | Level 3: Endgegner `R_Final` und Levelende (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 | 09.10.2026 | Level 4: Ladebild, Abbild, Layout, Startliste (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
+| 09.10.2026 | Level 4: bekannte Gegner-Routinen (Cloud-Session) | mittel | – | – | in der Cloud nicht abfragbar; Sitzung nach Neustart des Workers, kein Compact |
 
 ## Verlauf
 
+- **09.10.2026 (Level 4: bekannte Gegner-Routinen, Cloud-Session)** – `R_Bomber`, `R_Volant_Missile`,
+  `R_Sol_Kamikaze`, `R_Araignee` per `diff` und Abbild Befehl für Befehl mit Level 1–3 verglichen, als Einträge in
+  `MOUNTAINS.routines` (keine neuen Felder nötig). Level 4 läuft jetzt bis zum ersten `R_Colonne_Flamme` (403 Bilder).
+  3 neue Kern-Tests, 90 Tests. Gegen das Original ungeprüft. origin/main war schon enthalten.
 - **09.10.2026 (Level 4: Ladebild, Abbild, Layout, Startliste; Cloud-Session)** – `load_mountains` hat denselben Code
   wie `load_marshes` (Bild `$692AE`); der gemeinsame Code von `mountains` ist Befehl für Befehl der von `marshes`
   (Unterschiede nur 80 Teilbilder und Datei `$12` als nächstes Level). Layout `MOUNTAINS` per `derive_layout.py` aus

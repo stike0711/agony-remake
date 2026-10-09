@@ -299,7 +299,14 @@ Startliste liegen in Quelltext-Reihenfolge (Startadressen aus den `START_C`-Eint
 `R_Sol_Kamikaze` `$4C196`, `R_Colonne_Flamme` `$4C276`, `R_Araignee` `$4C368`, `R_Bomber` `$4C412`, `R_Sol_Guide`
 `$4C55C` (mit Parameter, z. B. 256 + 200), `R_Dragon` `$4C710`, `R_Final` `$4C888` (`START_C` bei `WAIT $2300`;
 Disassembly `work/disasm/mountains_rout.txt`). `R_Rapide` steht im Quelltext, wird aber nicht gestartet. Noch nicht
-übertragen: Im Nachbau hält das Level beim ersten `R_Bomber` an (211 Bilder nach dem Start, `level4.test.ts`).
+übertragen: Im Nachbau hält das Level beim ersten `R_Colonne_Flamme` an (403 Bilder nach dem Start,
+`level4.test.ts`).
+
+Aus Level 1–3 bekannt (Quelltext per `diff`, Abbild Befehl für Befehl verglichen, 09.10.2026, gegen das Original
+noch ungeprüft): `R_Bomber` wie Level 1 (Sack `$DC`, Kugel `Obj_Boulle_1` `$F6`, `Sin_Table1` `$4D43C`),
+`R_Araignee` wie Level 2 ohne Palette, Richtung aber in Variable +4 wie Level 1 (`$9C`), `R_Volant_Missile` wie
+Level 3 (ohne Palette, Schuss 2 Pixel je Durchlauf; `$244`/`$25A`, `Obj_Tir_1–8` `$42A`–`$4B4`), `R_Sol_Kamikaze`
+wie Level 3 (`R_SK_Shape` `$4C18A`, `$4CA`).
 
 ### Level 5 – Hochland (`Ag_Game_LPLATEAUX.s`)
 
