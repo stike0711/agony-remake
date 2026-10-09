@@ -6,7 +6,7 @@ import type { Screen } from "./game.ts";
 import { FOREST, MARSHES, MOUNTAINS, SEA } from "./level/layout.ts";
 import { LevelScreen } from "./screens/level.ts";
 import { LevelStub } from "./screens/level-stub.ts";
-import { LOAD_FOREST, LOAD_MARSHES, LOAD_MOUNTAINS, LOAD_SEA, LoadingScreen } from "./screens/loading.ts";
+import { LOAD_FOREST, LOAD_HIGHLANDS, LOAD_MARSHES, LOAD_MOUNTAINS, LOAD_SEA, LoadingScreen } from "./screens/loading.ts";
 import { MenuScreen } from "./screens/menu.ts";
 import { TitleSequence } from "./screens/title.ts";
 
@@ -48,11 +48,11 @@ function level3(shared: Uint8Array): Screen {
 }
 
 function level4(shared: Uint8Array): Screen {
-  // Nach dem Levelende vorläufig der Platzhalter für Level 5 (das Original lädt load_highlands, Abbild mountains
-  // $3A9A: Datei $12)
+  // Nach dem Levelende Ladebild load_highlands (Abbild mountains $3A9A: Datei $12), danach vorläufig der Platzhalter
+  // für Level 5
   return new LevelScreen(MOUNTAINS, {
     gameOver: menu,
-    levelDone: () => new LevelStub(menu, "ui.level5Stub"),
+    levelDone: () => new LoadingScreen(LOAD_HIGHLANDS, () => new LevelStub(menu, "ui.level5Stub")),
     unported: () => new LevelStub(menu, "ui.level4Stub"),
   }, shared);
 }

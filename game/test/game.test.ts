@@ -7,7 +7,7 @@ import { displayChecksum, Replay } from "../src/core/replay.ts";
 import { titleSequence } from "../src/core/flow.ts";
 import { StartGate } from "../src/core/screens/start-gate.ts";
 import { MenuScreen, STORY_FRAMES, STORY_MIN_FRAMES } from "../src/core/screens/menu.ts";
-import { LOAD_FOREST, LOAD_MARSHES, LOAD_MOUNTAINS, LOAD_SEA, LOADING_MIN_FRAMES, LoadingScreen } from "../src/core/screens/loading.ts";
+import { LOAD_FOREST, LOAD_HIGHLANDS, LOAD_MARSHES, LOAD_MOUNTAINS, LOAD_SEA, LOADING_MIN_FRAMES, LoadingScreen } from "../src/core/screens/loading.ts";
 import type { Screen } from "../src/core/game.ts";
 import { PROMPT_ON_FRAMES } from "../src/core/prompt.ts";
 import { CC_PER_LINE } from "../src/core/timing.ts";
@@ -102,7 +102,7 @@ describe.skipIf(!hasAssets)("Game", () => {
     game.tick(input); // Tippen: weiter, Hinweis aus
     expect(game.display.overlay.visible).toBe(false);
   });
-  it.each([["Level 2", LOAD_FOREST], ["Level 3", LOAD_MARSHES], ["Level 4", LOAD_MOUNTAINS]])("Ladebild %s: Bild, Palette eingeblendet, Lademusik, nach Feuer weiter (gegen das Original noch ungeprüft)", (_, level) => {
+  it.each([["Level 2", LOAD_FOREST], ["Level 3", LOAD_MARSHES], ["Level 4", LOAD_MOUNTAINS], ["Level 5", LOAD_HIGHLANDS]])("Ladebild %s: Bild, Palette eingeblendet, Lademusik, nach Feuer weiter (gegen das Original noch ungeprüft)", (_, level) => {
     let entered = 0;
     const next: Screen = { enter: () => { entered++; }, tick: () => {} } as unknown as Screen;
     const loading = new LoadingScreen(level, () => next);

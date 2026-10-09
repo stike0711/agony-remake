@@ -1,7 +1,7 @@
 // Ladebild eines Levels mit Lademusik (bisher Level 1: load_sea, Level 2: load_forest, Level 3: load_marshes, Level 4:
-// load_mountains). Nachbildung von load_sea (Disassembly work/disasm/load_sea_code.txt; die anderen haben denselben
+// load_mountains, Level 5: load_highlands). Nachbildung von load_sea (Disassembly work/disasm/load_sea_code.txt; die anderen haben denselben
 // Code, nur mit verschobenen Adressen, work/disasm/load_forest_code.txt, load_marshes_code.txt,
-// load_mountains_code.txt): Bild zeigen, Palette einblenden, Musik;
+// load_mountains_code.txt, load_highlands_code.txt): Bild zeigen, Palette einblenden, Musik;
 // im Original wird jetzt das Level geladen und entpackt (Crack-Fassung ≈ 88 s), danach Bild und Musik ausblenden
 // und das Level starten. Im Nachbau entfällt die Ladezeit: Mindestdauer, danach weiter mit Feuer (E-025).
 // Takt 0 = erster Bild-Interrupt nach dem Start (mt_init läuft schon in `enter`).
@@ -29,6 +29,8 @@ export const LOAD_FOREST: LevelLoad = { asset: "load.forest", address: 0x66f1a }
 export const LOAD_MARSHES: LevelLoad = { asset: "load.marshes", address: 0x686c4 };
 /** Quelle: load_mountains $61594 */
 export const LOAD_MOUNTAINS: LevelLoad = { asset: "load.mountains", address: 0x692ae };
+/** Quelle: load_highlands $61594 */
+export const LOAD_HIGHLANDS: LevelLoad = { asset: "load.highlands", address: 0x68fce };
 
 export class LoadingScreen implements Screen {
   readonly copper = new CopperPicture();

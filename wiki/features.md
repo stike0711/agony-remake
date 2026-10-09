@@ -76,7 +76,8 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
       von 5 Richtungen auffliegt) übertragen; `R_Dragon` (Drache mit Feuerzunge) übertragen; Endgegner `R_Final`
       (steigt und sinkt, wirft eine Masse aus) und Levelende übertragen, danach `ui.level5Stub` (09.10.2026, gegen das
       Original noch ungeprüft); offen: Prüfung mit einer Aufnahme
-- [ ] Level 5 – Hochland (`LPLATEAUX`)
+- [ ] Level 5 – Hochland (`LPLATEAUX`) – Ladebild `load_highlands` nach dem Levelende von Level 4 übertragen
+      (09.10.2026, gegen das Original ungeprüft); Abbild, Layout, Startliste und Routinen offen
 - [ ] Level 6 – Feuer (`LFEUX`)
 
 ### Grafiktechnik

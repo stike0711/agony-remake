@@ -339,6 +339,47 @@
    ],
    "ehb": true,
    "source": "load_mountains $692AE"
+  },
+  "load.highlands": {
+   "file": "img/load.highlands.idx",
+   "width": 352,
+   "height": 290,
+   "palette": [
+    0,
+    3750,
+    3734,
+    3718,
+    3702,
+    3686,
+    3430,
+    3174,
+    2918,
+    2662,
+    2406,
+    2150,
+    4088,
+    15,
+    3685,
+    3668,
+    3412,
+    3156,
+    2900,
+    2644,
+    2388,
+    2132,
+    1876,
+    1329,
+    1056,
+    1602,
+    3424,
+    3968,
+    4000,
+    2148,
+    2421,
+    2694
+   ],
+   "ehb": true,
+   "source": "load_highlands $68FCE"
   }
  },
  "fonts": {
@@ -842,6 +883,12 @@
    "name": "MOD.Loading_Mountain",
    "length": 24690,
    "source": "load_mountains $6323C"
+  },
+  "load.highlands": {
+   "file": "mod/load.highlands.mod",
+   "name": "loading_highlands",
+   "length": 23954,
+   "source": "load_highlands $6323C"
   }
  },
  "highscores": [

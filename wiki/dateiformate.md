@@ -246,6 +246,9 @@ je Level prüfen):
 - `load_mountains` ✔ (Disassembly `work/disasm/load_mountains_code.txt`): derselbe Code wie `load_marshes`; Modul
   „loading_mountains“ bei `$6323C` (24.690 Byte), Bild `$692AE`, Palette `$7BDBE`, Copperliste `$7BDFE`, Variablen des
   Einblendens `$7BF06`/`$7BF08`, 6 Byte bis zum Dateiende. Der Code lädt danach Datei `$11` (`mountains`).
+- `load_highlands` ✔ (Disassembly `work/disasm/load_highlands_code.txt`): derselbe Code wie `load_mountains`;
+  Bild `$68FCE`, Palette `$7BADE`, Copperliste `$7BB1E`, Variablen des Einblendens `$7BC26`/`$7BC28`. Der Code lädt
+  danach Datei `$13` (`highlands`).
 - Die übrigen Ladebild-Dateien (Level 5–6) noch prüfen.
 
 ## Präsentation (`present`)

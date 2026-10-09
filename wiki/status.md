@@ -77,8 +77,8 @@ Für den aktuellen Meilenstein:
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
 1. **Level 5 – Abbild und Layout** (nächster Cloud-Schritt, Effort „hoch“, Muster: Schritt „Level 4: Ladebild,
-   Abbild, Layout, Startliste“ im Verlauf): Level 4 ist bis zum Levelende übertragen (09.10.2026), danach steht der
-   Platzhalter `ui.level5Stub` (`flow.ts`, `level4`). Ladebild des Hochlands, Abbild mit `derive_layout.py`, Layout,
+   Abbild, Layout, Startliste“ im Verlauf): Nach dem Levelende von Level 4 folgen das Ladebild `load_highlands`
+   (09.10.2026) und der Platzhalter `ui.level5Stub` (`flow.ts`, `level4`). Abbild mit `derive_layout.py`, Layout,
    Pipeline-Blöcke, Startliste (`Ag_Game_LPLATEAUX.s`); dann die Gegner-Routinen (bekannte zuerst, je Schritt
    Ablauf B).
 2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
@@ -197,9 +197,16 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 09.10.2026 | Level 4: `R_Sol_Guide` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 | 09.10.2026 | Level 4: `R_Dragon` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 | 09.10.2026 | Level 4: Endgegner `R_Final` und Levelende (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; Sitzung nach Neustart des Workers, kein Compact |
+| 09.10.2026 | Level 5: Ladebild `load_highlands` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; kleiner Schritt (Budget knapp), kein Compact |
 
 ## Verlauf
 
+- **09.10.2026 (Level 5: Ladebild `load_highlands`, Cloud-Session)** – Kleiner Schritt wegen knappem Budget.
+  `load_highlands` hat denselben Code wie `load_mountains` (Bild `$68FCE`, Palette `$7BADE`, danach Datei `$13`),
+  Disassembly `work/disasm/load_highlands_code.txt`. Pipeline-Eintrag `load.highlands`, `LOAD_HIGHLANDS`; nach dem
+  Levelende von Level 4 folgt jetzt das Ladebild, danach `ui.level5Stub`. Ladebild-Test für Level 5, 95 Tests;
+  Vorschau `work/assets-preview/load.highlands.png` angesehen (plausibel). Gegen das Original ungeprüft. origin/main
+  war schon enthalten.
 - **09.10.2026 (Level 4: Endgegner `R_Final` und Levelende, Cloud-Session)** – Abbild `$4C888` gleich dem Quelltext
   (`finalMontagnes` in `routines.ts`, Eintrag in `MOUNTAINS.routines`): steigt und sinkt, folgt der Eule, wirft alle
   25 Durchläufe eine Masse aus; nach der Explosion `Quit_Delay` 25 und Levelende. `level4.test.ts` spielt bis zum
