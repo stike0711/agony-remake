@@ -21,10 +21,10 @@ const KEYS: Record<string, number> = {
   Escape: BTN_OPTIONS, KeyO: BTN_OPTIONS,
 };
 
-/** Gamepad mit Standard-Belegung: Steuerkreuz 12–15, A/B = Feuer, X/Y = Zauber, Start/Select = Optionen */
+/** Gamepad mit Standard-Belegung: Steuerkreuz 12–15, A/B = Feuer, X/Y = Zauber, Start = Pause, Select = Optionen (E-043) */
 const PAD_BUTTONS: readonly [number, number][] = [
   [12, JOY_UP], [13, JOY_DOWN], [14, JOY_LEFT], [15, JOY_RIGHT],
-  [0, JOY_FIRE], [1, JOY_FIRE], [2, BTN_SPELL], [3, BTN_SPELL], [9, BTN_OPTIONS], [8, BTN_OPTIONS],
+  [0, JOY_FIRE], [1, JOY_FIRE], [2, BTN_SPELL], [3, BTN_SPELL], [9, BTN_PAUSE], [8, BTN_OPTIONS],
 ];
 const PAD_DEADZONE = 0.5;
 
@@ -48,12 +48,18 @@ export class WebInput implements InputSource {
   private readonly stickEl: HTMLElement;
   private readonly knobEl: HTMLElement;
   private readonly optionsEl: HTMLElement;
+  private readonly pauseEl: HTMLElement;
 
-  constructor(surface: HTMLElement, renderer: Renderer, ui: { stick: HTMLElement; knob: HTMLElement; options: HTMLElement }) {
+  constructor(
+    surface: HTMLElement,
+    renderer: Renderer,
+    ui: { stick: HTMLElement; knob: HTMLElement; options: HTMLElement; pause: HTMLElement },
+  ) {
     this.renderer = renderer;
     this.stickEl = ui.stick;
     this.knobEl = ui.knob;
     this.optionsEl = ui.options;
+    this.pauseEl = ui.pause;
 
     window.addEventListener("keydown", (e) => {
       const bit = KEYS[e.code];
@@ -77,6 +83,12 @@ export class WebInput implements InputSource {
       e.stopPropagation();
       e.preventDefault();
       this.latched |= BTN_OPTIONS;
+    });
+    // Pause-Knopf (Touch, E-043): ein Druck wie Taste P
+    this.pauseEl.addEventListener("pointerdown", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      this.latched |= BTN_PAUSE;
     });
   }
 

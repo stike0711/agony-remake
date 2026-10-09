@@ -15,6 +15,11 @@ export const UI_TEXTS = {
     "ui.level2Stub": "LEVEL 2|COMING SOON",
     "ui.level3Stub": "LEVEL 3|COMING SOON",
     "ui.pressFire": "PRESS FIRE",
+    "ui.spellFire": "FIRE MENU",
+    "ui.on": "ON",
+    "ui.off": "OFF",
+    "ui.quit": "QUIT GAME",
+    "ui.quitConfirm": "REALLY QUIT",
   },
   de: {
     "ui.options": "OPTIONEN",
@@ -29,6 +34,11 @@ export const UI_TEXTS = {
     "ui.level2Stub": "LEVEL 2|KOMMT BALD",
     "ui.level3Stub": "LEVEL 3|KOMMT BALD",
     "ui.pressFire": "FEUER DRÜCKEN",
+    "ui.spellFire": "FEUERMENÜ",
+    "ui.on": "AN",
+    "ui.off": "AUS",
+    "ui.quit": "SPIEL BEENDEN",
+    "ui.quitConfirm": "WIRKLICH BEENDEN",
   },
 } as const;
 

@@ -13,6 +13,8 @@ export interface WebElements {
   stick: HTMLElement;
   knob: HTMLElement;
   options: HTMLElement;
+  /** Pause-Knopf (Touch, E-043) */
+  pause: HTMLElement;
 }
 
 export function createWebPlatform(el: WebElements): Platform {

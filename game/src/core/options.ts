@@ -1,6 +1,8 @@
 // Optionsmenü des Remakes (Enhanced-Stufe E0): im Spiel mit der Originalschrift gezeichnet, nicht als HTML,
 // damit es in Browser und App gleich aussieht. Bedienung per Joystick (hoch/runter wählen, links/rechts/Feuer
 // ändern) oder durch Antippen einer Zeile. Während das Menü offen ist, steht das Spiel.
+// Einträge: Sprache, „Feuermenü“ (Zaubermenü mit gehaltenem Feuer, E-043), im Level „Spiel beenden“ mit Rückfrage
+// (zweites Auswählen bestätigt; wirkt wie Esc im Original), Zurück.
 
 import type { TextLine } from "../data/manifest.ts";
 import { WINDOW_WIDTH } from "./display.ts";
@@ -10,8 +12,9 @@ import { BTN_OPTIONS, InputFrame, JOY_DOWN, JOY_FIRE, JOY_LEFT, JOY_RIGHT, JOY_U
 import { OVERLAY_HIGHLIGHT, OVERLAY_PLANES, OVERLAY_TEXT, prepareOverlay } from "./notice.ts";
 
 const ITEM_LANGUAGE = 0;
-const ITEM_BACK = 1;
-const ITEM_COUNT = 2;
+const ITEM_SPELL_FIRE = 1;
+const ITEM_QUIT = 2;
+const ITEM_BACK = 3;
 
 const TITLE_Y = 24;
 const FIRST_ITEM_Y = 104;
@@ -23,12 +26,22 @@ const DIM = 14;
 
 export class OptionsMenu {
   isOpen = false;
-  private selected = ITEM_LANGUAGE;
+  /** Index in `items` */
+  private selected = 0;
+  /** Einträge dieses Öffnens (ITEM_*; „Spiel beenden“ nur, wo der Bildschirm es anbietet) */
+  private readonly items: number[] = [];
+  /** „Spiel beenden“ einmal gewählt: Rückfrage steht */
+  private confirmQuit = false;
   private readonly lines: TextLine[] = [];
 
   open(game: Game): void {
     this.isOpen = true;
-    this.selected = ITEM_LANGUAGE;
+    this.items.length = 0;
+    this.items.push(ITEM_LANGUAGE, ITEM_SPELL_FIRE);
+    if (game.canQuit) this.items.push(ITEM_QUIT);
+    this.items.push(ITEM_BACK);
+    this.selected = 0;
+    this.confirmQuit = false;
     this.draw(game);
   }
 
@@ -43,29 +56,43 @@ export class OptionsMenu {
       this.close(game);
       return;
     }
-    let item = this.selected;
-    if (pressed & JOY_UP) item = (item + ITEM_COUNT - 1) % ITEM_COUNT;
-    if (pressed & JOY_DOWN) item = (item + 1) % ITEM_COUNT;
+    const count = this.items.length;
+    let index = this.selected;
+    if (pressed & JOY_UP) index = (index + count - 1) % count;
+    if (pressed & JOY_DOWN) index = (index + 1) % count;
     let activate = (pressed & JOY_FIRE) !== 0;
     let direction = pressed & JOY_LEFT ? -1 : pressed & JOY_RIGHT ? 1 : 0;
 
     if (input.tapY !== NO_TAP) {
       const hit = this.itemAt(input.tapY);
       if (hit >= 0) {
-        item = hit;
+        index = hit;
         activate = true;
       }
     }
-    if (item !== this.selected) {
-      this.selected = item;
+    if (index !== this.selected) {
+      this.selected = index;
+      this.confirmQuit = false;
       this.draw(game);
     }
 
-    if (this.selected === ITEM_LANGUAGE && (activate || direction !== 0)) {
+    const item = this.items[this.selected];
+    if (item === ITEM_LANGUAGE && (activate || direction !== 0)) {
       if (direction === 0) direction = 1;
       const i = LANGS.indexOf(game.settings.lang);
       game.setLanguage(LANGS[(i + direction + LANGS.length) % LANGS.length]!);
-    } else if (this.selected === ITEM_BACK && activate) {
+    } else if (item === ITEM_SPELL_FIRE && (activate || direction !== 0)) {
+      game.setSpellFire(!(game.settings.spellFire ?? false));
+      this.draw(game);
+    } else if (item === ITEM_QUIT && activate) {
+      if (this.confirmQuit) {
+        this.close(game);
+        game.quit();
+      } else {
+        this.confirmQuit = true;
+        this.draw(game);
+      }
+    } else if (item === ITEM_BACK && activate) {
       this.close(game);
     }
   }
@@ -76,11 +103,8 @@ export class OptionsMenu {
     const center = WINDOW_WIDTH >> 1;
     const line = (text: string, y: number): TextLine => ({ x: center - (font.textWidth(text) >> 1), y, text });
     this.lines.length = 0;
-    this.lines.push(
-      line(t.ui("ui.options"), TITLE_Y),
-      line(`${t.ui("ui.language")}: ${t.ui(game.settings.lang === "de" ? "ui.language.de" : "ui.language.en")}`, this.itemY(ITEM_LANGUAGE)),
-      line(t.ui("ui.back"), this.itemY(ITEM_BACK)),
-    );
+    this.lines.push(line(t.ui("ui.options"), TITLE_Y));
+    for (let i = 0; i < this.items.length; i++) this.lines.push(line(this.itemText(game, this.items[i]!), this.itemY(i)));
     const overlay = game.display.overlay;
     font.drawPage(overlay, this.lines, 0, 0, OVERLAY_PLANES);
     // Gewählte Zeile hervorheben: Schriftfarbe umfärben
@@ -90,12 +114,26 @@ export class OptionsMenu {
     }
   }
 
-  private itemY(item: number): number {
-    return FIRST_ITEM_Y + item * ITEM_PITCH;
+  private itemText(game: Game, item: number): string {
+    const t = game.texts;
+    switch (item) {
+      case ITEM_LANGUAGE:
+        return `${t.ui("ui.language")}: ${t.ui(game.settings.lang === "de" ? "ui.language.de" : "ui.language.en")}`;
+      case ITEM_SPELL_FIRE:
+        return `${t.ui("ui.spellFire")}: ${t.ui(game.settings.spellFire ? "ui.on" : "ui.off")}`;
+      case ITEM_QUIT:
+        return t.ui(this.confirmQuit ? "ui.quitConfirm" : "ui.quit");
+      default:
+        return t.ui("ui.back");
+    }
+  }
+
+  private itemY(index: number): number {
+    return FIRST_ITEM_Y + index * ITEM_PITCH;
   }
 
   private itemAt(y: number): number {
-    for (let i = 0; i < ITEM_COUNT; i++) {
+    for (let i = 0; i < this.items.length; i++) {
       const top = this.itemY(i) - ITEM_PITCH / 4;
       if (y >= top && y < top + ITEM_PITCH) return i;
     }

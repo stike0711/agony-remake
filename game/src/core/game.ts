@@ -22,10 +22,18 @@ export interface Screen {
   tick(game: Game, input: InputFrame): void;
   /** Sprache wurde gewechselt: sichtbaren Text neu zeichnen */
   languageChanged?(game: Game): void;
+  /** Eine Einstellung hat sich geändert (z. B. Zaubermenü mit Feuer) */
+  settingsChanged?(game: Game): void;
+  /** „Spiel beenden“ aus dem Optionsmenü (E-043); nur Bildschirme, die das anbieten (im Level wie Esc) */
+  quit?(game: Game): void;
+  /** Spiel anhalten, weil die App in den Hintergrund geht (E-043; im Level wie Taste P, falls noch keine Pause) */
+  pause?(game: Game): void;
 }
 
 export interface Settings {
   lang: Lang;
+  /** Zaubermenü mit 30 Bilder gehaltenem Feuer öffnen (`Menu_Mode` des Originals, Taste M; E-043), Voreinstellung aus */
+  spellFire?: boolean;
 }
 
 export class Game {
@@ -95,6 +103,29 @@ export class Game {
     if (this.notice) drawNotice(this, this.notice);
     this.promptDrawn = false;
     this.onSettingsChanged?.(this.settings);
+  }
+
+  /** Option „Zaubermenü mit Feuer öffnen“ (E-043) */
+  setSpellFire(on: boolean): void {
+    if (on === (this.settings.spellFire ?? false)) return;
+    this.settings.spellFire = on;
+    this.screen.settingsChanged?.(this);
+    this.onSettingsChanged?.(this.settings);
+  }
+
+  /** Bietet der laufende Bildschirm „Spiel beenden“ an? */
+  get canQuit(): boolean {
+    return this.screen.quit !== undefined;
+  }
+
+  /** „Spiel beenden“ (aus dem Optionsmenü) */
+  quit(): void {
+    this.screen.quit?.(this);
+  }
+
+  /** App geht in den Hintergrund: laufendes Level anhalten (E-043) */
+  pause(): void {
+    this.screen.pause?.(this);
   }
 
   /** Hinweis über dem Bild anzeigen und das Spiel anhalten (z. B. „Gerät drehen“); null = weiter. */

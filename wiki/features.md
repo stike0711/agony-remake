@@ -30,7 +30,8 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
 - [ ] Zwei kreisende Schwerter als Schutz – Äxte mit Kollisionsrechtecken übertragen, ungeprüft (09.10.2026)
 - [ ] Schriftrollen und Zauber-Auswahlmenü (pausiert das Spiel), 8 Zaubersprüche – Zaubermenü (Leertaste bzw.
       Zauber-Knopf, mit Menu_Mode auch Feuer halten) und alle 8 Zauber übertragen, ungeprüft (09.10.2026, E-042)
-- [ ] Pause (Taste P, Feuer beendet sie) – übertragen, ungeprüft (09.10.2026); Pause-Knopf für Touch/Gamepad fehlt
+- [ ] Pause (Taste P, Feuer beendet sie) – übertragen, ungeprüft (09.10.2026); Pause-Knopf für Touch (oben neben dem
+      Zahnrad) und Gamepad (Start), automatische Pause im Hintergrund (E-043, 09.10.2026)
 - [ ] Leben (3), Verlust von Power-ups, Wiedereinstieg mit kurzer Unverwundbarkeit – Tod, Explosion, Schild
       (3 s) und Verlust von Waffenstufe und unterer Axt übertragen und geprüft (07.10.2026)
 - [ ] Punkte, Extraleben – Punkte für Treffer (13) und Abschuss (116) geprüft (`level1_shoot`); Extraleben ab
@@ -100,7 +101,8 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
 - [ ] Bedienlayouts für iPad (etwa 1,33:1 bis 1,43:1), iPhone im Querformat (etwa 2,16:1) und Desktop
 - [x] Zweisprachig Deutsch/Englisch (E-021): Sprachtabellen, Ä/Ö/Ü in der Original-Schrift, Voreinstellung nach
       Gerätesprache, Umschalten zur Laufzeit – siehe [Texte](texte.md)
-- [x] Optionsmenü mit Sprachwahl (E-022), gespeichert über die Speicher-Schnittstelle
+- [x] Optionsmenü mit Sprachwahl (E-022), gespeichert über die Speicher-Schnittstelle; dazu „Feuermenü“ (Zaubermenü mit
+      Feuer, gespeichert) und im Level „Spiel beenden“ mit Rückfrage (E-043, 09.10.2026)
 
 ### Native App (parallel zu Phase 1, sobald ein Mac verfügbar ist)
 

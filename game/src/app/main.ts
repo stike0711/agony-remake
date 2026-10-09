@@ -17,7 +17,7 @@ function loadSettings(storage: KeyValueStore, locale: string): Settings {
   const fallback: Settings = { lang: languageFromLocale(locale) };
   try {
     const saved = JSON.parse(storage.get(SETTINGS_KEY) ?? "null") as Partial<Settings> | null;
-    if (saved && LANGS.includes(saved.lang as never)) return { ...fallback, lang: saved.lang! };
+    if (saved && LANGS.includes(saved.lang as never)) return { ...fallback, lang: saved.lang!, spellFire: saved.spellFire === true };
   } catch {
     // beschädigte Einstellungen ignorieren
   }
@@ -37,6 +37,7 @@ async function main(): Promise<void> {
     stick: element("stick"),
     knob: element("stick-knob"),
     options: element("options-button"),
+    pause: element("pause-button"),
   });
 
   // Ton bei der ersten (und jeder weiteren) Nutzeraktion freischalten; iOS verlangt das innerhalb des Ereignisses
@@ -53,6 +54,8 @@ async function main(): Promise<void> {
 
   const loop = new MainLoop(game, platform);
   platform.lifecycle.onActiveChange((active) => {
+    // App im Hintergrund: laufendes Level anhalten (E-043); zurück bleibt die Pause bis Feuer oder P
+    if (!active) game.pause();
     loop.setActive(active);
     platform.audio.setActive(active);
   });

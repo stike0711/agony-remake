@@ -8,7 +8,8 @@ import { WINDOW_HSTART, WINDOW_VSTART } from "../display.ts";
 import type { Game, Screen } from "../game.ts";
 import type { InputFrame } from "../input.ts";
 import { LevelEngine } from "../level/engine.ts";
-import type { LevelLayout } from "../level/layout.ts";
+import { type LevelLayout, SHARED } from "../level/layout.ts";
+import { KEY_ESC, KEY_P, keyDown, keyUp } from "../level/spells.ts";
 import { DMAF_AUDIO } from "../paula.ts";
 import { firePressed } from "../prompt.ts";
 
@@ -68,10 +69,36 @@ export class LevelScreen implements Screen {
     e.setStatusTexts(game.texts.status(this.layout.file));
     e.start(this.shared);
     this.engineInstance = e;
+    this.settingsChanged(game);
   }
 
   languageChanged(game: Game): void {
     this.engineInstance?.setStatusTexts(game.texts.status(this.layout.file));
+  }
+
+  /** Option „Zaubermenü mit Feuer öffnen“ = Menu_Mode (im Original Taste M, eor #1,Menu_Mode; E-043) */
+  settingsChanged(game: Game): void {
+    this.engineInstance?.ram.setWord(SHARED.menuMode, game.settings.spellFire ? 1 : 0);
+  }
+
+  /** „Spiel beenden“: Taste Esc des Originals (Abbruch, $5E22), gedrückt und losgelassen */
+  quit(): void {
+    this.key(KEY_ESC);
+  }
+
+  /** Hintergrund: Taste P, aber nur ohne laufende Pause (P schaltet um) und nicht im Zaubermenü (dort pausiert es schon) */
+  pause(): void {
+    const e = this.engineInstance;
+    if (!e || e.result || e.unported || e.w(e.V.pause) !== 0) return;
+    this.key(KEY_P);
+  }
+
+  /** Tastatur-Interrupt des Originals zwischen zwei Takten: Taste drücken und loslassen */
+  private key(code: number): void {
+    const e = this.engineInstance;
+    if (!e || e.result || e.unported) return;
+    keyDown(e, code);
+    keyUp(e);
   }
 
   tick(game: Game, input: InputFrame): void {

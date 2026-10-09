@@ -164,6 +164,14 @@ Hilfe- oder Anleitungsseite (Enhanced) und fürs Wiki; Tabelle mit Wirkung in
 | `ui.level2Stub` | LEVEL 2 / COMING SOON | LEVEL 2 / KOMMT BALD |
 | `ui.level3Stub` | LEVEL 3 / COMING SOON | LEVEL 3 / KOMMT BALD |
 | `ui.pressFire` | PRESS FIRE | FEUER DRÜCKEN |
+| `ui.spellFire` | FIRE MENU | FEUERMENÜ |
+| `ui.on` / `ui.off` | ON / OFF | AN / AUS |
+| `ui.quit` | QUIT GAME | SPIEL BEENDEN |
+| `ui.quitConfirm` | REALLY QUIT | WIRKLICH BEENDEN |
+
+Optionsmenü (E-043): „FEUERMENÜ: AN/AUS“ schaltet, ob gehaltenes Feuer das Zaubermenü öffnet (`Menu_Mode`); die
+längere Fassung passte nicht in den Bildausschnitt. „SPIEL BEENDEN“ steht nur im Level; erstes Auswählen zeigt
+„WIRKLICH BEENDEN“, zweites bestätigt. Die Menüschrift hat kein Fragezeichen.
 
 `ui.pressFire` ist der Bedienhinweis an ersetzten Ladezeiten (E-039), gezeichnet in der auf 50 % verkleinerten
 Menüschrift. `ui.levelStub` ist ein vorläufiger Platzhalter an noch nicht übertragenen Stellen von Level 1, `ui.level2Stub` an

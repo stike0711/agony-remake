@@ -463,7 +463,7 @@ Status: **gilt** · **vorgeschlagen** (noch nicht umgesetzt oder bestätigt) · 
 - Die offenen Punkte (Pause für Touch und Gamepad, Esc, M) hat der Nutzer am 09.10.2026 entschieden: E-043.
 
 ### E-043 Pause-Knopf, „Spiel beenden“ und Zaubermenü per Feuer als Option
-- Datum: 09.10.2026 · Status: gilt (vom Nutzer beschlossen), noch nicht umgesetzt
+- Datum: 09.10.2026 · Status: gilt (vom Nutzer beschlossen), umgesetzt 09.10.2026
 - Ergänzt E-042 für Touch, Gamepad und die Tasten Esc/M des Originals:
   - **Pause:** Touch-Knopf klein oben in einer Ecke neben dem Optionsmenü, außerhalb der Daumenzonen; Gamepad über
     die Start-Taste; dazu pausiert das Spiel automatisch, wenn die App in den Hintergrund geht (Sichtbarkeit bzw.
@@ -475,3 +475,9 @@ Status: **gilt** · **vorgeschlagen** (noch nicht umgesetzt oder bestätigt) · 
 - Begründung: Das Verhalten des Originals bleibt vollständig erreichbar, ohne Tasten doppelt zu belegen; auf dem
   Tablet ist die automatische Pause beim Wechsel der App nötig.
 - Texte über Sprachschlüssel (E-021), Deutsch und Englisch.
+- Umsetzung (09.10.2026): Pause-Knopf `#pause-button` links neben dem Zahnrad (nur Touch), Gamepad Start = `BTN_PAUSE`
+  (Select bleibt Optionsmenü); `Game.pause()` beim Wechsel in den Hintergrund löst im Level Taste P nur aus, wenn noch
+  keine Pause läuft (P schaltet sonst um) – während „LET'S GO“ und beim Tod ignoriert das Original P, dann bleibt das
+  Level ungepaust. Optionsmenü: „FEUERMENÜ: AN/AUS“ (Einstellung `spellFire`, gespeichert; der Level-Bildschirm
+  schreibt sie beim Start und bei jeder Änderung nach `Menu_Mode`), „SPIEL BEENDEN“ nur im Level, zweimal wählen
+  (Rückfrage), dann Taste Esc des Originals. Kern-Tests `test/controls.test.ts`.

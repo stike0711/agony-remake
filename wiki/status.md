@@ -74,15 +74,13 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Bedienung nach E-043** (nächster Cloud-Schritt, Effort „mittel“): Pause-Knopf für Touch (oben in einer Ecke)
-   und Gamepad (Start), automatische Pause im Hintergrund, im Optionsmenü „Spiel beenden“ (mit Rückfrage, wie Esc)
-   und die Option „Zaubermenü mit Feuer öffnen“ (`Menu_Mode`, Voreinstellung aus).
-2. **Level 3 – Abbild und Layout** (Effort „hoch“, Muster: Schritt „Level 2: Abbild und Layout“ im Verlauf): Level 2
-   ist bis zum Levelende übertragen (09.10.2026), danach steht der Platzhalter `ui.level3Stub`. Ladebild
+1. **Level 3 – Abbild und Layout** (nächster Cloud-Schritt, Effort „hoch“, Muster: Schritt „Level 2: Abbild und
+   Layout“ im Verlauf): Level 2 ist bis zum Levelende übertragen (09.10.2026), danach steht der Platzhalter
+   `ui.level3Stub`. Ladebild
    `load_marais` (wie `load_forest`), Abbild `marais` mit `tools/analysis/align_levels.py` gegen `sea` ausrichten,
    Layout `MARAIS`, Pipeline-Blöcke, Übergabe der gemeinsamen Variablen; dann die Gegner-Routinen wie in Level 2
    (bekannte zuerst, je Schritt Ablauf B).
-3. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
+2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
    [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
 
 ### Für den PC
@@ -177,6 +175,7 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 08.10.2026 | Bonus (Cloud-Session) | hoch | – | – | wie oben; dieselbe Sitzung |
 | 08.10.2026 | Levelende Level 1 (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung, kein Compact |
 | 09.10.2026 | Zaubermenü, Zauber, Äxte, Pause (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
+| 09.10.2026 | Bedienung nach E-043 (Cloud-Session) | mittel | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
 | 09.10.2026 | Level 2: Abbild und Layout (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
 | 09.10.2026 | Level 2: bekannte Gegner-Routinen (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
 | 09.10.2026 | Level 2: `R_Kamikaze`, `R_Sol_Etoile` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
@@ -184,6 +183,10 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 
 ## Verlauf
 
+- **09.10.2026 (Bedienung nach E-043, Cloud-Session)** – Pause-Knopf für Touch (oben links neben dem Zahnrad) und
+  Gamepad (Start), automatische Pause, wenn die App in den Hintergrund geht (nur ohne laufende Pause), im Optionsmenü
+  „FEUERMENÜ: AN/AUS“ (`Menu_Mode`, gespeichert) und im Level „SPIEL BEENDEN“ mit Rückfrage (wie Esc). Im Browser
+  geprüft (Tablet quer, Touch): Knöpfe und Menü. Kern-Tests `test/controls.test.ts`. 74 Tests.
 - **09.10.2026 (Level 2: Endgegner `R_Final` und Levelende, Cloud-Session)** – Eigener Code, nicht der Endgegner von
   Level 1: Ober- und Unterteil pendeln, das Oberteil wirft alle 18 Durchläufe eine Bumerangwelle, Explosion in vier
   Schritten bis `Clean_Up` (`finalForet` in `routines.ts`, [Level](original/level.md#level-2--wald-ag_game_lforets)).
