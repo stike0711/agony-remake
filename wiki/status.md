@@ -76,10 +76,10 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Level 5 – Abbild und Layout** (nächster Cloud-Schritt, Effort „hoch“, Muster: Schritt „Level 4: Ladebild,
-   Abbild, Layout, Startliste“ im Verlauf): Nach dem Levelende von Level 4 folgen das Ladebild `load_highlands`
-   (09.10.2026) und der Platzhalter `ui.level5Stub` (`flow.ts`, `level4`). Abbild mit `derive_layout.py`, Layout,
-   Pipeline-Blöcke, Startliste (`Ag_Game_LPLATEAUX.s`); dann die Gegner-Routinen (bekannte zuerst, je Schritt
+1. **Level 5 – Gegner-Routinen** (nächster Cloud-Schritt, Effort „hoch“, Ablauf B): Layout `HIGHLANDS` steht
+   (09.10.2026), der Lauf hält bei der ersten Routine `R_Rapide` (`$4FD50`, Bild 115 in `level5.test.ts`), danach
+   `ui.level5Stub`. Routinen aus `Ag_Game_LPLATEAUX.s` „ROUTINES“ disassemblieren (`highlands_rout.txt`), Adressen
+   prüfen, dann die Gegner-Routinen (bekannte zuerst, je Schritt
    Ablauf B).
 2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
    [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
@@ -198,9 +198,20 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 09.10.2026 | Level 4: `R_Dragon` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 | 09.10.2026 | Level 4: Endgegner `R_Final` und Levelende (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; Sitzung nach Neustart des Workers, kein Compact |
 | 09.10.2026 | Level 5: Ladebild `load_highlands` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; kleiner Schritt (Budget knapp), kein Compact |
+| 09.10.2026 | Level 5: Abbild, Layout, Startliste (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; Teilschritt in derselben Sitzung, kein Compact |
 
 ## Verlauf
 
+- **09.10.2026 (Level 5: Abbild, Layout, Startliste; Cloud-Session)** – Der gemeinsame Code von `highlands` ist
+  Befehl für Befehl der von `mountains` (Unterschiede: 87 Teilbilder, `Sky_Count` mit 10 Phasen bei `$1364`, Datei
+  `$14` als nächstes Level). Layout `HIGHLANDS` per `derive_layout.py` aus `MOUNTAINS`, die „~“-Werte von Hand
+  geprüft (Variablen ab `$7082`, alle −`$43E`; `frontPal` über `$A00`; `relativeTracks` = `absoluteTracks`, weil
+  `lPlateaux.rtb` im Quelltext auskommentiert ist). Pipeline-Blöcke `highlands.*` (Himmel 16 Blöcke à 1.440 Byte,
+  `Sky_Anim_Table`), Startliste beginnt mit `WAIT $10`, `START_A DGDP_Full_7c`. Nach dem Ladebild läuft Level 5 bis
+  zur ersten Routine `R_Rapide` (`$4FD50`), danach `ui.level5Stub`; nach dem Levelende von Level 5 `ui.level6Stub`.
+  Neuer Test `level5.test.ts` (97 Tests), `explore-level.ts --highlands`; Bild 13.220 per `--ppm` angesehen (Hochland, Eule,
+  plausibel). Offen: Level 5 nutzt laut `Agony_Parent_.s` die Soundbank `Sound_s.bin` statt `Sound.bin`, im Nachbau
+  noch nicht geprüft. Gegen das Original ungeprüft. origin/main war schon enthalten.
 - **09.10.2026 (Level 5: Ladebild `load_highlands`, Cloud-Session)** – Kleiner Schritt wegen knappem Budget.
   `load_highlands` hat denselben Code wie `load_mountains` (Bild `$68FCE`, Palette `$7BADE`, danach Datei `$13`),
   Disassembly `work/disasm/load_highlands_code.txt`. Pipeline-Eintrag `load.highlands`, `LOAD_HIGHLANDS`; nach dem

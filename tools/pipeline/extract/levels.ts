@@ -1,5 +1,6 @@
-// Level 1 (Meer, Spieldatei sea = Agony.09), Level 2 (Wald, forest = Agony.0B), Level 3 (Sumpf, marshes = Agony.0F)
-// und Level 4 (Berge, mountains = Agony.11), Basis $600: Speicherblöcke für die Level-Engine (E-032).
+// Level 1 (Meer, Spieldatei sea = Agony.09), Level 2 (Wald, forest = Agony.0B), Level 3 (Sumpf, marshes = Agony.0F),
+// Level 4 (Berge, mountains = Agony.11) und Level 5 (Hochland,
+// highlands = Agony.13), Basis $600: Speicherblöcke für die Level-Engine (E-032).
 // Die Engine arbeitet wie das Original auf planaren Daten, Copperlisten und Sprite-Listen an ihren Originaladressen;
 // die Pipeline schneidet nur die nötigen Bereiche aus (ohne Programmcode und ohne Jeroen Tels Musik).
 // Adressen: Wiki dateiformate.md „Level 1 (sea)“; belegt über die Disassembly (work/disasm/sea_code.txt).
@@ -121,6 +122,17 @@ const MOUNTAINS_BLOCKS: Blocks = [
   ["rel", 0x4d548, 0x5cb84, "relative Daten (Rel_Start … Clear_Start) inklusive Copperlisten"],
 ];
 
+// Level 5 (highlands = Agony.13): gemeinsamer Code Befehl für Befehl wie mountains, Grenzen über
+// tools/analysis/derive_layout.py: Sorcerer_Dat $14BF2 ($4500), Sky_Dat $1D8E6 ($13DC; 16 Blöcke à 1440 Byte),
+// Back_Charset $232E6 ($1250), Front_Charset $2F8E6 ($CCE), Rel_Start = $5900C − $8000 ($61E), Clear_Start $6020A ($A08)
+const HIGHLANDS_BLOCKS: Blocks = [
+  ["sprites", 0x14bf2, 0x1d8e6, "Sprites (Main_Char/*.bin): Eule, Schüsse, Bonusse, Gegnerschüsse, Tod"],
+  ["sky", 0x1d8e6, 0x232e6, "statische Ebene (Sky.bin): 16 Blöcke à 40 Zeilen × 36 Byte (animiert)"],
+  ["back", 0x232e6, 0x2f8e6, "Kacheln des hinteren Playfields (Back.bin), 32 × 32 Pixel, 2 Planes"],
+  ["game", 0x2f8e6, 0x5100c, "Front.Bin, Objects.bin/.obj, Strukturen, Level-Modul AG_GAME_LPLATEAUX.S"],
+  ["rel", 0x5100c, 0x6020a, "relative Daten (Rel_Start … Clear_Start) inklusive Copperlisten"],
+];
+
 function word(f: GameFile, address: number): number {
   const o = f.offset(address);
   return (f.data[o]! << 8) | f.data[o + 1]!;
@@ -199,6 +211,19 @@ export function extractLevel4(disks: GameDisks, sink: Sink): ExtractedLevel {
   const out: ExtractedLevel = { memory: {}, tables: {}, previews: [] };
   writeBlocks(f, "mountains", MOUNTAINS_BLOCKS, sink, out);
   backPreview(f, "mountains", 0x4e92e, 0x1fce6, 0x1e664, out);
+  return out;
+}
+
+/** Level 5 (Hochland): Speicherblöcke wie bei Level 1 */
+export function extractLevel5(disks: GameDisks, sink: Sink): ExtractedLevel {
+  const f = disks.get("highlands");
+  check(f, "highlands", "Main_Cl", 0x5e3ba, 0x0120);
+  check(f, "highlands", "Cl_Flip_Phase1", 0x5f2e6, 0x0192);
+  check(f, "highlands", "Back_Pattern", 0x51ffc, 0x0020);
+  check(f, "highlands", "Start_List", 0x4eb0e, 0x0010); // WAIT $10 (Ag_Game_LPLATEAUX.s)
+  const out: ExtractedLevel = { memory: {}, tables: {}, previews: [] };
+  writeBlocks(f, "highlands", HIGHLANDS_BLOCKS, sink, out);
+  backPreview(f, "highlands", 0x523c2, 0x232e6, 0x1d8e6, out);
   return out;
 }
 

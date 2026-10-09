@@ -1830,6 +1830,36 @@
    "address": 316744,
    "length": 63036,
    "source": "mountains $4D548: relative Daten (Rel_Start … Clear_Start) inklusive Copperlisten"
+  },
+  "highlands.sprites": {
+   "file": "level/highlands.sprites.bin",
+   "address": 84978,
+   "length": 36084,
+   "source": "highlands $14BF2: Sprites (Main_Char/*.bin): Eule, Schüsse, Bonusse, Gegnerschüsse, Tod"
+  },
+  "highlands.sky": {
+   "file": "level/highlands.sky.bin",
+   "address": 121062,
+   "length": 23040,
+   "source": "highlands $1D8E6: statische Ebene (Sky.bin): 16 Blöcke à 40 Zeilen × 36 Byte (animiert)"
+  },
+  "highlands.back": {
+   "file": "level/highlands.back.bin",
+   "address": 144102,
+   "length": 50688,
+   "source": "highlands $232E6: Kacheln des hinteren Playfields (Back.bin), 32 × 32 Pixel, 2 Planes"
+  },
+  "highlands.game": {
+   "file": "level/highlands.game.bin",
+   "address": 194790,
+   "length": 136998,
+   "source": "highlands $2F8E6: Front.Bin, Objects.bin/.obj, Strukturen, Level-Modul AG_GAME_LPLATEAUX.S"
+  },
+  "highlands.rel": {
+   "file": "level/highlands.rel.bin",
+   "address": 331788,
+   "length": 61950,
+   "source": "highlands $5100C: relative Daten (Rel_Start … Clear_Start) inklusive Copperlisten"
   }
  }
 }
