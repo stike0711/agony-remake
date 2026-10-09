@@ -89,7 +89,7 @@ Ziffer 0 und Buchstabe O sind dieselbe Glyphe. Kein Bindestrich, keine Umlaute. 
 Dauer (zwei Ziffern vorn, mit Punkt am Ende), 10–13 Meldungen (die gesperrten mit drei Leerzeichen davor); alle
 werden ab Byte 10 der Statuszeile gezeichnet, ohne Zentrierung.
 
-**Ä, Ö, Ü (Codes 44–46)** erzeugt die Asset-Pipeline (`tools/pipeline/extract/level1.ts`, Tabelle `status.extra`
+**Ä, Ö, Ü (Codes 44–46)** erzeugt die Asset-Pipeline (`tools/pipeline/extract/levels.ts`, Tabelle `status.extra`
 im Manifest; Vorschau `work/assets-preview/font.status.png`): Die Originalzeichen füllen alle 16 Zeilen, deshalb wird
 der Grundbuchstabe um 3 Zeilen gestaucht. Dabei fällt jeweils eine Zeile aus der längsten Folge gleicher Zeilen weg
 (gerade Striche). Darüber stehen zwei Punkte à 2 × 2 Pixel (wie beim „!“) und eine Leerzeile.
@@ -162,11 +162,13 @@ Hilfe- oder Anleitungsseite (Enhanced) und fürs Wiki; Tabelle mit Wirkung in
 | `ui.pause` | PAUSE | PAUSE |
 | `ui.levelStub` | LEVEL 1 / COMING SOON | LEVEL 1 / KOMMT BALD |
 | `ui.level2Stub` | LEVEL 2 / COMING SOON | LEVEL 2 / KOMMT BALD |
+| `ui.level3Stub` | LEVEL 3 / COMING SOON | LEVEL 3 / KOMMT BALD |
 | `ui.pressFire` | PRESS FIRE | FEUER DRÜCKEN |
 
 `ui.pressFire` ist der Bedienhinweis an ersetzten Ladezeiten (E-039), gezeichnet in der auf 50 % verkleinerten
-Menüschrift. `ui.levelStub` ist ein vorläufiger Platzhalter an noch nicht übertragenen Stellen von Level 1, `ui.level2Stub` nach
-dem Levelende von Level 1, bis Ladebild und Level 2 nachgebaut sind; beide verschwinden dann.
+Menüschrift. `ui.levelStub` ist ein vorläufiger Platzhalter an noch nicht übertragenen Stellen von Level 1, `ui.level2Stub` an
+solchen Stellen von Level 2 und `ui.level3Stub` nach dem Levelende von Level 2, bis alles nachgebaut ist; alle
+verschwinden dann.
 
 Sprachnamen stehen immer in ihrer eigenen Sprache, damit man sie auch in der falschen Sprache findet. „/“ steht hier
 für einen Zeilenumbruch (im Code `|`): „ZUM STARTEN TIPPEN“ ist mit 360 Pixeln zu breit für eine Zeile.

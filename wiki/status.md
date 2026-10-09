@@ -12,8 +12,8 @@ läuft auf einem Modell der Grafik-Hardware mit dem übertragenen Spielcode (E-0
 Gegner mit eigener Routine, Tod der Eule, Schild beim Wiedereinstieg und Spielende mit Rückkehr ins Menü; ohne
 Eingabe bis nach dem Spielende pixelgenau wie im Emulator, ebenso ein Lauf mit Dauerfeuer, Abschüssen und Ausweichen.
 Alle Gegner-Routinen, Bonus, Zaubermenü mit allen Zaubern, Äxte, Pause und Levelende von Level 1 sind übertragen
-(gegen das Original noch ungeprüft); nach dem Levelende folgt das Ladebild von Level 2, danach vorläufig ein
-Platzhalter. Als Nächstes: Level 2; am PC eine Aufnahme über Bild 14.792 hinaus zur Prüfung des Übertragenen,
+(gegen das Original noch ungeprüft); nach dem Levelende folgen das Ladebild und Level 2 (Abbild und Layout stehen,
+Angriffswellen laufen bis zur ersten Gegner-Routine, danach Platzhalter). Als Nächstes: Gegner-Routinen von Level 2; am PC eine Aufnahme über Bild 14.792 hinaus zur Prüfung des Übertragenen,
 Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist eingeplant, sobald ein
 Mac zur Verfügung steht.
 
@@ -73,9 +73,12 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Level 2 – Wald** (nächster Cloud-Schritt, Ablauf B, Effort „hoch“): Abbild `LFORET` mit der Asset-Pipeline
-   (Speicherblöcke wie Level 1), Layout, Startliste und Routinen von `Ag_Game_LFORET.s`; das Ladebild `load_forest`
-   steht schon (`flow.ts`, danach Platzhalter `ui.level2Stub`). Gegen das Original ungeprüft kennzeichnen.
+1. **Level 2 – Gegner-Routinen** (nächster Cloud-Schritt, Ablauf B, Effort „hoch“): Abbild, Layout und Startliste
+   stehen (`FOREST`); es fehlen die Routinen des Level-Moduls (`work/disasm/forest_rout.txt`, Adressen in
+   [Level](original/level.md#level-2--wald-ag_game_lforets)): zuerst die aus Level 1 bekannten (`R_Spectre` ohne
+   eigene Palette, `R_Tir_Etoile`, `R_Volant_Missile`, `R_Araignee`, `R_Rapide`; Unterschiede im Abbild prüfen),
+   dann neu `R_Kamikaze`, `R_Sol_Etoile` und `R_Final`, dann Levelende → Platzhalter `ui.level3Stub`. Gegen das
+   Original ungeprüft kennzeichnen.
 2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
    [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
 
@@ -166,9 +169,17 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 08.10.2026 | Bonus (Cloud-Session) | hoch | – | – | wie oben; dieselbe Sitzung |
 | 08.10.2026 | Levelende Level 1 (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung, kein Compact |
 | 09.10.2026 | Zaubermenü, Zauber, Äxte, Pause (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
+| 09.10.2026 | Level 2: Abbild und Layout (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
 
 ## Verlauf
 
+- **09.10.2026 (Level 2: Abbild und Layout, Cloud-Session)** – Neues Werkzeug `tools/analysis/align_levels.py`
+  richtet die Disassemblies von `sea` und `forest` Befehl für Befehl aus: Der gemeinsame Code ist bis auf den Regen
+  gleich, daraus alle Werte des Layouts `FOREST` (`layout.ts`). Pipeline (`extract/levels.ts`, vorher `level1.ts`)
+  schneidet die Speicherblöcke von `forest`; Regen nur noch in Level 1 (`LevelLayout.rain`); die gemeinsamen
+  Variablen ab `$1B0` gehen beim Levelende an Level 2 (`LevelExits.levelDone(shared)`). Nach dem Ladebild läuft
+  Level 2 bis zum ersten `R_Kamikaze` (`WAIT $170`), danach Platzhalter. Gegen das Original noch ungeprüft. Neuer
+  Test `test/level2.test.ts`; `explore-level.ts --forest --ppm`. 62 Tests.
 - **09.10.2026 (Zaubermenü, Zauber, Äxte, Pause; Cloud-Session)** – Nach der Disassembly übertragen (`spells.ts`):
   Zaubermenü (ICONES SPRITES: Pfeil, Auswahl, Maske für fehlende Zauber, Start mit Dauer aus `Time_Table`), die Zauber
   0–5 und 7 (Back/Rotative/Forward Fire Ball, Stop Time, Seeker, Smart Bomb, Mega Blast), Kollisionsrechtecke der

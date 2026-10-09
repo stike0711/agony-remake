@@ -36,7 +36,7 @@ export function copperInterrupt(e: LevelEngine): void {
   e.irqWork[IRQ.sprites] = 1;
   sprites(e);
   frontShift(e);
-  rain(e);
+  if (e.L.rain) rain(e); // nur Level 1 hat RAIN im Interrupt ($5AF8)
 }
 
 // ---- Ag_Sprites.s ------------------------------------------------------------------------------

@@ -1599,6 +1599,36 @@
    "address": 330446,
    "length": 64740,
    "source": "sea $50ACE: relative Daten (Rel_Start … Clear_Start) inklusive Copperlisten"
+  },
+  "forest.sprites": {
+   "file": "level/forest.sprites.bin",
+   "address": 86934,
+   "length": 36084,
+   "source": "forest $15396: Sprites (Main_Char/*.bin): Eule, Schüsse, Bonusse, Gegnerschüsse, Tod"
+  },
+  "forest.sky": {
+   "file": "level/forest.sky.bin",
+   "address": 123018,
+   "length": 5760,
+   "source": "forest $1E08A: statische Ebene (Sky.bin): 4 Blöcke à 40 Zeilen × 36 Byte"
+  },
+  "forest.back": {
+   "file": "level/forest.back.bin",
+   "address": 128778,
+   "length": 53120,
+   "source": "forest $1F70A: Kacheln des hinteren Playfields (Back.bin), 32 × 32 Pixel, 2 Planes"
+  },
+  "forest.game": {
+   "file": "level/forest.game.bin",
+   "address": 181898,
+   "length": 132906,
+   "source": "forest $2C68A: Front.Bin, Objects.bin/.obj, Strukturen, Level-Modul Ag_Game_LFORET.s"
+  },
+  "forest.rel": {
+   "file": "level/forest.rel.bin",
+   "address": 314804,
+   "length": 60712,
+   "source": "forest $4CDB4: relative Daten (Rel_Start … Clear_Start) inklusive Copperlisten"
   }
  }
 }

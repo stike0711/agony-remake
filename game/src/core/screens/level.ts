@@ -30,8 +30,11 @@ const EXIT_PROMPT_FRAMES = 50;
 export interface LevelExits {
   /** nach dem Spielende (das Original lädt das Menü `igt`) */
   gameOver: () => Screen;
-  /** nach dem Levelende mit Leben (das Original lädt das Ladebild des nächsten Levels) */
-  levelDone: () => Screen;
+  /**
+   * nach dem Levelende mit Leben (das Original lädt das Ladebild des nächsten Levels); `shared` = gemeinsame Variablen
+   * ab $1B0 für das nächste Level
+   */
+  levelDone: (shared: Uint8Array) => Screen;
   /** an der ersten nicht übertragenen Stelle (vorläufig) */
   unported: () => Screen;
 }
@@ -40,11 +43,14 @@ export class LevelScreen implements Screen {
   private readonly layout: LevelLayout;
   private readonly exits: LevelExits;
   private engineInstance: LevelEngine | null = null;
+  private readonly shared: Uint8Array | undefined;
   private exitFrames = 0;
 
-  constructor(layout: LevelLayout, exits: LevelExits) {
+  /** `shared`: gemeinsame Variablen aus dem vorigen Level (fehlt beim Spielstart aus dem Menü) */
+  constructor(layout: LevelLayout, exits: LevelExits, shared?: Uint8Array) {
     this.layout = layout;
     this.exits = exits;
+    this.shared = shared;
   }
 
   /** Die Engine (für Tests und Fehlersuche) */
@@ -60,7 +66,7 @@ export class LevelScreen implements Screen {
     d.setView(VIEW_X, VIEW_Y, VIEW_WIDTH, VIEW_HEIGHT);
     const e = new LevelEngine(this.layout, game.assets.memory, game.assets.tables.get("status.extra"));
     e.setStatusTexts(game.texts.status(this.layout.file));
-    e.start();
+    e.start(this.shared);
     this.engineInstance = e;
   }
 
@@ -82,7 +88,8 @@ export class LevelScreen implements Screen {
     else if (n > EXIT_PROMPT_FRAMES && n < EXIT_WAIT_FRAMES && firePressed(game)) this.exitFrames = EXIT_WAIT_FRAMES;
     if (this.exitFrames === EXIT_WAIT_FRAMES) game.setPrompt(null);
     if (this.exitFrames === EXIT_FRAMES) {
-      game.setScreen(this.engine.result === "levelDone" ? this.exits.levelDone() : this.exits.gameOver());
+      const e = this.engine;
+      game.setScreen(e.result === "levelDone" ? this.exits.levelDone(e.sharedState()) : this.exits.gameOver());
     }
   }
 }

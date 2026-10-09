@@ -423,7 +423,7 @@ Belegt durch den Nachbau, der damit pixelgenau wie der Emulator zeichnet:
 
 ### Speicherblöcke der Level
 
-Die Asset-Pipeline schneidet je Level diese Bereiche aus dem Abbild (`tools/pipeline/extract/level1.ts`,
+Die Asset-Pipeline schneidet je Level diese Bereiche aus dem Abbild (`tools/pipeline/extract/levels.ts`,
 `manifest.memory`, Dateien `data/level/<level>.<block>.bin`); die Level-Engine legt sie an ihre Adressen (E-032).
 Programmcode und die Musik (Jeroen Tel) sind nicht dabei; nur im Block `game` stehen die Objekt-Routinen des
 Level-Moduls als Bytes mit drin (werden nicht ausgeführt, sondern übertragen).
@@ -435,6 +435,25 @@ Level-Moduls als Bytes mit drin (werden nicht ausgeführt, sondern übertragen).
 | `back` | `$21C34`–`$30F34` | Kacheln hinten |
 | `game` | `$30F34`–`$50ACE` | Kacheln vorn, Objektgrafik, Strukturen, `AF_Struct`, Level-Modul (Startliste, Wellen, Animationen) |
 | `rel` | `$50ACE`–`$607B2` | relative Daten bis zur Copperliste und den Variablen |
+
+Level 2 (`forest`): `sprites` `$15396`–`$1E08A`, `sky` `$1E08A`–`$1F70A`, `back` `$1F70A`–`$2C68A`, `game`
+`$2C68A`–`$4CDB4`, `rel` `$4CDB4`–`$5BADC`.
+
+### Adressen der anderen Level ✔
+
+Alle Level enthalten denselben Code aus `Agony_Parent_.s` und seinen Modulen; nur Daten, Variablen und die
+Routinen des Level-Moduls liegen anders. `tools/analysis/align_levels.py` richtet zwei Disassemblies (gleicher
+Bereich ab `$600` bis vor den Musiktreiber) per Folge der Befehlsnamen aus; daraus folgt für jeden Wert des Layouts
+von Level 1 der Wert im anderen Level (derselbe Befehl, anderer Operand).
+
+- **Level 2 (`forest`, `Agony.0B`):** 12.098 von 12.155 Befehlen zugeordnet. Es fehlen nur der Regen
+  (`st.b Rain_On` bei `$A56` und der Teil RAIN des Copper-Interrupts, `sea` `$5AF8`–`$5BC0`); dazu andere Konstanten
+  bei `Pre_Comp` (86 statt 64 Teilbilder: `move.w #$55,d2` bei `$694`) und beim Laden des nächsten Levels (`#$C`
+  statt `#$A` bei `$3A9A`). `D = a5 = $54DB4`, Variablen ab `a5 + $6BAC` (alle um `−$FBC` gegenüber `sea`),
+  `Front_Pal` `$4F370`, Startliste `$4AF44`, Anim_Base `$4B70E`, Relative_Tracks = Absolute_Tracks `$4C658`,
+  Copperlisten `$599E4`/`$5AA70` (die Copperliste von Level 2 ist anders gegliedert, `Ag_Copper_List.s` Makros
+  `M0_COL`/`M1_COL`), Clear_Start `$5BADC`. Alle Werte: `FOREST` in `game/src/core/level/layout.ts`. Routinen des
+  Level-Moduls `$4B76C`–`$4C658` (`work/disasm/forest_rout.txt`).
 
 ## Angriffswellen-Startliste (Binärformat)
 

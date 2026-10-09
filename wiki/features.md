@@ -51,10 +51,12 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
       übrige Gegner-Routinen samt Endgegner übertragen, gegen das Original noch ungeprüft (`R_Transporteur`,
       `R_Tir_Etoile`, `R_Spectre`, `R_Rapide`, `R_Bomber`, `R_Volant_Grossi`, `R_Jumper`, `R_Volant_Missile`,
       `R_Final`; 08.10.2026, Kern-Tests in `routines.test.ts`); Bonus übertragen, ungeprüft (08.10.2026); Levelende mit
-      Leben übertragen, ungeprüft, danach Ladebild Level 2 und vorläufig Platzhalter „Level 2“ (08.10.2026); Zaubermenü,
+      Leben übertragen, ungeprüft, danach Ladebild Level 2 und Level 2 (08./09.10.2026); Zaubermenü,
       Zauber, Äxte und Pause übertragen, ungeprüft (09.10.2026); offen: Prüfung der neuen Teile mit einer Aufnahme über
       Bild 14792 hinaus
-- [ ] Level 2 – Wald (`LFORET`)
+- [ ] Level 2 – Wald (`LFORET`) – Abbild als Speicherblöcke, Layout über die ausgerichtete Disassembly, ohne Regen;
+      Punkte, Leben, Äxte, Waffe und Zauber aus Level 1 übernommen; Angriffswellen laufen bis zur ersten Gegner-Routine
+      (09.10.2026, gegen das Original noch ungeprüft); offen: Gegner-Routinen, Endgegner, Levelende
 - [ ] Level 3 – Sumpf (`LMARAIS`)
 - [ ] Level 4 – Berge (`LMONTAGNES`)
 - [ ] Level 5 – Hochland (`LPLATEAUX`)

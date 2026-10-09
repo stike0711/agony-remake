@@ -1,4 +1,4 @@
-// Level 1 (Meer, Spieldatei sea = Agony.09, Basis $600): Speicherblöcke für die Level-Engine (E-032).
+// Level 1 (Meer, Spieldatei sea = Agony.09) und Level 2 (Wald, forest = Agony.0B), Basis $600: Speicherblöcke für die Level-Engine (E-032).
 // Die Engine arbeitet wie das Original auf planaren Daten, Copperlisten und Sprite-Listen an ihren Originaladressen;
 // die Pipeline schneidet nur die nötigen Bereiche aus (ohne Programmcode und ohne Jeroen Tels Musik).
 // Adressen: Wiki dateiformate.md „Level 1 (sea)“; belegt über die Disassembly (work/disasm/sea_code.txt).
@@ -68,7 +68,9 @@ function statusUmlauts(rows: (code: number) => number[]): number[] {
 }
 
 /** Bereiche im Abbild: [Schlüssel, von, bis (exklusiv), Inhalt] */
-const BLOCKS: [string, number, number, string][] = [
+type Blocks = [string, number, number, string][];
+
+const SEA_BLOCKS: Blocks = [
   // Quelle: sea $4500 (lea Sorcerer_Dat), Sorcerer2_Dat $1B8F0, Schüsse $1EFC8 ($4798), Alien_Fire_Spr $1FFDC ($5A02);
   // Sky_Dat folgt direkt
   ["sprites", 0x178c0, 0x205b4, "Sprites (Main_Char/*.bin): Eule, Schüsse, Bonusse, Gegnerschüsse, Tod"],
@@ -85,33 +87,86 @@ const BLOCKS: [string, number, number, string][] = [
   ["rel", 0x50ace, 0x607b2, "relative Daten (Rel_Start … Clear_Start) inklusive Copperlisten"],
 ];
 
+// Level 2 (forest = Agony.0B): dieselben Bereiche, Grenzen über die ausgerichtete Disassembly
+// (tools/analysis/align_levels.py): Sorcerer_Dat $15396 ($4500), Sky_Dat $1E08A ($13DC), Back_Charset $1F70A ($1250),
+// Front_Charset $2C68A ($CCE), Rel_Start = $54DB4 − $8000 ($61E), Clear_Start $5BADC ($A08)
+const FOREST_BLOCKS: Blocks = [
+  ["sprites", 0x15396, 0x1e08a, "Sprites (Main_Char/*.bin): Eule, Schüsse, Bonusse, Gegnerschüsse, Tod"],
+  ["sky", 0x1e08a, 0x1f70a, "statische Ebene (Sky.bin): 4 Blöcke à 40 Zeilen × 36 Byte"],
+  ["back", 0x1f70a, 0x2c68a, "Kacheln des hinteren Playfields (Back.bin), 32 × 32 Pixel, 2 Planes"],
+  ["game", 0x2c68a, 0x4cdb4, "Front.Bin, Objects.bin/.obj, Strukturen, Level-Modul Ag_Game_LFORET.s"],
+  ["rel", 0x4cdb4, 0x5badc, "relative Daten (Rel_Start … Clear_Start) inklusive Copperlisten"],
+];
+
 function word(f: GameFile, address: number): number {
   const o = f.offset(address);
   return (f.data[o]! << 8) | f.data[o + 1]!;
 }
 
-function check(f: GameFile, what: string, address: number, expected: number): void {
+function check(f: GameFile, level: string, what: string, address: number, expected: number): void {
   const v = word(f, address);
-  if (v !== expected) throw new Error(`sea: ${what} bei ${hex(address)} ist $${v.toString(16)} statt $${expected.toString(16)}`);
+  if (v !== expected) throw new Error(`${level}: ${what} bei ${hex(address)} ist $${v.toString(16)} statt $${expected.toString(16)}`);
+}
+
+function writeBlocks(f: GameFile, level: string, blocks: Blocks, sink: Sink, out: ExtractedLevel): void {
+  for (const [key, from, to, what] of blocks) {
+    const data = f.at(from, to - from);
+    out.memory[`${level}.${key}`] = { file: sink.write(`level/${level}.${key}.bin`, data), address: from, length: data.length, source: `${level} ${hex(from)}: ${what}` };
+  }
+}
+
+/** Vorschau: alle Kacheln des hinteren Playfields (Farben fest) und der Himmel */
+function backPreview(f: GameFile, level: string, info: number, charset: number, skyDat: number, out: ExtractedLevel): void {
+  const mem = f.data;
+  const count = word(f, info) - 2;
+  const cols = 16;
+  const rows = Math.ceil(count / cols);
+  const tiles = new Uint8Array(cols * 32 * rows * 32);
+  const plane = (address: number, y: number, x: number): number => (mem[f.offset(address) + y * 4 + (x >> 3)]! >> (7 - (x & 7))) & 1;
+  for (let c = 0; c < count; c++) {
+    const mode = mem[f.offset(info + 2 + c)]!;
+    const src = charset + word(f, info + word(f, info) + 2 * c);
+    for (let y = 0; y < 32; y++) {
+      for (let x = 0; x < 32; x++) {
+        // Modus 0: Plane 4 und 6 getrennt, 1: beide gleich, 2: nur Plane 6, 3: nur Plane 4 (Quelle: Ag_Back_Scroll.s)
+        const a = mode === 2 ? 0 : plane(src, y, x);
+        const b = mode === 0 ? plane(src, y + 32, x) : mode === 1 ? a : mode === 2 ? plane(src, y, x) : 0;
+        tiles[((c / cols | 0) * 32 + y) * cols * 32 + (c % cols) * 32 + x] = a + 2 * b;
+      }
+    }
+  }
+  out.previews.push({ key: `${level}.back`, width: cols * 32, height: rows * 32, indices: tiles, palette: [0x000, 0x050, 0x554, 0x143] });
+  const sky = decodePlanar(mem, f.offset(skyDat), { width: 288, height: 160, planes: 1, rowBytes: 36 });
+  out.previews.push({ key: `${level}.sky`, width: 288, height: 160, indices: sky, palette: [0x000, 0x166] });
+}
+
+/** Level 2 (Wald): Speicherblöcke wie bei Level 1 */
+export function extractLevel2(disks: GameDisks, sink: Sink): ExtractedLevel {
+  const f = disks.get("forest");
+  check(f, "forest", "Main_Cl", 0x599e4, 0x0120);
+  check(f, "forest", "Cl_Flip_Phase1", 0x5aa70, 0x0192);
+  check(f, "forest", "Back_Pattern", 0x4d660, 0x0020);
+  check(f, "forest", "Start_List", 0x4af44, 0x0010);
+  const out: ExtractedLevel = { memory: {}, tables: {}, previews: [] };
+  writeBlocks(f, "forest", FOREST_BLOCKS, sink, out);
+  backPreview(f, "forest", 0x4d9fc, 0x1f70a, 0x1e08a, out);
+  return out;
 }
 
 export function extractLevel1(disks: GameDisks, sink: Sink): ExtractedLevel {
   const f = disks.get("sea");
   // Stichproben gegen die Disassembly: Copperliste beginnt mit SPR0PTH, Musterkopf, Kachel-Infos, Startliste
-  check(f, "Main_Cl", 0x5e962, 0x0120);
-  check(f, "Cl_Flip_Phase1", 0x5f88a, 0x0192);
-  check(f, "Back_Pattern", 0x526ee, 0x0020);
-  check(f, "Back_Char_Info", 0x52bae, 0x00f8);
-  check(f, "Start_List", 0x4e0c6, 0x0040);
+  check(f, "sea", "Main_Cl", 0x5e962, 0x0120);
+  check(f, "sea", "Cl_Flip_Phase1", 0x5f88a, 0x0192);
+  check(f, "sea", "Back_Pattern", 0x526ee, 0x0020);
+  check(f, "sea", "Back_Char_Info", 0x52bae, 0x00f8);
+  check(f, "sea", "Start_List", 0x4e0c6, 0x0040);
 
   const out: ExtractedLevel = { memory: {}, tables: {}, previews: [] };
-  for (const [key, from, to, what] of BLOCKS) {
-    const data = f.at(from, to - from);
-    out.memory[`sea.${key}`] = { file: sink.write(`level/sea.${key}.bin`, data), address: from, length: data.length, source: `sea ${hex(from)}: ${what}` };
-  }
+  writeBlocks(f, "sea", SEA_BLOCKS, sink, out);
 
   const glyphRows = (code: number): number[] => Array.from(f.at(STATUS_DIGIT + 16 * code, 16));
-  check(f, "Status_Digit (A)", STATUS_DIGIT + 16 * 11, 0x3838);
+  check(f, "sea", "Status_Digit (A)", STATUS_DIGIT + 16 * 11, 0x3838);
   const extra = statusUmlauts(glyphRows);
   out.tables["status.extra"] = extra;
   // Vorschau der Statusschrift: Originalzeichen, dann die ergänzten
@@ -123,28 +178,6 @@ export function extractLevel1(disks: GameDisks, sink: Sink): ExtractedLevel {
   }
   out.previews.push({ key: "font.status", width: glyphs * 8, height: 16, indices: font, palette: [0x000, 0xfff] });
 
-  // Vorschau: alle Kacheln des hinteren Playfields mit den Farben des ersten Musters (Band 0) und der Himmel
-  const mem = f.data;
-  const info = 0x52bae;
-  const count = word(f, info) - 2;
-  const cols = 16;
-  const rows = Math.ceil(count / cols);
-  const tiles = new Uint8Array(cols * 32 * rows * 32);
-  const plane = (address: number, y: number, x: number): number => (mem[f.offset(address) + y * 4 + (x >> 3)]! >> (7 - (x & 7))) & 1;
-  for (let c = 0; c < count; c++) {
-    const mode = mem[f.offset(info + 2 + c)]!;
-    const src = 0x21c34 + word(f, info + word(f, info) + 2 * c);
-    for (let y = 0; y < 32; y++) {
-      for (let x = 0; x < 32; x++) {
-        // Modus 0: Plane 4 und 6 getrennt, 1: beide gleich, 2: nur Plane 6, 3: nur Plane 4 (Quelle: Ag_Back_Scroll.s)
-        const a = mode === 2 ? 0 : plane(src, y, x);
-        const b = mode === 0 ? plane(src, y + 32, x) : mode === 1 ? a : mode === 2 ? plane(src, y, x) : 0;
-        tiles[((c / cols | 0) * 32 + y) * cols * 32 + (c % cols) * 32 + x] = a + 2 * b;
-      }
-    }
-  }
-  out.previews.push({ key: "sea.back", width: cols * 32, height: rows * 32, indices: tiles, palette: [0x000, 0x050, 0x554, 0x143] });
-  const sky = decodePlanar(mem, f.offset(0x205b4), { width: 288, height: 160, planes: 1, rowBytes: 36 });
-  out.previews.push({ key: "sea.sky", width: 288, height: 160, indices: sky, palette: [0x000, 0x166] });
+  backPreview(f, "sea", 0x52bae, 0x21c34, 0x205b4, out);
   return out;
 }

@@ -13,6 +13,7 @@ export const UI_TEXTS = {
     "ui.pause": "PAUSE",
     "ui.levelStub": "LEVEL 1|COMING SOON",
     "ui.level2Stub": "LEVEL 2|COMING SOON",
+    "ui.level3Stub": "LEVEL 3|COMING SOON",
     "ui.pressFire": "PRESS FIRE",
   },
   de: {
@@ -26,6 +27,7 @@ export const UI_TEXTS = {
     "ui.pause": "PAUSE",
     "ui.levelStub": "LEVEL 1|KOMMT BALD",
     "ui.level2Stub": "LEVEL 2|KOMMT BALD",
+    "ui.level3Stub": "LEVEL 3|KOMMT BALD",
     "ui.pressFire": "FEUER DRÜCKEN",
   },
 } as const;

@@ -178,6 +178,11 @@ Levels wieder her.
 `…_Bestiolle_1–5`, `R_Kamikaze`, `R_Sol_Etoile`, `R_Tir_Etoile`, `…_Batman` (fledermausartig ❓),
 `R_Volant_missile`, `R_Final`, `Demo_Page` (9, nur im Demo-Modus).
 
+✔ Startliste im Abbild (`$4AF44`, 116 Einträge, letzter `WAIT $22F0` startet `R_Final`). Routinen nach Adresse:
+`R_Spectre` `$4B76C`, `R_Tir_Etoile` `$4B964`, `R_Volant_Missile` `$4BB60`, `R_Araignee` `$4BEE4`, `R_Rapide`
+`$4BFA2`, `R_Kamikaze` `$4C048` (erster Start bei `WAIT $170`), `R_Sol_Etoile` `$4C160`, `R_Final` `$4C39E`. Level 2
+hat keinen Regen. Die Startliste enthält ein `WAIT $E00` nach `WAIT $E40` (wirkt sofort, da `Level_X` schon größer ist).
+
 ### Level 3 – Sumpf (`AG_GAME_LMARAIS.S`, Wellen-Parameter in `lmarais_rtr.s`)
 
 🌐 Laut einer Rezension hat ein Endgegner einen blitzschnellen, sofort tödlichen Zungenangriff (Zuordnung zu

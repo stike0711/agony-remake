@@ -34,7 +34,7 @@ import { alienFire } from "./alien-fire.ts";
 import { frontScroll } from "./front-scroll.ts";
 import { copperInterrupt } from "./interrupt.ts";
 import type { LevelLayout, LevelVars } from "./layout.ts";
-import { SHARED } from "./layout.ts";
+import { SHARED, SHARED_LENGTH, SHARED_START } from "./layout.ts";
 import { objects, precompute } from "./objects.ts";
 import { colisionTest, paletteCtrl, playability } from "./playability.ts";
 import { routineManager } from "./routines.ts";
@@ -162,6 +162,13 @@ export class LevelEngine {
     }
   }
 
+  /** Kopie der gemeinsamen Variablen ab $1B0 (für das nächste Level nach EXIT LEVEL) */
+  sharedState(): Uint8Array {
+    const out = new Uint8Array(SHARED_LENGTH);
+    for (let i = 0; i < SHARED_LENGTH; i++) out[i] = this.ram.byte(SHARED_START + i);
+    return out;
+  }
+
   /**
    * Sprache der Statuszeile wechseln (E-021): `texts` = übersetzte Texte 1 … n, null = Original. Steht gerade ein
    * Text, wird er sofort neu gezeichnet.
@@ -214,13 +221,19 @@ export class LevelEngine {
    * Zustand wie beim Sprung nach $600: gemeinsame Variablen aus dem Menü (Spielstart), dann die Initialisierung des
    * Levels bis „LET'S GO“. Danach zeigt das nächste Bild schon die Copperliste des Levels.
    */
-  start(): void {
+  start(shared?: Uint8Array): void {
     const { ram, L, V } = this;
-    // Menü beim Spielstart: Score 0, Life %111, $1BA–$1D5 gelöscht (Wiki dateiformate.md „Gemeinsame Variablen“)
-    ram.setLong(SHARED.score, 0);
-    ram.setWord(SHARED.life, 0b111);
-    ram.clear(SHARED.axeUpOn, 0x1d6);
-    ram.setLong(SHARED.menuMode, 0);
+    if (shared) {
+      // Folgelevel: Der Block ab $1B0 liegt unterhalb von $600 und bleibt beim Laden des nächsten Levels erhalten
+      // (Punkte, Leben, Äxte, Waffe, Zauber; Quelle: Agony_Parent_.s „EXIT LEVEL“, DISK/load.s „RESIDENT LABEL“)
+      for (let i = 0; i < SHARED_LENGTH; i++) ram.setByte(SHARED_START + i, shared[i]!);
+    } else {
+      // Menü beim Spielstart: Score 0, Life %111, $1BA–$1D5 gelöscht (Wiki dateiformate.md „Gemeinsame Variablen“)
+      ram.setLong(SHARED.score, 0);
+      ram.setWord(SHARED.life, 0b111);
+      ram.clear(SHARED.axeUpOn, 0x1d6);
+      ram.setLong(SHARED.menuMode, 0);
+    }
 
     // $600–$66E: Interrupts und DMA aus, Copper auf Dummy-Liste, Audio-Init (Ton folgt später)
     this.video.write(DMACON, 0x7fff);
@@ -282,7 +295,7 @@ export class LevelEngine {
     this.setW(V.axeDownY, 160 + 256);
     this.setB(V.curentSpell + 1, 0xff); // st Curent_Spell+1
     this.setW(V.statusDelay, 18);
-    this.setB(V.rainOn, 0xff); // $A56: st.b Rain_On (Level 1)
+    if (L.rain) this.setB(V.rainOn, 0xff); // $A56: st.b Rain_On (nur Level 1)
     ram.clear(L.frontScreens, L.clearEnd);
     this.setW(V.textNum, 13); // „PRESS FIRE TO START“
     this.setW(V.textDelay, 0xffff);

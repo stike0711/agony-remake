@@ -272,6 +272,8 @@ export interface LevelLayout {
   /** Priorität je Soundeffekt */
   soundPri: number;
   startList: number;
+  /** Regen (Sprite 6/7) vorhanden: nur Level 1 setzt Rain_On ($A56) und hat RAIN im Copper-Interrupt */
+  rain: boolean;
   rainXTable: number;
   rainSpr0: number;
   rainSpr1: number;
@@ -308,6 +310,10 @@ export interface LevelLayout {
   backScreen1: number;
   clearEnd: number;
 }
+
+/** Block der gemeinsamen Variablen: $1B0 (Mem_Config) bis einschließlich Menu_Mode ($1E2, L) */
+export const SHARED_START = 0x1b0;
+export const SHARED_LENGTH = 0x1e6 - 0x1b0;
 
 /** Gemeinsame Variablen ab $1B0 (Quelle: DISK/load.s „RESIDENT LABEL“, Wiki dateiformate.md) */
 export const SHARED = {
@@ -452,6 +458,7 @@ export const SEA: LevelLayout = {
   afLfo: 0x5e5d2, // $37E6: lea $5B04(a5)
   soundPri: 0x55af6, // $5C26: lea -$2FD8(a5)
   startList: 0x4e0c6, // $9D2
+  rain: true,
   rainXTable: 0x55436, // $5B1A: lea -$3698(a5)
   rainSpr0: 0x554f6, // $5B22: lea -$35D8(a5)
   rainSpr1: 0x557f6, // $5B7E: lea -$32D8(a5)
@@ -487,4 +494,151 @@ export const SEA: LevelLayout = {
   backScreen0: 0x73f3a, // $7FC
   backScreen1: 0x7993a, // $804
   clearEnd: 0x7f33a, // $A60
+};
+
+/**
+ * Level 2 – Wald (forest, Agony.0B). Der gemeinsame Code ist bis auf den fehlenden Regen ($A56, $5AF8–$5BC0 in sea)
+ * Befehl für Befehl derselbe wie in sea; alle Werte stammen aus der ausgerichteten Disassembly
+ * (tools/analysis/align_levels.py, work/disasm/forest_code.txt): je Wert derselbe Befehl wie bei SEA, Adressen in den
+ * Kommentaren dort. Variablen ab a5 + $6BAC, D = $54DB4 ($61E).
+ */
+export const FOREST: LevelLayout = {
+  file: "forest",
+  blocks: ["forest.sprites", "forest.sky", "forest.back", "forest.game", "forest.rel"],
+  d: 0x54db4,
+  vars: {
+    genPhase: 0x6bac, curBackBuild: 0x6bae, curBackShow: 0x6bb2, curFrontBuild: 0x6bb6, curFrontShow: 0x6bba,
+    restScreenPtr: 0x6bbe, backPhase: 0x6bc2, backConfig: 0x6bc4, patPtr: 0x6bc6, pat0: 0x6bca,
+    backShift: 0x6bf4, frontShift: 0x6bf6, frontShiftPhase: 0x6bf8, refreshFrame: 0x6bfa, skyCount: 0x6bfc,
+    backOldOff: 0x6bfe, frontPhase: 0x6c00, frontReadPtr: 0x6c02, frontPalPtr: 0x6c06, frontPalCount: 0x6c0a,
+    safeDestOff: 0x6c0e, safeDestPtr: 0x6c12, safeSrcPtr: 0x6c16,
+    sorcererX: 0x6c1a, sorcererY: 0x6c1c, sorcererShape: 0x6c1e, sorcererDelay: 0x6c20,
+    axeUpX: 0x6c22, axeUpY: 0x6c24, axeDownX: 0x6c26, axeDownY: 0x6c28, axeDelay: 0x6c2a, axeMove: 0x6c2c,
+    oldScore: 0x6c2e, point: 0x6c32, spellTime: 0x6c36, oldSpellTime: 0x6c38, oldLife: 0x6c3a,
+    fwFireStep: 0x6c40, fwFirePhase: 0x6c42, fwFireOff: 0x6c44, key: 0x6c46, keyUpFlag: 0x6c48,
+    pause: 0x6c4a, pause2: 0x6c4c, prgPause: 0x6c4e, stop: 0x6c50, stop2: 0x6c52,
+    textNum: 0x6c54, oldTextNum: 0x6c56, textDelay: 0x6c58, refreshStatus: 0x6c5a, statusDelay: 0x6c5c,
+    iconesMode: 0x6c5e, fireCount: 0x6c60, iconesOff: 0x6c62, curentSpell: 0x6c6a, spellTimeDelay: 0x6c70,
+    rainXOff0: 0x6c72, rainXOff1: 0x6c74, dmTa: 0x6c76, apTa: 0x6c78, mbl: 0x6c7c, bmTa: 0x6c7e, sTs: 0x6c80,
+    curentAwoPtr: 0x6c82, alienAwoCount: 0x6c86, curentAlienNum: 0x6c88, curentBankPtr: 0x6c8a, startListPtr: 0x6c8e, levelX: 0x6c92, slWaiting: 0x6c94,
+    refreshPal: 0x6c96, vdoSInc: 0x6c98, flashPhase: 0x6c9a, curExploState: 0x6c9c, oldVpos: 0x6ca0, shortPhase: 0x6ca2, rainOn: 0x6ca4, sorcerer2Shape: 0x6cb4,
+    sorcererOn: 0x6cb6, die: 0x6cc6, dieMode: 0x6cc8, dieX: 0x6cca, dieY: 0x6ccc, routPalPtr: 0x6cce, routModPalCounter: 0x6cd2, bonusMode: 0x6cd6, bonusDelay: 0x6cd8, bonusX: 0x6cda, bonusY: 0x6cdc, sprPtrB: 0x6ce0,
+    sound0: 0x6d00, sound0b: 0x6d02, sound0Req: 0x6d04, sound0Vol: 0x6d06, sound0VolReq: 0x6d08, sound0IntStep: 0x6d0a,
+    sound0LastPri: 0x6d0c,
+    quitDelay: 0x6d0e, afOff: 0x6d10, beginToStart: 0x6d20, btsDelay: 0x6d22, cleanUp: 0x6d24,
+
+    rFAwoPtr1: 0x6d14, rFAwoPtr2: 0x6d18, rFAwoPtr3: 0x6d1c,
+
+
+    bonusAnim: 0x6cd4, bonusNum: 0x6cde, spellPri: -0x30a8, bonusShape: -0x2f86, bonusImage: -0x2f7e, spr6pt: 0x138,
+    spr7pt: 0x13c,
+
+    arowY: 0x6c64, arowDown: 0x6c66, arowUp: 0x6c68, safeCurSpell: 0x6c6c, iconesFireUp: 0x6c6e, selectionOn: 0x6d12,
+    iconesPal: -0x37e8, iconesSpr: -0x43e8, arowSpr: -0x37c8, maskSpr: -0x36b8, timeTable: -0x3098,
+
+    sorcerer2X: 0x6cb0, sorcerer2Y: 0x6cb2, backFbX0: 0x6ca8, backFbX1: 0x6caa, backFbSpr0: -0x2cac, backFbSpr1: -0x2c20,
+    rotStep: 0x6ca6, rotTable: -0x2f66, fball3Spr0: -0x2eb4, fball3Spr1: -0x2db0, timeY: 0x6cc4, timeStep: 0x6cc2,
+    timeYTable: -0x3088, timeSpr: -0x4ac, smartBX: 0x6cb8, smartBStep: 0x6cba, smartBStepH: 0x6cbc, smartBStepHC: 0x6cbe,
+    smartBSpr: -0x2b94, megaBX: 0x6cc0, megaBSpr: -0xe20, fwFbX0: 0x6cac, fwFbX1: 0x6cae, sinTable: -0x2ed6,
+    clBplCon0: 0x4d7e,
+  },
+
+  sorcererDat: 0x15396,
+  sorcerer2Dat: 0x193c6,
+  sorcererPal: 0x50940,
+  emptySpr: 0x50968,
+  bonusSpr: 0x1ce32,
+  dieTable: 0x5590c,
+  dieDynPtr: 0x55ef8,
+  dieSpr: 0x1dc66,
+  axeTraj: 0x5096c,
+  alienFireSpr: 0x1dab2,
+  afStruct: 0x4ae44,
+  awoStruct: 0x576fc,
+  awoStructEnd: 0x58f7c,
+  routStruct: 0x59664,
+  goodColList: 0x59442,
+  skyDat: 0x1e08a,
+  backCharset: 0x1f70a,
+  backFrame: 0x4cdb4,
+  backPattern: 0x4d660,
+  backCharInfo: 0x4d9fc,
+  readTable: 0x4dcd8,
+  backOldChar: 0x4e188,
+  x60: 0x4e368,
+  writeTable: 0x4e468,
+  skyAnimTable: 0x4e4e0,
+  skyPhases: 1,
+  frontMap: 0x4e4e8,
+  frontPal: 0x4f370, // $A00: Front_Pal − 6·7·2 = $4F31C
+  frontCharset: 0x2c68a,
+  frontPalBuffer: 0x4fd9c,
+  frontTable: 0x4fdf0,
+  x384: 0x4fdfc,
+  frontMask: 0x501fc,
+  trackTable: 0x59402,
+
+  // Quelle: Ag_Game_LFORET.s „ROUTINES“; Startliste ab $4AF44 startet $4B76C, $4B964, $4BB60, $4BEE4, $4BFA2, $4C048,
+  // $4C160 und $4C39E (Disassembly work/disasm/forest_rout.txt)
+  routines: new Map<number, RoutineDef>([
+  ]),
+  relativeTracks: 0x4c658,
+  absoluteTracks: 0x4c658,
+  animBase: 0x4b70e,
+  objectsStruct: 0x49de2,
+  spritesStruct: 0x56e40,
+  spritesCount: 86, // $694: move.w #$55,d2
+  spritesBitmap: 0x3c70a,
+  spritesMask: 0x4838a,
+  blitRoutines: 0x5917c,
+  maskRoutines: 0x591ac,
+  vcRoutines: 0x591dc,
+  hcRoutines: 0x5920c,
+  cBlitMaskBuff: 0x58f7c,
+  x44: 0x5923c,
+  fwmConv: 0x593be,
+  lwmConv: 0x593e0,
+  exploSprList: 0x59482,
+  bsCount: 0x594a0,
+  bsOffset: 0x5956a,
+  bsOrder: 0x59634,
+  afLfo: 0x59654,
+  soundPri: 0x5093c,
+  startList: 0x4af44,
+  rain: false,
+  rainXTable: 0,
+  rainSpr0: 0,
+  rainSpr1: 0,
+  statusScreenDisp: 0x55f18,
+  statusScreen: 0x564bc,
+  statusDigit: 0x56a60,
+  textDat: 0x56d20,
+
+  mainCl: 0x599e4,
+  clFlipPhase0: 0x59b68,
+  clFlipPhase1: 0x5aa70,
+  clFlipJump0: 0x5aa62,
+  clFlipJump1: 0x5b952,
+  sprPtr: 0x599e6,
+  backPtr: 0x59a26,
+  statusPtr: 0x59a76,
+  frontPtr: 0x59b3e,
+  videoShift: 0x59b62,
+  skyPtr0: 0x59b56,
+  skyPtr: [[0x59db2, 0x5acb6], [0x5a002, 0x5af06], [0x5a252, 0x5b15a], [0x5a57a, 0x5b46a], [0x5a856, 0x5b746]],
+  backColor0: 0x59a36,
+  frontColor0: [0x59b12, 0x59b2a],
+  frontColor: [
+    [0x59d96, 0x5ac9a, 0x59dc2, 0x5acc6],
+    [0x59fe6, 0x5aeea, 0x5a012, 0x5af16],
+    [0x5a236, 0x5b13e, 0x5a262, 0x5b16a],
+    [0x5a55e, 0x5b44e, 0x5a58a, 0x5b47a],
+    [0x5a83a, 0x5b72a, 0x5a866, 0x5b756],
+  ],
+  backColor: [[0x59d7e, 0x5ac82], [0x59fce, 0x5aed2], [0x5a21e, 0x5b126], [0x5a546, 0x5b436], [0x5a822, 0x5b712]],
+
+  frontScreens: 0x5badc,
+  backScreen0: 0x6f264,
+  backScreen1: 0x74c64,
+  clearEnd: 0x7a664,
 };
