@@ -238,6 +238,14 @@ Level 3 unsicher).
 `…_Monster`, `Rond_Monster` (rund), `R_Sol_Crache`, `R_Spectre`, `R_Sol_Etoile`, `R_Tir_Etoile`,
 `R_Volant_missile`, `R_Transporteur`, 19 relative Bahnen `Awsrt0–18`, `R_Final`.
 
+✔ Abbild `marshes` (Startliste `$4E74E` gegen den Quelltext geprüft): Die Startliste beginnt mit drei Wellen
+(`START_A` `DGDP_Monster_3` bei `WAIT $10`, `DGMS_Monster` `$60`, `DGMP_Monster` `$100`), dann drei `R_Rapide` ab
+`WAIT $140`. Die 11 Gegner-Routinen liegen in Quelltext-Reihenfolge (Startadressen aus den `START_C`-Einträgen):
+`R_Spectre` `$4EF2A`, `R_Tir_Etoile` `$4F122`, `R_Volant_Missile` `$4F30A`, `R_Rapide` `$4F6A2`, `R_Kamikaze`
+`$4F740`, `R_Transporteur` `$4F878`, `R_Sol_Crache` `$4FA22`, `R_Sol_Etoile` `$4FB7A`, `R_Jumper` `$4FCD0`,
+`R_Sol_Kamikaze` `$4FD7C`, `R_Final` `$4FE74` (Disassembly `work/disasm/marshes_rout.txt`). Noch nicht übertragen:
+Im Nachbau hält das Level beim ersten `R_Rapide` an (403 Bilder nach dem Start, `level3.test.ts`).
+
 ### Level 4 – Berge (`AG_GAME_LMONTAGNES.S`, Wellen-Parameter in `lmontagnes_rtr.s`)
 
 🌐 Eine wackelige Hängebrücke über einem Abgrund, dahinter ein Baum; Ruinen und Wasserfälle.

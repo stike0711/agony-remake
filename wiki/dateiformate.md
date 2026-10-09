@@ -239,7 +239,11 @@ je Level prüfen):
   Modul „loading_forest“ bei `$6323C` (15.582 Byte), Bild `$66F1A`, Palette `$79A2A`, Copperliste `$79A6A`; die
   Variablen des Einblendens liegen bei `$79B72`/`$79B74` (bei `load_sea` `$7B6B0`/`$7B6B2`), dahinter 6 statt 4 Byte
   bis zum Dateiende. Pipeline: Tabelle `LOAD_SCREENS` in `tools/pipeline/extract/startsequence.ts`.
-- Die übrigen Ladebild-Dateien (Level 3–6) noch prüfen.
+- `load_marshes` ✔ (Disassembly `work/disasm/load_marshes_code.txt`): derselbe Code wie `load_forest`; Modul
+  „loading_marshes“ bei `$6323C` (21.640 Byte), Bild `$686C4`, Palette `$7B1D4`, Copperliste `$7B214`, Variablen des
+  Einblendens `$7B31C`/`$7B31E`, 6 Byte bis zum Dateiende. Die ersten 4 Byte des Bilds (`ffd55540`) löscht `mt_init`
+  (O-001).
+- Die übrigen Ladebild-Dateien (Level 4–6) noch prüfen.
 
 ## Präsentation (`present`)
 
@@ -439,6 +443,9 @@ Level-Moduls als Bytes mit drin (werden nicht ausgeführt, sondern übertragen).
 Level 2 (`forest`): `sprites` `$15396`–`$1E08A`, `sky` `$1E08A`–`$1F70A`, `back` `$1F70A`–`$2C68A`, `game`
 `$2C68A`–`$4CDB4`, `rel` `$4CDB4`–`$5BADC`.
 
+Level 3 (`marshes`): `sprites` `$164F2`–`$1F1E6`, `sky` `$1F1E6`–`$20866`, `back` `$20866`–`$30766`, `game`
+`$30766`–`$51370`, `rel` `$51370`–`$60530`.
+
 ### Adressen der anderen Level ✔
 
 Alle Level enthalten denselben Code aus `Agony_Parent_.s` und seinen Modulen; nur Daten, Variablen und die
@@ -454,6 +461,14 @@ von Level 1 der Wert im anderen Level (derselbe Befehl, anderer Operand).
   Copperlisten `$599E4`/`$5AA70` (die Copperliste von Level 2 ist anders gegliedert, `Ag_Copper_List.s` Makros
   `M0_COL`/`M1_COL`), Clear_Start `$5BADC`. Alle Werte: `FOREST` in `game/src/core/level/layout.ts`. Routinen des
   Level-Moduls `$4B76C`–`$4C658` (`work/disasm/forest_rout.txt`).
+- **Level 3 (`marshes`, `Agony.0F`):** Der gemeinsame Code (`$600`–`$5E1C`) ist Befehl für Befehl derselbe wie in
+  `forest` (gleiche Adressen, nur andere Operanden); also ebenfalls ohne Regen. Sonst anders: `Pre_Comp` mit 79
+  Teilbildern (`move.w #$4E,d2` bei `$694`) und das Laden des nächsten Levels (`#$10` = `load_mountains` bei `$3A9A`).
+  `tools/analysis/derive_layout.py` überträgt alle Werte von `FOREST` (Selbsttest `SEA` → `FOREST` stimmt bis auf
+  Regen und Teilbildzahl): `D = a5 = $59370`, Variablen ab `a5 + $7044` (alle um `+$498` gegenüber `forest`),
+  `Front_Pal` `$53E7A`, Startliste `$4E74E`, Anim_Base `$4EEF0`, Relative_Tracks `$50000` und Absolute_Tracks
+  `$50B7C` (hier getrennt), Copperlisten `$5E438`/`$5F4C4`, Clear_Start `$60530`. Alle Werte: `MARSHES` in
+  `layout.ts`. Routinen des Level-Moduls `$4EF2A`–`$50000` (`work/disasm/marshes_rout.txt`).
 
 ## Angriffswellen-Startliste (Binärformat)
 

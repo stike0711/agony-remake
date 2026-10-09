@@ -1,4 +1,5 @@
-// Level 1 (Meer, Spieldatei sea = Agony.09) und Level 2 (Wald, forest = Agony.0B), Basis $600: Speicherblöcke für die Level-Engine (E-032).
+// Level 1 (Meer, Spieldatei sea = Agony.09), Level 2 (Wald, forest = Agony.0B) und Level 3 (Sumpf, marshes = Agony.0F),
+// Basis $600: Speicherblöcke für die Level-Engine (E-032).
 // Die Engine arbeitet wie das Original auf planaren Daten, Copperlisten und Sprite-Listen an ihren Originaladressen;
 // die Pipeline schneidet nur die nötigen Bereiche aus (ohne Programmcode und ohne Jeroen Tels Musik).
 // Adressen: Wiki dateiformate.md „Level 1 (sea)“; belegt über die Disassembly (work/disasm/sea_code.txt).
@@ -98,6 +99,17 @@ const FOREST_BLOCKS: Blocks = [
   ["rel", 0x4cdb4, 0x5badc, "relative Daten (Rel_Start … Clear_Start) inklusive Copperlisten"],
 ];
 
+// Level 3 (marshes = Agony.0F): gemeinsamer Code Befehl für Befehl wie forest, Grenzen über
+// tools/analysis/derive_layout.py: Sorcerer_Dat $164F2 ($4500), Sky_Dat $1F1E6 ($13DC), Back_Charset $20866 ($1250),
+// Front_Charset $30766 ($CCE), Rel_Start = $59370 − $8000 ($61E), Clear_Start $60530 ($A08)
+const MARSHES_BLOCKS: Blocks = [
+  ["sprites", 0x164f2, 0x1f1e6, "Sprites (Main_Char/*.bin): Eule, Schüsse, Bonusse, Gegnerschüsse, Tod"],
+  ["sky", 0x1f1e6, 0x20866, "statische Ebene (Sky.bin): 4 Blöcke à 40 Zeilen × 36 Byte"],
+  ["back", 0x20866, 0x30766, "Kacheln des hinteren Playfields (Back.bin), 32 × 32 Pixel, 2 Planes"],
+  ["game", 0x30766, 0x51370, "Front.Bin, Objects.bin/.obj, Strukturen, Level-Modul AG_GAME_LMARAIS.S"],
+  ["rel", 0x51370, 0x60530, "relative Daten (Rel_Start … Clear_Start) inklusive Copperlisten"],
+];
+
 function word(f: GameFile, address: number): number {
   const o = f.offset(address);
   return (f.data[o]! << 8) | f.data[o + 1]!;
@@ -150,6 +162,19 @@ export function extractLevel2(disks: GameDisks, sink: Sink): ExtractedLevel {
   const out: ExtractedLevel = { memory: {}, tables: {}, previews: [] };
   writeBlocks(f, "forest", FOREST_BLOCKS, sink, out);
   backPreview(f, "forest", 0x4d9fc, 0x1f70a, 0x1e08a, out);
+  return out;
+}
+
+/** Level 3 (Sumpf): Speicherblöcke wie bei Level 1 */
+export function extractLevel3(disks: GameDisks, sink: Sink): ExtractedLevel {
+  const f = disks.get("marshes");
+  check(f, "marshes", "Main_Cl", 0x5e438, 0x0120);
+  check(f, "marshes", "Cl_Flip_Phase1", 0x5f4c4, 0x0192);
+  check(f, "marshes", "Back_Pattern", 0x520cc, 0x0020);
+  check(f, "marshes", "Start_List", 0x4e74e, 0x0010);
+  const out: ExtractedLevel = { memory: {}, tables: {}, previews: [] };
+  writeBlocks(f, "marshes", MARSHES_BLOCKS, sink, out);
+  backPreview(f, "marshes", 0x524e0, 0x20866, 0x1f1e6, out);
   return out;
 }
 

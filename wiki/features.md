@@ -15,7 +15,7 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
       Original-Schrift, Highscore-Tabelle, Spielstart per Feuer, Story-Seite, Cheat „FANTASY“ – alles außer dem
       Cheat umgesetzt und bildgenau geprüft (06.10.2026)
 - [ ] Ladebilder vor jedem Level (6 Gemälde von Franck Sauer) mit Lademusik – Level 1 umgesetzt und geprüft, Level 2
-      umgesetzt, gegen das Original noch ungeprüft (08.10.2026)
+      umgesetzt, gegen das Original noch ungeprüft (08.10.2026); Level 3 ebenso (09.10.2026)
 - [ ] Highscore-Liste (6 Einträge) inklusive Namenseingabe und Speichern – Anzeige im Menü steht
 - [ ] Spielende (`ending`) mit Musik
 - [ ] Game Over und Rückkehr ins Menü – „GAME OVER“, stehendes Level, dann das Menü (07.10.2026, E-036); offen:
@@ -62,7 +62,11 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
       ungeprüft); neue Routinen `R_Kamikaze` und `R_Sol_Etoile` übertragen (09.10.2026, ungeprüft); Endgegner
       `R_Final` (eigener Code mit Bumerangwellen) übertragen, das Level läuft bis zum Levelende, danach Platzhalter
       für Level 3 (09.10.2026, ungeprüft); offen: Prüfung mit einer Aufnahme, Ladebild Level 2 prüfen
-- [ ] Level 3 – Sumpf (`LMARAIS`)
+- [ ] Level 3 – Sumpf (`LMARAIS`) – Ladebild `load_marshes`, Abbild `marshes` als Speicherblöcke, Layout per
+      `derive_layout.py` aus Level 2 übertragen (gemeinsamer Code Befehl für Befehl gleich), ohne Regen; gemeinsame
+      Variablen aus Level 2; Angriffswellen laufen bis zur ersten Gegner-Routine (`R_Rapide`, WAIT `$140`)
+      (09.10.2026, gegen das Original noch ungeprüft); offen: 11 Gegner-Routinen samt Endgegner, Prüfung mit einer
+      Aufnahme
 - [ ] Level 4 – Berge (`LMONTAGNES`)
 - [ ] Level 5 – Hochland (`LPLATEAUX`)
 - [ ] Level 6 – Feuer (`LFEUX`)

@@ -1,4 +1,5 @@
-// Assets der Startsequenz: Titelsequenz (present), Menü (igt), Ladebilder (load_sea, load_forest), Highscores (Agony.00).
+// Assets der Startsequenz: Titelsequenz (present), Menü (igt), Ladebilder (load_sea, load_forest, load_marshes),
+// Highscores (Agony.00).
 // Adressen und Formate: Wiki dateiformate.md; Abläufe: Wiki original/startsequenz.md.
 
 import type { FontAsset, HighscoreEntry, ImageAsset, ModuleAsset, SampleAsset, TextLine } from "../../../game/src/data/manifest.ts";
@@ -208,12 +209,13 @@ function extractMenu(out: Extracted, sink: Sink, disks: GameDisks): void {
 
 // ---- Ladebilder (load_<level>, Basis $61500) ----------------------------------------------------
 
-// Alle Ladebild-Dateien haben denselben Code, nur mit verschobenen Adressen (Disassembly
-// work/disasm/load_sea_code.txt und load_forest_code.txt): Modul bei $6323C (Quelle: mt_init $61F32), Bild direkt
-// hinter dem Modul (Quelle: Zeiger bei $61594), Palette direkt hinter dem Bild (Quelle: Einblenden $61600).
+// Alle Ladebild-Dateien haben denselben Code, nur mit verschobenen Adressen (Disassembly work/disasm/load_sea_code.txt,
+// load_forest_code.txt und load_marshes_code.txt): Modul bei $6323C (Quelle: mt_init $61F32), Bild direkt hinter dem
+// Modul (Quelle: Zeiger bei $61594), Palette direkt hinter dem Bild (Quelle: Einblenden $61600).
 const LOAD_SCREENS = [
   { file: "load_sea", key: "load.sea", image: 0x68a58 }, // Quelle: load_sea $61594, Palette $7B568
   { file: "load_forest", key: "load.forest", image: 0x66f1a }, // Quelle: load_forest $61594, Palette $79A2A
+  { file: "load_marshes", key: "load.marshes", image: 0x686c4 }, // Quelle: load_marshes $61594, Palette $7B1D4
 ] as const;
 
 function extractLoadScreens(out: Extracted, sink: Sink, disks: GameDisks): void {

@@ -13,8 +13,8 @@ Gegner mit eigener Routine, Tod der Eule, Schild beim Wiedereinstieg und Spielen
 Eingabe bis nach dem Spielende pixelgenau wie im Emulator, ebenso ein Lauf mit Dauerfeuer, Abschüssen und Ausweichen.
 Alle Gegner-Routinen, Bonus, Zaubermenü mit allen Zaubern, Äxte, Pause und Levelende von Level 1 sind übertragen
 (gegen das Original noch ungeprüft); nach dem Levelende folgen das Ladebild und Level 2 (Abbild und Layout stehen,
-alle Gegner-Routinen samt Endgegner sind übertragen, das Level läuft bis zum Levelende, danach Platzhalter für
-Level 3). Als Nächstes: Bedienung nach E-043, dann Level 3; am PC Aufnahmen von Level 1 über Bild 14.792 hinaus und
+alle Gegner-Routinen samt Endgegner sind übertragen, das Level läuft bis zum Levelende), danach Ladebild und Level 3
+(Abbild und Layout stehen, das Level läuft bis zur ersten Gegner-Routine). Als Nächstes: Gegner-Routinen von Level 3; am PC Aufnahmen von Level 1 über Bild 14.792 hinaus und
 von Level 2 zur Prüfung des Übertragenen, Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist
 eingeplant, sobald ein Mac zur Verfügung steht.
 
@@ -29,8 +29,8 @@ eingeplant, sobald ein Mac zur Verfügung steht.
 | 3. Referenz-Emulator mit den ADFs und Kickstart 1.3 einrichten | ✅ erledigt | vAmigaWeb als A500 (OCS, 512 + 512 KB), schrittweise steuerbar, siehe [Setup](setup.md#referenz-emulator) |
 | 4. Asset-Pipeline: Spieldateien entpacken; Grafiken, Paletten, Angriffswellen, Sounds und Musik extrahieren | 🟡 begonnen | Disketten ausgelesen, alle 15 Spieldateien entpackt, Lade- und Startadressen bestimmt; Titelbilder, Menübild, Menüschrift, Texttabelle und Ladebilder 1–2 lokalisiert und mit Python-Prototypen pixelgenau dekodiert; Startliste von Level 1 dekodiert. Pipeline in TypeScript für die Startsequenz fertig (`tools/pipeline/`); Level-Daten fehlen noch |
 | 5. Web-Grundgerüst: Spielschleife, Renderer, Eingabe, Audio, Build nach `server/` | ✅ erledigt | 06.10.2026, [Architektur → Umsetzung](architektur.md#umsetzung-web-grundgerüst); ProTracker-Abspieler inzwischen auch; offen: Vollbild, Tests auf echten Geräten |
-| 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026; übrige Gegner-Routinen, Bonus und Levelende übertragen, ungeprüft (08.10.2026); Level 2 bis zum Levelende übertragen, ungeprüft (09.10.2026) |
-| 7. Titel/Intro, Menü, Ladebilder, Highscore und Spielende; Gesamtabgleich und Bugfixing | 🟡 begonnen | Titelsequenz, Menü, Story-Seite, Ladebild Level 1 fertig und geprüft (06.10.2026); Ladebild Level 2 übertragen, ungeprüft (08.10.2026); offen: Namenseingabe, Cheat, Ladebilder 3–6, Spielende |
+| 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026; übrige Gegner-Routinen, Bonus und Levelende übertragen, ungeprüft (08.10.2026); Level 2 bis zum Levelende übertragen, ungeprüft (09.10.2026); Level 3 bis zur ersten Gegner-Routine, ungeprüft (09.10.2026) |
+| 7. Titel/Intro, Menü, Ladebilder, Highscore und Spielende; Gesamtabgleich und Bugfixing | 🟡 begonnen | Titelsequenz, Menü, Story-Seite, Ladebild Level 1 fertig und geprüft (06.10.2026); Ladebilder Level 2 und 3 übertragen, ungeprüft (08./09.10.2026); offen: Namenseingabe, Cheat, Ladebilder 4–6, Spielende |
 
 ### Aktueller Meilenstein: Start bis Level 1
 
@@ -74,12 +74,13 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Level 3 – Abbild und Layout** (nächster Cloud-Schritt, Effort „hoch“, Muster: Schritt „Level 2: Abbild und
-   Layout“ im Verlauf): Level 2 ist bis zum Levelende übertragen (09.10.2026), danach steht der Platzhalter
-   `ui.level3Stub`. Ladebild
-   `load_marais` (wie `load_forest`), Abbild `marais` mit `tools/analysis/align_levels.py` gegen `sea` ausrichten,
-   Layout `MARAIS`, Pipeline-Blöcke, Übergabe der gemeinsamen Variablen; dann die Gegner-Routinen wie in Level 2
-   (bekannte zuerst, je Schritt Ablauf B).
+1. **Level 3 – Gegner-Routinen** (nächster Cloud-Schritt, Ablauf B, Muster: Level 2 im Verlauf): Abbild, Layout
+   und Ladebild stehen (09.10.2026); der Lauf hält beim ersten `R_Rapide` (`$4F6A2`, `level3.test.ts`). Adressen aller
+   11 Routinen in [Level](original/level.md#level-3--sumpf-ag_game_lmaraiss-wellen-parameter-in-lmarais_rtrs),
+   Disassembly `work/disasm/marshes_rout.txt`. Zuerst die bekannten (`R_Rapide`, `R_Spectre`, `R_Tir_Etoile`,
+   `R_Volant_Missile`, `R_Kamikaze`, `R_Transporteur`, `R_Sol_Crache`, `R_Sol_Etoile`, `R_Jumper`) mit Quelltext und
+   Abbild vergleichen und als Einträge in `MARSHES.routines` (Effort „mittel“, Unterschiede als Felder der `…Def`-Typen),
+   dann die neue `R_Sol_Kamikaze` und der Endgegner `R_Final` (Effort „hoch“, je ein Schritt).
 2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
    [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
 
@@ -87,9 +88,10 @@ Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im 
 
 Braucht Emulator, Aufnahmen, Messungen oder Geräte (je mit Empfehlung):
 
-- **Ladebild Level 2 prüfen** (Ablauf C, Effort „mittel“, kann mit der Aufnahme über Bild 14.792 hinaus zusammen
-  laufen): nach `levelDone` die ersten ≈ 100 Bilder von `load_forest` aufnehmen (Bild, Palette beim Einblenden,
-  Lademusik) und mit `LoadingScreen(LOAD_FOREST)` vergleichen wie bei `load_sea`.
+- **Ladebilder Level 2 und 3 prüfen** (Ablauf C, Effort „mittel“, kann mit der Aufnahme über Bild 14.792 hinaus
+  zusammen laufen): nach `levelDone` die ersten ≈ 100 Bilder von `load_forest` bzw. `load_marshes` aufnehmen (Bild,
+  Palette beim Einblenden, Lademusik) und mit `LoadingScreen(LOAD_FOREST)` bzw. `LOAD_MARSHES` vergleichen wie bei
+  `load_sea`.
 - **Level 2 aufnehmen** (Ablauf C, Effort „hoch“; `R_Final` ist seit 09.10.2026 übertragen): Level 2 ist ganz ohne
   Aufnahme übertragen. Im Emulator Level 2 direkt starten (Schnappschuss nach dem Ladebild, oder Level 1 mit Cheat bzw. per
   Poke überspringen), mit Dauerfeuer und Bewegungsmuster wie `explore-level.ts --forest`, Leben aufgefüllt; Bilder
@@ -180,9 +182,17 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 09.10.2026 | Level 2: bekannte Gegner-Routinen (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
 | 09.10.2026 | Level 2: `R_Kamikaze`, `R_Sol_Etoile` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
 | 09.10.2026 | Level 2: Endgegner `R_Final` und Levelende (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
+| 09.10.2026 | Level 3: Ladebild, Abbild, Layout, Startliste (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 
 ## Verlauf
 
+- **09.10.2026 (Level 3: Ladebild, Abbild, Layout, Startliste; Cloud-Session)** – `load_marshes` hat denselben Code wie
+  `load_forest` (Bild `$686C4`); `marshes` hat denselben gemeinsamen Code wie `forest`, Befehl für Befehl. Neues
+  Werkzeug `tools/analysis/derive_layout.py` überträgt ein Layout über die ausgerichteten Operanden (Selbsttest
+  `SEA` → `FOREST` stimmt bis auf Regen und Teilbildzahl); daraus `MARSHES` (`layout.ts`), Pipeline-Blöcke
+  `marshes.*`. Nach dem Levelende von Level 2 folgen Ladebild und Level 3 mit den gemeinsamen Variablen; der Lauf
+  hält beim ersten `R_Rapide`, danach `ui.level3Stub`. Neuer Test `test/level3.test.ts`, Ladebild-Test für beide
+  Level; `explore-level.ts --marshes`. 77 Tests. Gegen das Original ungeprüft. Vorher origin/main übernommen.
 - **09.10.2026 (Bedienung nach E-043, Cloud-Session)** – Pause-Knopf für Touch (oben links neben dem Zahnrad) und
   Gamepad (Start), automatische Pause, wenn die App in den Hintergrund geht (nur ohne laufende Pause), im Optionsmenü
   „FEUERMENÜ: AN/AUS“ (`Menu_Mode`, gespeichert) und im Level „SPIEL BEENDEN“ mit Rückfrage (wie Esc). Im Browser

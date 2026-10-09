@@ -9,7 +9,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { MANIFEST_FORMAT, type Manifest } from "../../game/src/data/manifest.ts";
-import { extractLevel1, extractLevel2 } from "./extract/levels.ts";
+import { extractLevel1, extractLevel2, extractLevel3 } from "./extract/levels.ts";
 import { extractStartSequence, type Sink } from "./extract/startsequence.ts";
 import { GameDisks } from "./lib/gamefiles.ts";
 import { expandEhb, rgb12 } from "./lib/planar.ts";
@@ -48,6 +48,7 @@ const disks = new GameDisks(ADF_DIR);
 const start = extractStartSequence(disks, sink);
 const level1 = extractLevel1(disks, sink);
 const level2 = extractLevel2(disks, sink);
+const level3 = extractLevel3(disks, sink);
 
 const manifest: Manifest = {
   format: MANIFEST_FORMAT,
@@ -59,7 +60,7 @@ const manifest: Manifest = {
   modules: start.modules,
   highscores: start.highscores,
   tables: { ...start.tables, ...level1.tables },
-  memory: { ...level1.memory, ...level2.memory },
+  memory: { ...level1.memory, ...level2.memory, ...level3.memory },
 };
 const json = JSON.stringify(manifest, null, 1) + "\n";
 writeFile(join(DATA_DIR, "manifest.json"), json);
@@ -69,7 +70,7 @@ if (preview) {
     const palette = (p.ehb ? expandEhb(p.palette) : p.palette).map(rgb12);
     writeFile(join(PREVIEW_DIR, `${p.key}.png`), encodeIndexedPng(p.width, p.height, p.indices, palette));
   }
-  for (const p of [...level1.previews, ...level2.previews]) {
+  for (const p of [...level1.previews, ...level2.previews, ...level3.previews]) {
     writeFile(join(PREVIEW_DIR, `${p.key}.png`), encodeIndexedPng(p.width, p.height, p.indices, p.palette.map(rgb12)));
   }
   for (const [key, s] of Object.entries(start.samples)) {

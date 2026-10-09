@@ -257,6 +257,47 @@
    ],
    "ehb": true,
    "source": "load_forest $66F1A"
+  },
+  "load.marshes": {
+   "file": "img/load.marshes.idx",
+   "width": 352,
+   "height": 290,
+   "palette": [
+    0,
+    4095,
+    3566,
+    3277,
+    3004,
+    2475,
+    2202,
+    1929,
+    1656,
+    1382,
+    1366,
+    1092,
+    819,
+    1362,
+    1379,
+    1907,
+    3565,
+    3018,
+    2471,
+    1925,
+    1635,
+    1927,
+    2200,
+    2473,
+    2438,
+    1892,
+    1347,
+    1074,
+    801,
+    1620,
+    4027,
+    2935
+   ],
+   "ehb": true,
+   "source": "load_marshes $686C4"
   }
  },
  "fonts": {
@@ -748,6 +789,12 @@
    "name": "loading_forest",
    "length": 15582,
    "source": "load_forest $6323C"
+  },
+  "load.marshes": {
+   "file": "mod/load.marshes.mod",
+   "name": "loading_marshes",
+   "length": 21640,
+   "source": "load_marshes $6323C"
   }
  },
  "highscores": [
@@ -1629,6 +1676,36 @@
    "address": 314804,
    "length": 60712,
    "source": "forest $4CDB4: relative Daten (Rel_Start … Clear_Start) inklusive Copperlisten"
+  },
+  "marshes.sprites": {
+   "file": "level/marshes.sprites.bin",
+   "address": 91378,
+   "length": 36084,
+   "source": "marshes $164F2: Sprites (Main_Char/*.bin): Eule, Schüsse, Bonusse, Gegnerschüsse, Tod"
+  },
+  "marshes.sky": {
+   "file": "level/marshes.sky.bin",
+   "address": 127462,
+   "length": 5760,
+   "source": "marshes $1F1E6: statische Ebene (Sky.bin): 4 Blöcke à 40 Zeilen × 36 Byte"
+  },
+  "marshes.back": {
+   "file": "level/marshes.back.bin",
+   "address": 133222,
+   "length": 65280,
+   "source": "marshes $20866: Kacheln des hinteren Playfields (Back.bin), 32 × 32 Pixel, 2 Planes"
+  },
+  "marshes.game": {
+   "file": "level/marshes.game.bin",
+   "address": 198502,
+   "length": 134154,
+   "source": "marshes $30766: Front.Bin, Objects.bin/.obj, Strukturen, Level-Modul AG_GAME_LMARAIS.S"
+  },
+  "marshes.rel": {
+   "file": "level/marshes.rel.bin",
+   "address": 332656,
+   "length": 61888,
+   "source": "marshes $51370: relative Daten (Rel_Start … Clear_Start) inklusive Copperlisten"
   }
  }
 }

@@ -309,7 +309,9 @@ python tools/analysis/pp20.py work/adf/agony-3 work/unpacked
 | `tools/analysis/find_in_file.py <chip.bin> <datei> <adr …>` | sucht Speicherbereiche des Abzugs in einer Spieldatei und nennt die Ladeadresse |
 | `tools/analysis/planar.py <datei> <offset> <b> <h> <planes> --pal <offset> [--ehb]` | dekodiert Amiga-Bitplanes zu PNG |
 | `tools/analysis/compare_capture.py <bild.png> <aufnahme.rgb> <index> [--at x,y] [--rows y0,y1]` | sucht ein Bild in einer Aufnahme (Lowres oder Interlace) und vergleicht pixelgenau auf 12-Bit-Farbebene |
-| `tools/analysis/disasm68k.py <datei> <ladeadresse> <von> <bis> [--hex] [--out datei]` | disassembliert 68000-Code (Capstone); Ausgaben bisher in `work/disasm/` (`present_code.txt`, `igt_code.txt`, `load_sea_code.txt`) |
+| `tools/analysis/disasm68k.py <datei> <ladeadresse> <von> <bis> [--hex] [--out datei]` | disassembliert 68000-Code (Capstone); Ausgaben in `work/disasm/` (Level-Code: `<level>_code.txt` mit `0x600 0x600 0x6200`, Routinen des Level-Moduls `<level>_rout.txt`) |
+| `tools/analysis/align_levels.py <disasm A> <disasm B> [--out tsv] [--diff]` | richtet die Disassemblies zweier Level Befehl für Befehl aus (gemeinsamer Code) |
+| `tools/analysis/derive_layout.py <disasm A> <disasm B> game/src/core/level/layout.ts <NAME A> [--emit datei] [--compare NAME B]` | überträgt ein Level-Layout über die ausgerichteten Operanden auf ein anderes Level; `--emit` schreibt den TypeScript-Block, `--compare` prüft gegen ein vorhandenes Layout (Selbsttest: `SEA` → `FOREST` weicht nur bei Regen und `spritesCount` ab). Kennzeichen: `=` eindeutig, `~` über den nächsten Wert (prüfen), `?` von Hand |
 
 Alle finden den Projektordner selbst bzw. arbeiten mit übergebenen Pfaden. Sie sind Prototypen für die spätere
 Asset-Pipeline.

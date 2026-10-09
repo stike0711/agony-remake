@@ -2,18 +2,18 @@
 // Planungs-Bots, Leben jedes Bild aufgefüllt (wie die Aufnahme level1_music_timing), bis die Engine anhält oder das
 // Level endet. Meldet Tode, Starts von Gegner-Routinen, Bonusse, den Beginn des Levelendes (Quit_Delay) und den Grund
 // des Anhaltens.
-// Mit --forest läuft Level 2 (Bild 13112 = erstes Bild des Levels wie bei Level 1, Startzustand wie aus dem Menü);
+// Mit --forest läuft Level 2, mit --marshes Level 3 (Bild 13112 = erstes Bild des Levels wie bei Level 1, Startzustand wie aus dem Menü);
 // mit --ppm <bild>,<bild>,… schreibt es diese Bilder als PPM nach work/debug/<level>_<bild>.ppm.
-// Aufruf aus game/: node test/tools/explore-level.ts [--forest] [--ppm <bilder>] [<letztes Bild>]
+// Aufruf aus game/: node test/tools/explore-level.ts [--forest|--marshes] [--ppm <bilder>] [<letztes Bild>]
 import { mkdirSync, writeFileSync } from "node:fs";
 import { Game, type Screen } from "../../src/core/game.ts";
 import { InputFrame, JOY_DOWN, JOY_FIRE, JOY_LEFT, JOY_RIGHT, JOY_UP } from "../../src/core/input.ts";
-import { FOREST, SEA, SHARED } from "../../src/core/level/layout.ts";
+import { FOREST, MARSHES, SEA, SHARED } from "../../src/core/level/layout.ts";
 import { LevelScreen } from "../../src/core/screens/level.ts";
 import { loadAssets } from "../load-assets.ts";
 
 const args = process.argv.slice(2);
-const L = args.includes("--forest") ? FOREST : SEA;
+const L = args.includes("--forest") ? FOREST : args.includes("--marshes") ? MARSHES : SEA;
 const ppmAt = args.indexOf("--ppm");
 const ppmFrames = new Set(ppmAt >= 0 ? args[ppmAt + 1]!.split(",").map(Number) : []);
 const last = Number(args.filter((a, i) => !a.startsWith("--") && i !== ppmAt + 1)[0] ?? 26000);
