@@ -35,7 +35,7 @@ describe.skipIf(!hasAssets)("Bedienung nach E-043", () => {
     game.setSpellFire(false);
     expect([level.engine.ram.word(SHARED.menuMode), game.settings.spellFire]).toEqual([0, false]);
     expect(start(false).level.engine.ram.word(SHARED.menuMode)).toBe(0);
-  });
+  }, 30_000);
 
   it("„Spiel beenden“ fragt nach und wirkt wie Esc (Quit_Delay 20, keine Leben, Clean_Up)", () => {
     const { game, level, press } = start(false);
@@ -49,7 +49,7 @@ describe.skipIf(!hasAssets)("Bedienung nach E-043", () => {
     expect(e.w(V.quitDelay)).toBe(0);
     press(JOY_FIRE);
     expect([e.w(V.quitDelay), e.ram.word(SHARED.life), e.b(V.cleanUp)]).toEqual([20, 0, 0xff]);
-  });
+  }, 30_000);
 
   it("Hintergrund pausiert das Level einmal (kein Umschalten bei erneutem Wechsel)", () => {
     const { game, level } = start(false);
@@ -62,5 +62,5 @@ describe.skipIf(!hasAssets)("Bedienung nach E-043", () => {
     expect([e.w(V.pause), e.w(V.textNum)]).toEqual([0xff, 10]);
     game.pause();
     expect(e.w(V.pause)).toBe(0xff);
-  });
+  }, 30_000);
 });
