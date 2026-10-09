@@ -8,7 +8,8 @@
 // Unterschieden (meist ohne eigene Palette), die in den …Def-Feldern stehen, dazu R_Kamikaze und R_Sol_Etoile; gegen
 // das Original ungeprüft; der Endgegner von Level 2 (R_Final in Ag_Game_LFORET.s) hat eigenen Code (finalForet).
 // Level 3 nutzt die bekannten Routinen ganz ohne eigene Paletten (auch ohne Rout_Mod_Pal_Counter bei R_Rapide,
-// R_Transporteur und R_Sol_Crache) und hat einen eigenen R_Jumper (jumperMarais); gegen das Original ungeprüft.
+// R_Transporteur und R_Sol_Crache), hat einen eigenen R_Jumper (jumperMarais) und R_Sol_Kamikaze; gegen das Original
+// ungeprüft.
 // Unbekannte Routinen halten die Engine an (LevelEngine.unported).
 
 import type { LevelEngine } from "./engine.ts";
@@ -189,8 +190,17 @@ export interface JumperMaraisDef {
   obj3: number;
 }
 
+/** Monster am Boden, das nach links läuft und losstürmt, sobald die Eule tief fliegt (R_Sol_Kamikaze, Level 3) */
+export interface SolKamikazeDef {
+  kind: "solKamikaze";
+  /** R_SK_Shape (6 Objektnummern), Obj_Sol_Kamikaze_1 */
+  shape: number;
+  obj: number;
+}
+
 export type RoutineDef = SolCracheDef | AraigneeDef | TransporteurDef | TirEtoileDef | SpectreDef | RapideDef |
-  BomberDef | GrossiDef | VolantMissileDef | FinalDef | KamikazeDef | SolEtoileDef | FinalForetDef | JumperMaraisDef;
+  BomberDef | GrossiDef | VolantMissileDef | FinalDef | KamikazeDef | SolEtoileDef | FinalForetDef | JumperMaraisDef |
+  SolKamikazeDef;
 
 const ROUTS = 32;
 const ROUT_LEN = 28;
@@ -249,6 +259,7 @@ export function routineManager(e: LevelEngine): void {
       case "solEtoile": solEtoile(e, a0, def); break;
       case "finalForet": finalForet(e, a0, def); break;
       case "jumperMarais": jumperMarais(e, a0, def); break;
+      case "solKamikaze": solKamikaze(e, a0, def); break;
     }
   }
 }
@@ -1418,4 +1429,41 @@ function jumperMarais(e: LevelEngine, a0: number, d: JumperMaraisDef): void {
   ram.setWord(a2 + AWO_Y, y);
   ram.setWord(a2 + AWO_X, (x - 4) & 0xffff);
   if (s16(y) <= 240) close(e, a0, bank, false);
+}
+
+/**
+ * R_Sol_Kamikaze (AG_GAME_LMARAIS.S, „SOL FONSSE SUR LE PERSO“): läuft am Boden 2 Pixel je Durchlauf nach links und
+ * wechselt jedes Mal die Form (R_SK_Shape, 6 Schritte). Steht die Eule tief (Sorcerer_Y ab 256+120), stürmt es los:
+ * ab dem nächsten Durchlauf 10 Pixel. Ende bei x 220 (geprüft auch im Start-Durchlauf). Variablen: +0 R_SK_Mode
+ * (0 Start, 1 Laufen, 2 Sturm), +2 R_SK_Shape_Num. Ohne eigene Palette und ohne Rout_Mod_Pal_Counter.
+ */
+function solKamikaze(e: LevelEngine, a0: number, d: SolKamikazeDef): void {
+  const { V, ram } = e;
+  const bank = ram.long(a0 + ROUT_AWO_PTR);
+  const a3 = a0 + ROUT_VARIABLES;
+  const a2 = bank + 4;
+  const mode = ram.word(a3);
+  ram.setLong(bank, 0x00010000);
+  if (mode === 0) {
+    // Quelle: AG_GAME_LMARAIS.S, Label R_Sol_Kamikaze (Abbild $4FD8E–$4FDB0)
+    ram.setWord(a2 + AWO_X, 256 + 340);
+    ram.setWord(a2 + AWO_Y, 256 + 190);
+    ram.setWord(a2 + AWO_OBJ_OFF, d.obj);
+    ram.setWord(a2 + AWO_ENERGY, 3);
+    ram.setLong(a2 + AWO_STATUS, 0);
+    ram.setWord(a3, 1);
+  } else {
+    let n = (ram.word(a3 + 2) + 1) & 0xffff;
+    if (n === 6) n = 0;
+    ram.setWord(a3 + 2, n);
+    ram.setWord(a2 + AWO_OBJ_OFF, ram.word(d.shape + 2 * n));
+    ram.setWord(a2 + AWO_X, (ram.word(a2 + AWO_X) - 2) & 0xffff);
+    if (mode === 1) {
+      // cmp #256+120,d1 / blt .end
+      if (s16(e.w(V.sorcererY)) >= 256 + 120) ram.setWord(a3, 2);
+    } else {
+      ram.setWord(a2 + AWO_X, (ram.word(a2 + AWO_X) - 8) & 0xffff);
+    }
+  }
+  if (s16(ram.word(a2 + AWO_X)) <= 220) close(e, a0, bank, false);
 }

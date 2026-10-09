@@ -647,4 +647,33 @@ describe.skipIf(!hasAssets)("Neue Gegner-Routinen von Level 3 (ohne Aufnahme)", 
     expect(r.e.ram.long(r.a0)).toBe(0xffffffff);
     expect([r.e.w(MV.routModPalCounter), r.e.l(MV.routPalPtr)]).toEqual([1, 0x12345678]);
   });
+
+  // Werte von Hand aus AG_GAME_LMARAIS.S (Label R_Sol_Kamikaze), Abbild $4FD7C–$4FE2A; R_SK_Shape $4FD70
+  it("R_Sol_Kamikaze: läuft mit 2 Pixeln, stürmt ab Sorcerer_Y ≥ 376 mit 10 Pixeln, Ende ab x ≤ 220", () => {
+    const r = start(0x4fd7c, [], MARSHES);
+    r.e.setW(MV.routModPalCounter, 1);
+    r.e.setL(MV.routPalPtr, 0x12345678);
+    r.e.setW(MV.sorcererY, 256 + 119);
+    r.run(1);
+    expect([r.w(r.a3), r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY)]).toEqual([1, 596, 446, 0x208, 3]);
+    // Formen 1, 1, 2, 2, 3, 3 (Schritt 1 zuerst): nach 10 Durchläufen Schritt 4
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + OBJ)]).toEqual([594, 0x208]);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + OBJ)]).toEqual([592, 0x222]);
+    r.run(8);
+    expect([r.w(r.a3), r.w(r.a3 + 2), r.w(r.a2 + X), r.w(r.a2 + OBJ)]).toEqual([1, 4, 576, 0x23c]);
+    // Eule tief: Modus 2 erst nach diesem Durchlauf
+    r.e.setW(MV.sorcererY, 256 + 120);
+    r.run(1);
+    expect([r.w(r.a3), r.w(r.a2 + X), r.w(r.a2 + OBJ)]).toEqual([2, 574, 0x23c]);
+    r.run(1);
+    expect([r.w(r.a3 + 2), r.w(r.a2 + X), r.w(r.a2 + OBJ)]).toEqual([0, 564, 0x208]);
+    // 564 − 10 · 35 = 214 ≤ 220: Ende im 35. Sturm-Durchlauf, ohne Zählerabzug
+    r.run(34);
+    expect([r.e.ram.long(r.a0), r.w(r.a2 + X)]).toEqual([0x4fd7c, 224]);
+    r.run(1);
+    expect([r.e.ram.long(r.a0), r.w(r.bank)]).toEqual([0xffffffff, 0xffff]);
+    expect([r.e.w(MV.routModPalCounter), r.e.l(MV.routPalPtr)]).toEqual([1, 0x12345678]);
+  });
 });

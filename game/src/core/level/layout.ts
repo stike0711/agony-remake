@@ -747,8 +747,8 @@ export const MARSHES: LevelLayout = {
 
   // Quelle: AG_GAME_LMARAIS.S „ROUTINES“ (Disassembly work/disasm/marshes_rout.txt, mit forest_rout.txt bzw.
   // sea_rout.txt Befehl für Befehl verglichen). Keine Routine meldet eine eigene Palette an (pal: null bzw. false), auch
-  // R_Rapide, R_Transporteur und R_Sol_Crache zählen Rout_Mod_Pal_Counter nicht. Noch nicht übertragen: R_Sol_Kamikaze
-  // ($4FD7C) und R_Final ($4FE74).
+  // R_Rapide, R_Transporteur und R_Sol_Crache zählen Rout_Mod_Pal_Counter nicht. Noch nicht übertragen: R_Final
+  // ($4FE74).
   routines: new Map<number, RoutineDef>([
     // Abbild $4EF2A, wie Level 2; R_Spectre_Shape $4EF20 ($4EFF0), Obj_Spectre_Pot $342 ($4EF4E), Obj_Spectre_4/5
     // $38A/$3A0 ($4F032–$4F046)
@@ -775,6 +775,8 @@ export const MARSHES: LevelLayout = {
     [0x4fb7a, { kind: "solEtoile", shape: 0x4fb52, obj: 0x692, shots: [0x4a4, 0x4b6, 0x522] }],
     // Abbild $4FCD0, eigener Code (nicht der R_Jumper von Level 1); Obj_Jumper_1–3 $15A/$174/$18E ($4FCF4–$4FD36)
     [0x4fcd0, { kind: "jumperMarais", obj1: 0x15a, obj2: 0x174, obj3: 0x18e }],
+    // Abbild $4FD7C; R_SK_Shape $4FD70 ($4FDD4), Obj_Sol_Kamikaze_1 $208 ($4FDA0)
+    [0x4fd7c, { kind: "solKamikaze", shape: 0x4fd70, obj: 0x208 }],
   ]),
   relativeTracks: 0x50000, // $2B58
   absoluteTracks: 0x50b7c, // $2CBA

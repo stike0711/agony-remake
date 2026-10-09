@@ -66,8 +66,8 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
       `derive_layout.py` aus Level 2 übertragen (gemeinsamer Code Befehl für Befehl gleich), ohne Regen; gemeinsame
       Variablen aus Level 2; Angriffswellen laufen bis zur ersten Gegner-Routine (`R_Rapide`, WAIT `$140`)
       (09.10.2026, gegen das Original noch ungeprüft); die 8 aus Level 1 und 2 bekannten Gegner-Routinen und der
-      neue `R_Jumper` übertragen, das Level läuft bis zum ersten `R_Sol_Kamikaze` (09.10.2026, ungeprüft); offen:
-      `R_Sol_Kamikaze`, Endgegner `R_Final`, Prüfung mit einer Aufnahme
+      neue `R_Jumper` übertragen (09.10.2026, ungeprüft); `R_Sol_Kamikaze` übertragen, das Level läuft bis zum
+      Endgegner (09.10.2026, ungeprüft); offen: Endgegner `R_Final`, Levelende, Prüfung mit einer Aufnahme
 - [ ] Level 4 – Berge (`LMONTAGNES`)
 - [ ] Level 5 – Hochland (`LPLATEAUX`)
 - [ ] Level 6 – Feuer (`LFEUX`)

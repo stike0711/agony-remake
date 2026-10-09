@@ -257,9 +257,15 @@ Befehl für Befehl mit `forest_rout.txt` bzw. `sea_rout.txt`; beide stimmen übe
 - `R_Jumper`: eigener Code (in Level 1 eine Kopie von `R_Volant_Grossi`): Monster am Boden (x 256 + 340,
   y 256 + 190, Energie 5) läuft 2 Pixel je Durchlauf nach links, bis es höchstens 128 Pixel rechts der Eule steht,
   dann springt es (6 Pixel nach links, 8 nach oben je Durchlauf) bis y ≤ 240.
+- `R_Sol_Kamikaze` (neu, „sol fonce sur le perso“): Monster am Boden (x 256 + 340, y 256 + 190, Energie 3, ohne
+  Palette und Zähler) läuft 2 Pixel je Durchlauf nach links und wechselt jedes Mal die Form (`R_SK_Shape` `$4FD70`:
+  `Obj_Sol_Kamikaze_1/2/3` = `$208`/`$222`/`$23C`, je zweimal, Schritt 1 zuerst). Fliegt die Eule tief
+  (`Sorcerer_Y` ≥ 256 + 120), stürmt es ab dem nächsten Durchlauf mit 10 Pixeln los, bis x ≤ 220 (Test auch im
+  Start-Durchlauf).
 
-Im Nachbau (gegen das Original ungeprüft) laufen diese 9 Routinen; das Level hält beim ersten `R_Sol_Kamikaze` an
-(1.365 Bilder nach dem Start, `level3.test.ts`; davor `R_Rapide`, `R_Tir_Etoile`, `R_Jumper`).
+Im Nachbau (gegen das Original ungeprüft) laufen diese 10 Routinen; das Level hält beim Endgegner `R_Final` an
+(9.046 Bilder nach dem Start, `level3.test.ts`; erster `R_Sol_Kamikaze` 1.363 Bilder nach dem Start; alle übrigen
+Routinen des Levels sind bis dahin gestartet).
 
 ### Level 4 – Berge (`AG_GAME_LMONTAGNES.S`, Wellen-Parameter in `lmontagnes_rtr.s`)
 
