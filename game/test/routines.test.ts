@@ -402,3 +402,83 @@ describe.skipIf(!hasAssets)("Gegner-Routinen von Level 2, aus Level 1 bekannt (o
     expect([r.e.w(FV.routModPalCounter), r.e.l(FV.routPalPtr)]).toEqual([0, 0xffffffff]);
   });
 });
+
+describe.skipIf(!hasAssets)("Neue Gegner-Routinen von Level 2 (ohne Aufnahme)", () => {
+  // Werte von Hand aus Ag_Game_LFORET.s (Labels R_Kamikaze, R_Sol_Etoile), Abbild work/disasm/forest_rout.txt
+  const FV = FOREST.vars;
+  const busy = (r: Rout): void => {
+    r.e.setW(FV.routModPalCounter, 1);
+    r.e.setL(FV.routPalPtr, 0x12345678);
+  };
+
+  it("R_Kamikaze: hält auf Eule + (150, 40) zu, steht, fliegt ab Launch_Time + 50 mit 8 Pixel nach links", () => {
+    // Startliste: START_C R_Kamikaze, PAR 25*7, 2, 2
+    const r = start(0x4c048, [175, 2, 2], FOREST);
+    busy(r);
+    r.e.setW(FV.sorcererX, 100);
+    r.e.setW(FV.sorcererY, 150);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY), r.w(r.a3)]).toEqual([556, 200, 0x2ee, 20, 1]);
+    expect(r.e.w(FV.routModPalCounter)).toBe(1);
+    // Ziel (250, 190): y 200 → 192 (Abstand 2 = Schritt: stehen), x 556 − 2 · 152 = 252
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a3 + 6)]).toEqual([554, 198, 1]);
+    r.run(174);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a3 + 6)]).toEqual([252, 192, 175]);
+    // nach Launch_Time folgt es nicht mehr; ab Zeit 225 je 8 Pixel nach links
+    r.e.setW(FV.sorcererX, 0);
+    r.run(49);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y)]).toEqual([252, 192]);
+    r.run(1);
+    expect(r.w(r.a2 + X)).toBe(244);
+    // 252 − 8 · 7 = 196 ≤ 200: Ende bei Zeit 231; CLOSE ohne Zählerabzug
+    r.run(5);
+    expect(r.e.ram.long(r.a0)).not.toBe(0xffffffff);
+    r.run(1);
+    expect([r.e.ram.long(r.a0), r.w(r.bank)]).toEqual([0xffffffff, 0xffff]);
+    expect([r.e.w(FV.routModPalCounter), r.e.l(FV.routPalPtr)]).toEqual([1, 0x12345678]);
+  });
+
+  it("R_Sol_Etoile: wandert am Boden nach links, drei Schüsse nach oben ab x < Launch_X, Ende ab x ≤ 200", () => {
+    // Startliste: START_C R_Sol_Etoile, PAR 150+256
+    const r = start(0x4c160, [406], FOREST);
+    busy(r);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY), r.w(r.a3)]).toEqual([556, 447, 0x614, 10, 1]);
+    // R_SE_Shape $4C138: jedes Bild zweimal, Schritt vor dem Lesen erhöht
+    r.run(2);
+    expect([r.w(r.a2 + X), r.w(r.a2 + OBJ), r.w(r.a3 + 8)]).toEqual([552, 0x626, 2]);
+    r.run(17);
+    expect([r.w(r.a2 + OBJ), r.w(r.a3 + 8)]).toEqual([0x6ba, 19]);
+    r.run(1);
+    expect([r.w(r.a2 + OBJ), r.w(r.a3 + 8)]).toEqual([0x614, 0]);
+    // 556 − 2 · 75 = 406 = Launch_X: noch nicht; im 76. Durchlauf (x 404) Schüsse anlegen
+    r.run(55);
+    expect([r.w(r.a2 + X), r.w(r.a3)]).toEqual([406, 1]);
+    r.run(1);
+    const shots = [0x416, 0x428, 0x494];
+    expect([r.w(r.a3), r.w(r.bank), r.w(r.a3 + 4), r.w(r.a3 + 6)]).toEqual([2, 1, 404, 447]);
+    for (let i = 1; i <= 3; i++) {
+      const a = r.a2 + AWO_LEN * i;
+      expect([r.w(a + OBJ), r.w(a + ENERGY), r.e.ram.byte(a + STATUS), r.e.ram.byte(a + F_RT_S)]).toEqual([shots[i - 1], 10, 0, 0xff]);
+    }
+    // danach 4 Gegner in der Bank; Abstand 3 je Durchlauf: oben, oben rechts, oben links
+    r.run(1);
+    expect(r.w(r.bank)).toBe(4);
+    expect([1, 2, 3].map((i) => [r.w(r.a2 + AWO_LEN * i + X), r.w(r.a2 + AWO_LEN * i + Y)])).toEqual([[404, 444], [407, 444], [401, 444]]);
+    // 556 − 2 · 178 = 200: Ende im 178. Durchlauf; CLOSE ohne Zählerabzug
+    r.run(100);
+    expect(r.e.ram.long(r.a0)).not.toBe(0xffffffff);
+    r.run(1);
+    expect([r.e.ram.long(r.a0), r.w(r.bank)]).toEqual([0xffffffff, 0xffff]);
+    expect([r.e.w(FV.routModPalCounter), r.e.l(FV.routPalPtr)]).toEqual([1, 0x12345678]);
+  });
+
+  it("R_Sol_Etoile: getroffen schießt es nicht", () => {
+    const r = start(0x4c160, [406], FOREST);
+    r.run(70);
+    r.e.ram.setByte(r.a2 + STATUS, 1);
+    r.run(10);
+    expect([r.w(r.a2 + X), r.w(r.a3), r.w(r.bank)]).toEqual([398, 1, 1]);
+  });
+});

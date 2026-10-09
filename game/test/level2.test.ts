@@ -21,7 +21,7 @@ describe.skipIf(!hasAssets)("Level 2 (ohne Aufnahme)", () => {
       .toEqual([0x4004b56e, 496, 198]);
   });
 
-  it("übernimmt die gemeinsamen Variablen und läuft ohne Regen bis zur ersten Gegner-Routine", () => {
+  it("übernimmt die gemeinsamen Variablen und läuft ohne Regen bis zum Endgegner", () => {
     const shared = new Uint8Array(SHARED_LENGTH);
     const put = (a: number, v: number, n: number): void => { for (let i = 0; i < n; i++) shared[a - SHARED_START + i] = (v >>> (8 * (n - 1 - i))) & 0xff; };
     put(SHARED.score, 0x12345, 4);
@@ -33,16 +33,24 @@ describe.skipIf(!hasAssets)("Level 2 (ohne Aufnahme)", () => {
     expect(e.w(V.rainOn)).toBe(0);
     const display = new Display();
     display.setMode(true, false);
-    for (let f = 0; f < 2000 && !e.unported && !e.result; f++) {
+    const started = new Set<number>();
+    for (let f = 0; f < 10000 && !e.unported && !e.result; f++) {
       e.setInput(f === 49 || f === 50 ? JOY_FIRE : 0);
       if (e.ram.word(SHARED.life) < 3) e.ram.setWord(SHARED.life, 7);
       e.tick(display);
       // ohne Regen und Zauber zeigen Sprite 6 und 7 die leere Liste (SPELL OFF, $54CC in sea)
       if (f === 40) expect([e.ram.long(L.d + V.sprPtrB + 24), e.ram.long(L.d + V.sprPtrB + 28)]).toEqual([L.emptySpr, L.emptySpr]);
+      for (let i = 0; i < 32; i++) {
+        const c = e.ram.long(L.routStruct + 28 * i);
+        if (c !== 0xffffffff) started.add(c);
+      }
     }
-    // erste nicht übertragene Stelle: START_C R_Kamikaze bei WAIT $170
+    // alle Routinen des Levels sind gestartet, darunter R_Kamikaze ($4C048) und R_Sol_Etoile ($4C160), zuletzt R_Final
+    expect([...started].sort((a, b) => a - b))
+      .toEqual([0x4b76c, 0x4b964, 0x4bb60, 0x4bee4, 0x4bfa2, 0x4c048, 0x4c160, 0x4c39e]);
+    // erste nicht übertragene Stelle: START_C R_Final bei WAIT $22F0
     expect(e.result).toBeNull();
-    expect(e.unported).toContain("$4C048");
-    expect(e.w(V.levelX)).toBeGreaterThanOrEqual(0x170);
-  });
+    expect(e.unported).toContain("$4C39E");
+    expect(e.w(V.levelX)).toBeGreaterThanOrEqual(0x22f0);
+  }, 120_000);
 });

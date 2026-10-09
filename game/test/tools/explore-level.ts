@@ -22,7 +22,7 @@ const end: Screen = { enter: () => {}, tick: () => {} };
 const level = new LevelScreen(L, {
   gameOver: () => { left = "Spielende"; return end; },
   levelDone: () => { left = "Levelende"; return end; },
-  unported: () => { left = "nicht übertragen"; return end; },
+  unported: () => { left = `nicht übertragen: ${String(level.engine.unported)}`; return end; },
 });
 const game = new Game(loadAssets(), { lang: "en" }, level);
 const input = new InputFrame();

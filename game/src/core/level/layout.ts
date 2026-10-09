@@ -595,6 +595,11 @@ export const FOREST: LevelLayout = {
     [0x4bee4, { kind: "araignee", pal: null, obj: 0x3f4, yMode: 2 }],
     // Abbild $4BFA2; Energie 2 ($4BFDA), ohne Rout_Pal_Ptr ($4BFB4)
     [0x4bfa2, { kind: "rapide", pal: false, energy: 2 }],
+    // Abbild $4C048; Obj_Kamikaze $2EE ($4C06C)
+    [0x4c048, { kind: "kamikaze", obj: 0x2ee }],
+    // Abbild $4C160; R_SE_Shape $4C138 ($4C1B8), Obj_Sol_Etoile_1 $614 ($4C184), Obj_Tir_1/_2/_8 $416/$428/$494
+    // ($4C23C–$4C248)
+    [0x4c160, { kind: "solEtoile", shape: 0x4c138, obj: 0x614, shots: [0x416, 0x428, 0x494] }],
   ]),
   relativeTracks: 0x4c658,
   absoluteTracks: 0x4c658,

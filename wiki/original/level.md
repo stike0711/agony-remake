@@ -194,6 +194,21 @@ hat keinen Regen. Die Startliste enthält ein `WAIT $E00` nach `WAIT $E40` (wirk
   `Dummy_Pal` bleibt ungelesen); CLOSE wie in Level 1. Animation `Anim_Speedy` = `$4CE`, `$4EA`.
 - Übertragen als Felder der Routinen-Definitionen (`layout.ts`, `FOREST.routines`), gegen das Original ungeprüft.
 
+✔ Neue Routinen von Level 2 (Quelltext und Abbild stimmen überein; beide ohne eigene Palette, CLOSE ohne Zählerabzug):
+- `R_Kamikaze` (`$4C048`–`$4C136`, Drache `Obj_Kamikaze` `$2EE`, Energie 20): erscheint rechts oberhalb des Bilds
+  (x 256 + 300, y 200) und hält bis zur Zeit `P_VK_Launch_Time` auf Eule + (150, 40) zu, je Durchlauf um
+  `P_VK_X_Speed` bzw. `P_VK_Y_Speed`, solange der Abstand größer als der Schritt ist. Danach steht er; ab
+  Launch_Time + 50 fliegt er mit 8 Pixel je Durchlauf nach links, Ende ab x ≤ 200. Parameter in der Startliste
+  meist 175, 2, 2 (einmal 175, 1, 1). `R_VK_Target_X/Y` sind belegt, aber ungenutzt.
+- `R_Sol_Etoile` (`$4C160`–`$4C2B4`, `Obj_Sol_Etoile_1–10` `$614`–`$6BA`, Animation `R_SE_Shape` `$4C138` mit je
+  zwei Durchläufen pro Bild, Energie 10): wandert am Boden (x 256 + 300, y 256 + 191) mit 2 Pixel je Durchlauf nach
+  links, Ende ab x ≤ 200. Unversehrt und links von `P_SE_Launch_X` (meist 256 + 150, einmal 256 + 130) belegt es die
+  nächsten drei Gegner der Bank mit `Obj_Tir_1`/`_2`/`_8` (Energie 10) und lässt sie vom Startpunkt aus mit 3 Pixel
+  je Durchlauf nach oben, oben rechts und oben links fliegen; das Monster wandert weiter.
+- Der Quelltext hat bei `WAIT $12D0` (zweiter Kamikaze mit 175, 1, 1) kein `PAR_END`; das Abbild schon (`$FFFF` bei
+  `$4B24E`), die Startliste läuft also normal weiter.
+- Übertragen in `routines.ts` (`kamikaze`, `solEtoile`), gegen das Original ungeprüft.
+
 ### Level 3 – Sumpf (`AG_GAME_LMARAIS.S`, Wellen-Parameter in `lmarais_rtr.s`)
 
 🌐 Laut einer Rezension hat ein Endgegner einen blitzschnellen, sofort tödlichen Zungenangriff (Zuordnung zu

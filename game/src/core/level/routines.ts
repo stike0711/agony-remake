@@ -5,8 +5,8 @@
 // Umsetzung hier zu. Was im Code des Levels fest steht (Paletten, Animationen, Objektnummern), steht dort mit.
 // Stand: alle Routinen von Level 1. R_Sol_Crache und R_Araignee sind gegen das Original geprüft, die übrigen
 // übertragen, aber noch ungeprüft (Aufnahme über Bild 14792 hinaus fehlt). Level 2 nutzt dieselben Routinen mit kleinen
-// Unterschieden (meist ohne eigene Palette), die in den …Def-Feldern stehen; gegen das Original ungeprüft. Unbekannte
-// Routinen halten die Engine an (LevelEngine.unported).
+// Unterschieden (meist ohne eigene Palette), die in den …Def-Feldern stehen, dazu R_Kamikaze und R_Sol_Etoile; gegen
+// das Original ungeprüft. Unbekannte Routinen halten die Engine an (LevelEngine.unported).
 
 import type { LevelEngine } from "./engine.ts";
 import { soundStart } from "./sounds.ts";
@@ -138,8 +138,24 @@ export interface FinalDef {
   frontScreensEnd: number;
 }
 
+/** Fliegendes Monster, das sich auf die Eule stürzt und dann nach links davonfliegt (R_Kamikaze, Level 2) */
+export interface KamikazeDef {
+  kind: "kamikaze";
+  /** Obj_Kamikaze */
+  obj: number;
+}
+
+/** Monster am Boden, das drei Schüsse nach oben, oben rechts und oben links abgibt (R_Sol_Etoile, Level 2) */
+export interface SolEtoileDef {
+  kind: "solEtoile";
+  /** R_SE_Shape (20 Objektnummern), Obj_Sol_Etoile_1, Obj_Tir_1/_2/_8 (Schüsse nach oben, oben rechts, oben links) */
+  shape: number;
+  obj: number;
+  shots: readonly number[];
+}
+
 export type RoutineDef = SolCracheDef | AraigneeDef | TransporteurDef | TirEtoileDef | SpectreDef | RapideDef |
-  BomberDef | GrossiDef | VolantMissileDef | FinalDef;
+  BomberDef | GrossiDef | VolantMissileDef | FinalDef | KamikazeDef | SolEtoileDef;
 
 const ROUTS = 32;
 const ROUT_LEN = 28;
@@ -194,6 +210,8 @@ export function routineManager(e: LevelEngine): void {
       case "jumper": grossi(e, a0, def); break;
       case "volantMissile": volantMissile(e, a0, def); break;
       case "final": final(e, a0, def); break;
+      case "kamikaze": kamikaze(e, a0, def); break;
+      case "solEtoile": solEtoile(e, a0, def); break;
     }
   }
 }
@@ -666,6 +684,131 @@ function rapide(e: LevelEngine, a0: number, d: RapideDef): void {
   }
   if (s16(ram.word(a2 + AWO_X)) <= 200) close(e, a0, bank);
 }
+
+/** Variablen von R_Kamikaze: +0 R_VK_Mode, +2/+4 R_VK_Target_X/Y (ungenutzt), +6 R_VK_Time */
+const VK_TIME = 6;
+
+/**
+ * R_Kamikaze: erscheint rechts oberhalb des Bilds (x 256 + 300, y 200, Energie 20, ohne eigene Palette) und hält bis
+ * zur Zeit P_VK_Launch_Time je Durchlauf auf die Eule zu: Ziel = Eule + (150, 40), Schritt P_VK_X_Speed bzw.
+ * P_VK_Y_Speed, nur solange der Abstand größer als der Schritt ist. Danach steht es; ab Zeit Launch_Time + 50 fliegt
+ * es 8 Pixel je Durchlauf nach links, ab x ≤ 200 endet die Routine (CLOSE ohne Zählerabzug). Parameter: Launch_Time,
+ * X_Speed, Y_Speed. Quelle: Ag_Game_LFORET.s, Label R_Kamikaze; Abbild $4C048–$4C136.
+ */
+function kamikaze(e: LevelEngine, a0: number, d: KamikazeDef): void {
+  const { V, ram } = e;
+  const a1 = ram.long(a0 + ROUT_PARAM_PTR);
+  const bank = ram.long(a0 + ROUT_AWO_PTR);
+  const a3 = a0 + ROUT_VARIABLES;
+  const a2 = bank + 4;
+  ram.setLong(bank, 0x00010000);
+  if (ram.word(a3) === 0) {
+    ram.setWord(a2 + AWO_X, 256 + 300);
+    ram.setWord(a2 + AWO_Y, 200);
+    ram.setWord(a2 + AWO_OBJ_OFF, d.obj);
+    ram.setWord(a2 + AWO_ENERGY, 20);
+    ram.setLong(a2 + AWO_STATUS, 0);
+    ram.setWord(a3 + VK_TIME, 0);
+    ram.setWord(a3, 1);
+    return;
+  }
+  const launch = ram.word(a1);
+  const time = (ram.word(a3 + VK_TIME) + 1) & 0xffff;
+  ram.setWord(a3 + VK_TIME, time);
+  // cmp (a4),d5 / blt: nur bis einschließlich Launch_Time
+  if (s16(launch) >= s16(time)) {
+    approach(e, a2 + AWO_X, (e.w(V.sorcererX) + 150) & 0xffff, ram.word(a1 + 2));
+    approach(e, a2 + AWO_Y, (e.w(V.sorcererY) + 40) & 0xffff, ram.word(a1 + 4));
+  }
+  // cmp (a4),d6 / bgt: ab Launch_Time + 50 (add.w)
+  if (s16((launch + 50) & 0xffff) > s16(time)) return;
+  const x = (ram.word(a2 + AWO_X) - 8) & 0xffff;
+  ram.setWord(a2 + AWO_X, x);
+  if (s16(x) <= 200) close(e, a0, bank, false);
+}
+
+/** Eine Koordinate um `speed` auf das Ziel zu, wenn der Abstand (sub/bpl/neg in 16 Bit) größer als `speed` ist */
+function approach(e: LevelEngine, pos: number, target: number, speed: number): void {
+  const { ram } = e;
+  const p = ram.word(pos);
+  let dist = s16((target - p) & 0xffff);
+  if (dist < 0) dist = s16(-dist & 0xffff);
+  if (dist <= s16(speed)) return;
+  ram.setWord(pos, (s16(p) < s16(target) ? p + speed : p - speed) & 0xffff);
+}
+
+/** Variablen von R_Sol_Etoile: +0 R_SE_Mode, +2 R_SE_Fire_Step, +4/+6 R_SE_Fire_X/Y, +8 R_SE_Anim_Step */
+const SE_FIRE_STEP = 2;
+const SE_FIRE_X = 4;
+const SE_FIRE_Y = 6;
+const SE_ANIM = 8;
+
+/**
+ * R_Sol_Etoile: erscheint rechts am Boden (x 256 + 300, y 256 + 191, Energie 10, ohne eigene Palette) und wandert
+ * 2 Pixel je Durchlauf nach links, Animation jeden Durchlauf (20 Schritte, je Bild zweimal). Ab x ≤ 200 endet die
+ * Routine (CLOSE ohne Zählerabzug). Ist es unversehrt und x < P_SE_Launch_X, belegt es die nächsten 3 Gegner der Bank
+ * mit den Schüssen Obj_Tir_1/_2/_8 (Energie 10, ohne eigene Schüsse) und merkt sich den Startpunkt; ab dem nächsten
+ * Durchlauf (4 Gegner in der Bank) wächst der Abstand um 3 je Durchlauf, die Schüsse stehen oben, oben rechts und oben
+ * links vom Startpunkt. Parameter: Launch_X. Quelle: Ag_Game_LFORET.s, Label R_Sol_Etoile; Abbild $4C160–$4C2B4,
+ * R_SE_Shape $4C138.
+ */
+function solEtoile(e: LevelEngine, a0: number, d: SolEtoileDef): void {
+  const { ram } = e;
+  const a1 = ram.long(a0 + ROUT_PARAM_PTR);
+  const bank = ram.long(a0 + ROUT_AWO_PTR);
+  const a3 = a0 + ROUT_VARIABLES;
+  const a2 = bank + 4;
+  const mode = ram.word(a3);
+  ram.setLong(bank, 0x00010000);
+  if (mode === 0) {
+    ram.setWord(a2 + AWO_X, 256 + 300);
+    ram.setWord(a2 + AWO_Y, 256 + 191);
+    ram.setWord(a2 + AWO_OBJ_OFF, d.obj);
+    ram.setWord(a2 + AWO_ENERGY, 10);
+    ram.setLong(a2 + AWO_STATUS, 0);
+    ram.setWord(a3, 1);
+    return;
+  }
+  let step = (ram.word(a3 + SE_ANIM) + 1) & 0xffff;
+  if (step === 20) step = 0;
+  ram.setWord(a3 + SE_ANIM, step);
+  ram.setWord(a2 + AWO_OBJ_OFF, ram.word(d.shape + 2 * step));
+  let a4 = a2 + AWO_LEN;
+  const x = (ram.word(a2 + AWO_X) - 2) & 0xffff;
+  ram.setWord(a2 + AWO_X, x);
+  if (s16(x) <= 200) {
+    close(e, a0, bank, false);
+    return;
+  }
+  if (mode === 1) {
+    if ((ram.byte(a2 + AWO_STATUS) & 0xf) !== 0 || s16(ram.word(a1)) <= s16(x)) return;
+    ram.setWord(a3, 2);
+    for (let i = 0, awo = a4; i < 3; i++, awo += AWO_LEN) {
+      ram.setWord(awo + AWO_ENERGY, 10);
+      ram.setLong(awo + AWO_STATUS, 0);
+      ram.setByte(awo + AWO_F_RT_S, 0xff);
+      ram.setWord(awo + AWO_OBJ_OFF, d.shots[i]!);
+    }
+    ram.setWord(a3 + SE_FIRE_STEP, 0);
+    ram.setWord(a3 + SE_FIRE_X, x);
+    ram.setWord(a3 + SE_FIRE_Y, ram.word(a2 + AWO_Y));
+    return;
+  }
+  if (mode !== 2) return;
+  ram.setWord(bank, 4);
+  const r = (ram.word(a3 + SE_FIRE_STEP) + 3) & 0xffff;
+  ram.setWord(a3 + SE_FIRE_STEP, r);
+  const fx = ram.word(a3 + SE_FIRE_X);
+  const fy = ram.word(a3 + SE_FIRE_Y);
+  // Reihenfolge wie im Original: (0,−), (+,−), (−,−)
+  for (let i = 0; i < 3; i++, a4 += AWO_LEN) {
+    ram.setWord(a4 + AWO_X, (fx + SE_DX[i]! * r) & 0xffff);
+    ram.setWord(a4 + AWO_Y, (fy - r) & 0xffff);
+  }
+}
+
+/** Richtungen der 3 Schüsse von R_Sol_Etoile in x (Vorzeichen des Abstands) */
+const SE_DX = [0, 1, -1];
 
 /**
  * R_Bomber: Ein Sack (Obj_Sac, Energie 15) erscheint rechts (x 256 + 340, y 256 + 32) und wandert 2 Pixel je

@@ -13,10 +13,10 @@ Gegner mit eigener Routine, Tod der Eule, Schild beim Wiedereinstieg und Spielen
 Eingabe bis nach dem Spielende pixelgenau wie im Emulator, ebenso ein Lauf mit Dauerfeuer, Abschüssen und Ausweichen.
 Alle Gegner-Routinen, Bonus, Zaubermenü mit allen Zaubern, Äxte, Pause und Levelende von Level 1 sind übertragen
 (gegen das Original noch ungeprüft); nach dem Levelende folgen das Ladebild und Level 2 (Abbild und Layout stehen,
-Angriffswellen laufen bis zur ersten neuen Gegner-Routine, danach Platzhalter; die fünf aus Level 1 bekannten Routinen
-sind übertragen). Als Nächstes: die neuen Gegner-Routinen von Level 2 (`R_Kamikaze`, `R_Sol_Etoile`, `R_Final`); am PC eine Aufnahme über Bild 14.792 hinaus zur Prüfung des Übertragenen,
-Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist eingeplant, sobald ein
-Mac zur Verfügung steht.
+alle Gegner-Routinen außer dem Endgegner sind übertragen, das Level läuft bis `R_Final`, danach Platzhalter). Als
+Nächstes: Endgegner `R_Final` und Levelende von Level 2; am PC eine Aufnahme über Bild 14.792 hinaus zur Prüfung des
+Übertragenen, Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist
+eingeplant, sobald ein Mac zur Verfügung steht.
 
 ## Fahrplan und Fortschritt
 
@@ -29,7 +29,7 @@ Mac zur Verfügung steht.
 | 3. Referenz-Emulator mit den ADFs und Kickstart 1.3 einrichten | ✅ erledigt | vAmigaWeb als A500 (OCS, 512 + 512 KB), schrittweise steuerbar, siehe [Setup](setup.md#referenz-emulator) |
 | 4. Asset-Pipeline: Spieldateien entpacken; Grafiken, Paletten, Angriffswellen, Sounds und Musik extrahieren | 🟡 begonnen | Disketten ausgelesen, alle 15 Spieldateien entpackt, Lade- und Startadressen bestimmt; Titelbilder, Menübild, Menüschrift, Texttabelle und Ladebilder 1–2 lokalisiert und mit Python-Prototypen pixelgenau dekodiert; Startliste von Level 1 dekodiert. Pipeline in TypeScript für die Startsequenz fertig (`tools/pipeline/`); Level-Daten fehlen noch |
 | 5. Web-Grundgerüst: Spielschleife, Renderer, Eingabe, Audio, Build nach `server/` | ✅ erledigt | 06.10.2026, [Architektur → Umsetzung](architektur.md#umsetzung-web-grundgerüst); ProTracker-Abspieler inzwischen auch; offen: Vollbild, Tests auf echten Geräten |
-| 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026; übrige Gegner-Routinen, Bonus und Levelende übertragen, ungeprüft (08.10.2026) |
+| 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026; übrige Gegner-Routinen, Bonus und Levelende übertragen, ungeprüft (08.10.2026); Level 2 bis zum Endgegner übertragen, ungeprüft (09.10.2026) |
 | 7. Titel/Intro, Menü, Ladebilder, Highscore und Spielende; Gesamtabgleich und Bugfixing | 🟡 begonnen | Titelsequenz, Menü, Story-Seite, Ladebild Level 1 fertig und geprüft (06.10.2026); Ladebild Level 2 übertragen, ungeprüft (08.10.2026); offen: Namenseingabe, Cheat, Ladebilder 3–6, Spielende |
 
 ### Aktueller Meilenstein: Start bis Level 1
@@ -74,12 +74,11 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Level 2 – neue Gegner-Routinen** (nächster Cloud-Schritt, Ablauf B, Effort „hoch“): Die fünf aus Level 1
-   bekannten Routinen sind übertragen (09.10.2026). Es fehlen `R_Kamikaze` (`$4C048`, erster Start bei `WAIT $170`,
-   bis dahin hält der Lauf an) und `R_Sol_Etoile` (`$4C160`) aus `work/disasm/forest_rout.txt` bzw.
-   `Ag_Game_LFORET.s`; danach in einem eigenen Schritt `R_Final` (`$4C39E`) und das Levelende → Platzhalter
-   `ui.level3Stub`. Mit Kamikaze den Test `level2.test.ts` bis zur nächsten fehlenden Routine verlängern. Gegen das
-   Original ungeprüft kennzeichnen.
+1. **Level 2 – Endgegner und Levelende** (nächster Cloud-Schritt, Ablauf B, Effort „hoch“): Alle übrigen Routinen
+   sind übertragen (09.10.2026); der Lauf hält bei `START_C R_Final` (`$4C39E`, `WAIT $22F0`, im Erkundungslauf
+   Bild 22.180). `R_Final` aus `Ag_Game_LFORET.s` bzw. `work/disasm/forest_rout.txt` mit dem Level-1-Endgegner
+   vergleichen (eigener Code: Bumerangs laut Rezensionen, `R_T_Final_1` …), dann das Levelende → Platzhalter
+   `ui.level3Stub`. `level2.test.ts` bis zum Levelende verlängern. Gegen das Original ungeprüft kennzeichnen.
 2. **Bedienung nach E-043** (Effort „mittel“, auch in der Cloud): Pause-Knopf für Touch (oben in einer Ecke) und
    Gamepad (Start), automatische Pause im Hintergrund, im Optionsmenü „Spiel beenden“ (mit Rückfrage, wie Esc) und
    die Option „Zaubermenü mit Feuer öffnen“ (`Menu_Mode`, Voreinstellung aus). Kann vor oder nach Punkt 1 kommen.
@@ -93,6 +92,11 @@ Braucht Emulator, Aufnahmen, Messungen oder Geräte (je mit Empfehlung):
 - **Ladebild Level 2 prüfen** (Ablauf C, Effort „mittel“, kann mit der Aufnahme über Bild 14.792 hinaus zusammen
   laufen): nach `levelDone` die ersten ≈ 100 Bilder von `load_forest` aufnehmen (Bild, Palette beim Einblenden,
   Lademusik) und mit `LoadingScreen(LOAD_FOREST)` vergleichen wie bei `load_sea`.
+- **Level 2 aufnehmen** (Ablauf C, Effort „hoch“, sobald `R_Final` übertragen ist): Level 2 ist ganz ohne Aufnahme
+  übertragen. Im Emulator Level 2 direkt starten (Schnappschuss nach dem Ladebild, oder Level 1 mit Cheat bzw. per
+  Poke überspringen), mit Dauerfeuer und Bewegungsmuster wie `explore-level.ts --forest`, Leben aufgefüllt; Bilder
+  und Spur in Abschnitten von ≈ 2.000 Bildern. Erste Prüfpunkte: Wellen ab dem Start, `R_Kamikaze` (im Nachbau
+  ≈ 450 Bilder nach dem Start), `R_Sol_Etoile` (≈ 600; Farben des Monsters am Boden ohne eigene Palette).
 
 - **Geräte-Test** (Effort „mittel“): Start bis Level 1 auf iPad/Android-Tablet im Heimnetz: Ton-Freischaltung, Touch
   (Feuer rechts), Safe Areas, Bildrate, Klang der Musik, Flacker-Trick bei 60/120 Hz (B-001).
@@ -173,9 +177,16 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 09.10.2026 | Zaubermenü, Zauber, Äxte, Pause (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
 | 09.10.2026 | Level 2: Abbild und Layout (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
 | 09.10.2026 | Level 2: bekannte Gegner-Routinen (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
+| 09.10.2026 | Level 2: `R_Kamikaze`, `R_Sol_Etoile` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
 
 ## Verlauf
 
+- **09.10.2026 (Level 2: `R_Kamikaze` und `R_Sol_Etoile`, Cloud-Session)** – Beide neuen Routinen nach Quelltext und
+  Abbild übertragen (`routines.ts`, `FOREST.routines`): Kamikaze hält auf die Eule zu und fliegt dann davon,
+  Sol_Etoile wandert am Boden und schießt drei Schüsse nach oben ([Level](original/level.md#level-2--wald-ag_game_lforets)).
+  Level 2 läuft ohne Eingabe bis `R_Final` (`level2.test.ts`, jetzt ≈ 9.000 Bilder). Fehlendes `PAR_END` im
+  Quelltext bei `WAIT $12D0` ist im Abbild vorhanden. `explore-level.ts` nennt den Grund des Anhaltens. 3 neue
+  Tests, 70 Tests. Gegen das Original ungeprüft.
 - **09.10.2026 (Level 2: bekannte Gegner-Routinen, Cloud-Session)** – `R_Spectre`, `R_Tir_Etoile`,
   `R_Volant_Missile`, `R_Araignee` und `R_Rapide` von Level 2 nach Quelltext und Abbild verglichen und als Einträge in
   `FOREST.routines` übertragen; die Unterschiede (keine eigene Palette, CLOSE ohne Zählerabzug, Energie, Tempo des
