@@ -6,7 +6,8 @@
 // Stand: alle Routinen von Level 1. R_Sol_Crache und R_Araignee sind gegen das Original geprüft, die übrigen
 // übertragen, aber noch ungeprüft (Aufnahme über Bild 14792 hinaus fehlt). Level 2 nutzt dieselben Routinen mit kleinen
 // Unterschieden (meist ohne eigene Palette), die in den …Def-Feldern stehen, dazu R_Kamikaze und R_Sol_Etoile; gegen
-// das Original ungeprüft. Unbekannte Routinen halten die Engine an (LevelEngine.unported).
+// das Original ungeprüft; der Endgegner von Level 2 (R_Final in Ag_Game_LFORET.s) hat eigenen Code (finalForet).
+// Unbekannte Routinen halten die Engine an (LevelEngine.unported).
 
 import type { LevelEngine } from "./engine.ts";
 import { soundStart } from "./sounds.ts";
@@ -154,8 +155,23 @@ export interface SolEtoileDef {
   shots: readonly number[];
 }
 
+/** Endgegner von Level 2 (R_Final in Ag_Game_LFORET.s): Oberteil und Unterteil, wirft Bumerangwellen */
+export interface FinalForetDef {
+  kind: "finalForet";
+  /** R_T_Table (6 Zeiger auf R_T_Final_1–6), R_F_Anim_Up (8 Objektnummern des Oberteils) */
+  waves: number;
+  animUp: number;
+  /** Obj_Final_1, Obj_Final_Bas_1/_2, Obj_Big_Explo_1–3 */
+  obj: number;
+  bas1: number;
+  bas2: number;
+  explo1: number;
+  explo2: number;
+  explo3: number;
+}
+
 export type RoutineDef = SolCracheDef | AraigneeDef | TransporteurDef | TirEtoileDef | SpectreDef | RapideDef |
-  BomberDef | GrossiDef | VolantMissileDef | FinalDef | KamikazeDef | SolEtoileDef;
+  BomberDef | GrossiDef | VolantMissileDef | FinalDef | KamikazeDef | SolEtoileDef | FinalForetDef;
 
 const ROUTS = 32;
 const ROUT_LEN = 28;
@@ -212,6 +228,7 @@ export function routineManager(e: LevelEngine): void {
       case "final": final(e, a0, def); break;
       case "kamikaze": kamikaze(e, a0, def); break;
       case "solEtoile": solEtoile(e, a0, def); break;
+      case "finalForet": finalForet(e, a0, def); break;
     }
   }
 }
@@ -1229,4 +1246,118 @@ function finalWaves(e: LevelEngine, a3: number, d: FinalDef): void {
     ram.setWord(a3 + F_STEP, 0);
     e.setL(V.rFAwoPtr1, launchWave(e, (d.wave3 | 0x40000000) >>> 0, 256 + 268, 256 + 100));
   }
+}
+
+// R_Final (Level 2): Variablen +0 R_F_Mode, +2 R_F_Step, +4 R_F_Explo_Step, +6 R_F_X_Mode, +8 R_F_Anim_Delay,
+// +10 R_F_Anim_Up_Step, +12 R_F_Launch_Delay
+const FF_STEP = 2;
+const FF_EXPLO = 4;
+const FF_X_MODE = 6;
+const FF_ANIM_DELAY = 8;
+const FF_ANIM_UP = 10;
+const FF_LAUNCH = 12;
+
+/**
+ * R_Final von Level 2: zwei Gegner in der Bank an derselben Stelle (Start x 256 + 350, y 256 + 130), das Oberteil
+ * (Obj_Final_1, Energie 150, Schussrate 20) und das Unterteil (Obj_Final_Bas_1, Energie 20000, ohne Schüsse);
+ * Rout_Mod_Pal_Counter wird gelöscht, eine eigene Palette gibt es nicht. Beide pendeln mit 2 Pixeln je Durchlauf
+ * zwischen x ≤ 256 + 160 und x ≥ 256 + 260 (R_F_X_Mode 0 = nach links, −1 = nach rechts); das Unterteil wechselt alle
+ * 8 Durchläufe zwischen Obj_Final_Bas_1 und _2, das Oberteil zeigt reihum R_F_Anim_Up. Solange das Oberteil lebt,
+ * wirft es alle 18 Durchläufe eine Bumerangwelle (reihum R_T_Final_2 … _6, _1, absolute Bahn) bei (x − 20, y − 20).
+ * Zerstört (unteres Halbbyte des Status) stehen beide still und explodieren in Schritten: 1 Big_Explo_1 an beiden
+ * (Quit_Delay = 100), 21 nur das Oberteil mit Short_Phase = 1 und Geräusch, 35 Big_Explo_2 und 52 Big_Explo_3 an
+ * beiden mit Geräusch, 52 zusätzlich Clean_Up (Levelende). Anders als in Level 1 laufen die Wellen weiter, kein
+ * Löschen des vorderen Playfields. Abweichungen des Abbilds vom Quelltext (wie in Level 1): Schussrate 20 statt 30,
+ * Quit_Delay = 100 schon in Schritt 1 statt 25 in Schritt 52. Quelle: Ag_Game_LFORET.s, Label R_Final; Abbild
+ * $4C39E–$4C656, R_T_Final_1–6 $4C2B6, R_T_Table $4C376, R_F_Anim_Up $4C38E.
+ */
+function finalForet(e: LevelEngine, a0: number, d: FinalForetDef): void {
+  const { V, ram } = e;
+  const bank = ram.long(a0 + ROUT_AWO_PTR);
+  const a3 = a0 + ROUT_VARIABLES;
+  const a2 = bank + 4;
+  const a4 = a2 + AWO_LEN;
+  const mode = ram.word(a3);
+  ram.setLong(bank, 0x00020000);
+  if (mode === 0) {
+    for (const p of [a2, a4]) {
+      ram.setWord(p + AWO_X, 256 + 350);
+      ram.setWord(p + AWO_Y, 256 + 130);
+    }
+    ram.setWord(a2 + AWO_OBJ_OFF, d.obj);
+    ram.setWord(a4 + AWO_OBJ_OFF, d.bas1);
+    ram.setWord(a2 + AWO_ENERGY, 150);
+    ram.setWord(a4 + AWO_ENERGY, 20000);
+    ram.setLong(a2 + AWO_STATUS, 0);
+    ram.setLong(a4 + AWO_STATUS, 0);
+    ram.setByte(a2 + AWO_F_RT_S, 20);
+    ram.setByte(a4 + AWO_F_RT_S, 0xff);
+    e.setW(V.routModPalCounter, 0);
+    ram.setWord(a3 + FF_X_MODE, 0);
+    ram.setWord(a3, 1);
+    return;
+  }
+  if (mode !== 2) {
+    // Pendeln: R_F_X_Mode ≠ 0 nach rechts bis x ≥ 256 + 260 (dann +1 → 0), sonst nach links bis x ≤ 256 + 160
+    const right = ram.word(a3 + FF_X_MODE) !== 0;
+    const dx = right ? 2 : -2;
+    ram.setWord(a2 + AWO_X, (ram.word(a2 + AWO_X) + dx) & 0xffff);
+    ram.setWord(a4 + AWO_X, (ram.word(a4 + AWO_X) + dx) & 0xffff);
+    const x = s16(ram.word(a2 + AWO_X));
+    if (right ? x >= 256 + 260 : x <= 256 + 160) {
+      ram.setWord(a3 + FF_X_MODE, (ram.word(a3 + FF_X_MODE) + (right ? 1 : -1)) & 0xffff);
+    }
+    const delay = (ram.word(a3 + FF_ANIM_DELAY) + 1) & 0xffff;
+    ram.setWord(a3 + FF_ANIM_DELAY, delay);
+    ram.setWord(a4 + AWO_OBJ_OFF, (delay & 8) !== 0 ? d.bas1 : d.bas2);
+    const up = (ram.word(a3 + FF_ANIM_UP) + 1) & 7;
+    ram.setWord(a3 + FF_ANIM_UP, up);
+    ram.setWord(a2 + AWO_OBJ_OFF, ram.word(d.animUp + 2 * up));
+    if ((ram.byte(a2 + AWO_STATUS) & 0xf) === 0) {
+      finalForetWave(e, a3, a2, d);
+      return;
+    }
+    ram.setWord(a3 + FF_EXPLO, 0);
+    ram.setWord(a3, (mode + 1) & 0xffff);
+  }
+  // .explo
+  const step = (ram.word(a3 + FF_EXPLO) + 1) & 0xffff;
+  ram.setWord(a3 + FF_EXPLO, step);
+  if (step === 1) {
+    e.setW(V.quitDelay, 100);
+    finalForetExplo(e, a2, d.explo1);
+    finalForetExplo(e, a4, d.explo1);
+  } else if (step === 21) {
+    finalForetExplo(e, a2, d.explo1);
+    e.setW(V.shortPhase, 1);
+    soundStart(e, 1, 63);
+  } else if (step === 35 || step === 52) {
+    const obj = step === 35 ? d.explo2 : d.explo3;
+    finalForetExplo(e, a2, obj);
+    finalForetExplo(e, a4, obj);
+    soundStart(e, 1, 63);
+    if (step === 52) e.setB(V.cleanUp, 0xff);
+  }
+}
+
+/** Explosionsbild, Status 1 (Position bleibt) */
+function finalForetExplo(e: LevelEngine, p: number, obj: number): void {
+  const { ram } = e;
+  ram.setWord(p + AWO_OBJ_OFF, obj);
+  ram.setLong(p + AWO_STATUS, 0);
+  ram.setByte(p + AWO_STATUS, 1);
+}
+
+/** .cont5: alle 18 Durchläufe die nächste Bumerangwelle aus R_T_Table (R_F_Step 1–5, 0) bei (x − 20, y − 20) */
+function finalForetWave(e: LevelEngine, a3: number, a2: number, d: FinalForetDef): void {
+  const { ram } = e;
+  const delay = (ram.word(a3 + FF_LAUNCH) + 1) & 0xffff;
+  ram.setWord(a3 + FF_LAUNCH, delay);
+  if (delay !== 18) return;
+  ram.setWord(a3 + FF_LAUNCH, 0);
+  let step = (ram.word(a3 + FF_STEP) + 1) & 0xffff;
+  if (step === 6) step = 0;
+  ram.setWord(a3 + FF_STEP, step);
+  const aws = ram.long(d.waves + 4 * step);
+  launchWave(e, (aws | 0x40000000) >>> 0, (ram.word(a2 + AWO_X) - 20) & 0xffff, (ram.word(a2 + AWO_Y) - 20) & 0xffff);
 }

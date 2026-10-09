@@ -56,7 +56,7 @@ Start_List
   und eine von 32 AWO-Bänken (je bis 16 Gegner), Routinen einen von 32 Routinenplätzen.
 - Die Koordinaten sind um 256 verschoben (z. B. `280+256`), vermutlich damit Positionen außerhalb des Bildes positiv
   bleiben ❓.
-- In jeder Liste kommt genau einmal `R_Final` vor ✔ – vermutlich der Endgegner ❓.
+- In jeder Liste kommt genau einmal `R_Final` vor ✔ – der Endgegner (✔ für Level 1 und 2 aus dem Code).
 - `START_C Demo_Page`-Einträge stehen in `IFNE ASM_Demo_Mode=2`-Blöcken und existieren nur in Demo-Fassungen ✔.
 - Für Level 1 ist die Liste im entpackten Spielabbild gefunden und vollständig dekodiert ✔, siehe
   [Dateiformate](../dateiformate.md#angriffswellen-startliste-binärformat).
@@ -172,7 +172,8 @@ Levels wieder her.
 
 ### Level 2 – Wald (`Ag_Game_LFORET.s`)
 
-🌐 Rezensionen beschreiben braune Gegner, die in acht Richtungen schießen, und einen Endgegner mit Bumerangs.
+🌐 Rezensionen beschreiben braune Gegner, die in acht Richtungen schießen, und einen Endgegner mit Bumerangs (✔ laut
+Quellcode: `R_Final` wirft Bumerangwellen, siehe unten).
 
 ✔ Objekte: `R_Rapide` (41), `R_Spectre`, `R_Araignee`, `DGDP_Full_7c`, `DGDP_Feuillage_7c`,
 `…_Bestiolle_1–5`, `R_Kamikaze`, `R_Sol_Etoile`, `R_Tir_Etoile`, `…_Batman` (fledermausartig ❓),
@@ -208,6 +209,25 @@ hat keinen Regen. Die Startliste enthält ein `WAIT $E00` nach `WAIT $E40` (wirk
 - Der Quelltext hat bei `WAIT $12D0` (zweiter Kamikaze mit 175, 1, 1) kein `PAR_END`; das Abbild schon (`$FFFF` bei
   `$4B24E`), die Startliste läuft also normal weiter.
 - Übertragen in `routines.ts` (`kamikaze`, `solEtoile`), gegen das Original ungeprüft.
+
+✔ Endgegner `R_Final` (`$4C39E`–`$4C656`; Quelltext und Abbild verglichen): eigener Code, nicht der aus Level 1. Zwei
+Gegner der Bank an derselben Stelle (Start x 256 + 350, y 256 + 130): das Oberteil (`Obj_Final_1–3` `$232`/`$24E`/`$268`
+reihum nach `R_F_Anim_Up` `$4C38E`, Energie 150, Schussrate 20) und das Unterteil (`Obj_Final_Bas_1/_2` `$20E`/`$220`,
+Wechsel alle 8 Durchläufe, Energie 20000, ohne Schüsse). Keine eigene Palette; MODE 0 löscht `Rout_Mod_Pal_Counter`.
+- Beide pendeln mit 2 Pixel je Durchlauf zwischen x ≤ 256 + 160 und x ≥ 256 + 260 (`R_F_X_Mode` 0 = links, −1 = rechts).
+- Solange das Oberteil lebt, wirft es alle 18 Durchläufe eine Bumerangwelle (`Anim_Boomerang`, je 2 Gegner mit
+  Energie 3, Abstand 10, ohne Schüsse; absolute Bahnen `TX/TY_Final_1–6`) bei (x − 20, y − 20); die Reihenfolge
+  beginnt mit `R_T_Final_2` (`R_F_Step` wird vor dem Lesen erhöht): 2, 3, 4, 5, 6, 1, 2 … Tabellen `$4C2B6`, Zeiger
+  `R_T_Table` `$4C376`. Wie in Level 1 setzt der Start `Refresh_Pal` nicht.
+- Zerstört (unteres Status-Halbbyte des Oberteils) stehen beide still: Schritt 1 `Big_Explo_1` (`$6D0`) an beiden,
+  21 nur am Oberteil mit `Short_Phase` = 1 und Geräusch 1, 35 `Big_Explo_2` (`$706`) und 52 `Big_Explo_3` (`$73E`) an
+  beiden mit Geräusch, 52 zusätzlich `Clean_Up`. Anders als in Level 1 kein Blitz, kein Löschen des vorderen
+  Playfields, laufende Bumerangwellen fliegen weiter.
+- Abweichungen des Abbilds vom Quelltext (wie in Level 1): Schussrate 20 statt 30; `Quit_Delay` = 100 schon in
+  Schritt 1 statt 25 in Schritt 52.
+- Übertragen in `routines.ts` (`finalForet`), gegen das Original ungeprüft. Im Erkundungslauf (Dauerfeuer mit dem
+  Bewegungsmuster des Planungs-Bots, Leben aufgefüllt) startet er bei Bild 22.180, explodiert ab 25.225 und das Level
+  endet bei 25.428 (Level 2 ab Bild 13.112); `level2.test.ts` spielt denselben Lauf bis zum Levelende.
 
 ### Level 3 – Sumpf (`AG_GAME_LMARAIS.S`, Wellen-Parameter in `lmarais_rtr.s`)
 

@@ -58,8 +58,9 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
       Punkte, Leben, Äxte, Waffe und Zauber aus Level 1 übernommen; Angriffswellen laufen bis zur ersten Gegner-Routine
       (09.10.2026, gegen das Original noch ungeprüft); die fünf aus Level 1 bekannten Gegner-Routinen (`R_Spectre`,
       `R_Tir_Etoile`, `R_Volant_Missile`, `R_Araignee`, `R_Rapide`) mit ihren Unterschieden übertragen (09.10.2026,
-      ungeprüft); neue Routinen `R_Kamikaze` und `R_Sol_Etoile` übertragen (09.10.2026, ungeprüft), das Level läuft
-      bis zum Endgegner; offen: Endgegner `R_Final`, Levelende
+      ungeprüft); neue Routinen `R_Kamikaze` und `R_Sol_Etoile` übertragen (09.10.2026, ungeprüft); Endgegner
+      `R_Final` (eigener Code mit Bumerangwellen) übertragen, das Level läuft bis zum Levelende, danach Platzhalter
+      für Level 3 (09.10.2026, ungeprüft); offen: Prüfung mit einer Aufnahme, Ladebild Level 2 prüfen
 - [ ] Level 3 – Sumpf (`LMARAIS`)
 - [ ] Level 4 – Berge (`LMONTAGNES`)
 - [ ] Level 5 – Hochland (`LPLATEAUX`)

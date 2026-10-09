@@ -55,10 +55,10 @@ function start(code: number, params: number[], L: LevelLayout = SEA): Rout {
 }
 
 /** Belegte Einträge der Track_Table (Bit 31 gelöscht): TS-Zeiger */
-function usedTracks(e: LevelEngine): number[] {
+function usedTracks(e: LevelEngine, L: LevelLayout = SEA): number[] {
   const out: number[] = [];
   for (let i = 0; i < 16; i++) {
-    const v = e.ram.long(SEA.trackTable + 4 * i);
+    const v = e.ram.long(L.trackTable + 4 * i);
     if ((v & 0x80000000) === 0) out.push(v);
   }
   return out;
@@ -404,7 +404,7 @@ describe.skipIf(!hasAssets)("Gegner-Routinen von Level 2, aus Level 1 bekannt (o
 });
 
 describe.skipIf(!hasAssets)("Neue Gegner-Routinen von Level 2 (ohne Aufnahme)", () => {
-  // Werte von Hand aus Ag_Game_LFORET.s (Labels R_Kamikaze, R_Sol_Etoile), Abbild work/disasm/forest_rout.txt
+  // Werte von Hand aus Ag_Game_LFORET.s (Labels R_Kamikaze, R_Sol_Etoile, R_Final), Abbild work/disasm/forest_rout.txt
   const FV = FOREST.vars;
   const busy = (r: Rout): void => {
     r.e.setW(FV.routModPalCounter, 1);
@@ -480,5 +480,64 @@ describe.skipIf(!hasAssets)("Neue Gegner-Routinen von Level 2 (ohne Aufnahme)", 
     r.e.ram.setByte(r.a2 + STATUS, 1);
     r.run(10);
     expect([r.w(r.a2 + X), r.w(r.a3), r.w(r.bank)]).toEqual([398, 1, 1]);
+  });
+
+  it("R_Final: Ober- und Unterteil pendeln, alle 18 Durchläufe eine Bumerangwelle, Explosion bis Clean_Up", () => {
+    const r = start(0x4c39e, [], FOREST);
+    const a4 = r.a2 + AWO_LEN;
+    busy(r);
+    r.run(1);
+    expect([r.w(r.bank), r.w(r.a3), r.e.w(FV.routModPalCounter)]).toEqual([2, 1, 0]);
+    expect([r.w(r.a2 + X), r.w(r.a2 + Y), r.w(r.a2 + OBJ), r.w(r.a2 + ENERGY), r.e.ram.byte(r.a2 + F_RT_S)])
+      .toEqual([606, 386, 0x232, 150, 20]);
+    expect([r.w(a4 + X), r.w(a4 + Y), r.w(a4 + OBJ), r.w(a4 + ENERGY), r.e.ram.byte(a4 + F_RT_S)])
+      .toEqual([606, 386, 0x20e, 20000, 0xff]);
+    // Unterteil: Bit 3 von R_F_Anim_Delay gesetzt → Bas_1, sonst Bas_2; Oberteil: R_F_Anim_Up $232 ×4, $24E ×2, $268 ×2
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(a4 + X), r.w(a4 + OBJ), r.w(r.a2 + OBJ)]).toEqual([604, 604, 0x220, 0x232]);
+    r.run(3);
+    expect(r.w(r.a2 + OBJ)).toBe(0x24e);
+    r.run(2);
+    expect(r.w(r.a2 + OBJ)).toBe(0x268);
+    r.run(2);
+    expect([r.w(a4 + OBJ), r.w(r.a2 + OBJ)]).toEqual([0x20e, 0x232]);
+    // nach links bis x ≤ 256 + 160 (95. Durchlauf), dann nach rechts
+    r.run(87);
+    expect([r.w(r.a2 + X), r.w(r.a3 + 6)]).toEqual([416, 0xffff]);
+    r.run(1);
+    expect([r.w(r.a2 + X), r.w(a4 + X)]).toEqual([418, 418]);
+    // Wellen in den Durchläufen 18, 36 … 108: R_T_Final_2 … _6, dann _1, je bei (x − 20, y − 20)
+    r.run(12);
+    expect(usedTracks(r.e, FOREST).map((t) => [r.e.ram.long(t + 4), r.w(t + 0x0c), r.w(t + 0x0e)])).toEqual([
+      [0x4004c2d6, 550, 366], [0x4004c2f6, 514, 366], [0x4004c316, 478, 366], [0x4004c336, 442, 366],
+      [0x4004c356, 406, 366], [0x4004c2b6, 422, 366],
+    ]);
+    // rechts bis x ≥ 256 + 260 (145. Durchlauf), dann wieder nach links
+    r.run(37);
+    expect([r.w(r.a2 + X), r.w(r.a3 + 6)]).toEqual([516, 0]);
+    r.run(1);
+    expect(r.w(r.a2 + X)).toBe(514);
+    // Wellen 7 und 8 in den Durchläufen 126 und 144
+    expect(usedTracks(r.e, FOREST).length).toBe(8);
+    // zerstört: im selben Durchlauf noch bewegt, dann Schritt 1 (Quit_Delay 100, Big_Explo_1 an beiden)
+    r.e.ram.setByte(r.a2 + STATUS, 1);
+    r.e.setW(FV.shortPhase, 0);
+    r.run(1);
+    expect([r.w(r.a3), r.w(r.a3 + 4), r.e.w(FV.quitDelay), r.w(r.a2 + X)]).toEqual([2, 1, 100, 512]);
+    expect([r.w(r.a2 + OBJ), r.e.ram.byte(r.a2 + STATUS), r.w(a4 + OBJ), r.e.ram.byte(a4 + STATUS)])
+      .toEqual([0x6d0, 1, 0x6d0, 1]);
+    r.run(19);
+    expect([r.w(r.a2 + X), r.e.w(FV.shortPhase), r.e.w(FV.sound0Req)]).toEqual([512, 0, 0]);
+    r.run(1);
+    expect([r.e.w(FV.shortPhase), r.e.w(FV.sound0Req), r.e.w(FV.sound0VolReq)]).toEqual([1, 1, 63]);
+    r.run(14);
+    expect([r.w(r.a2 + OBJ), r.w(a4 + OBJ)]).toEqual([0x706, 0x706]);
+    r.run(16);
+    expect(r.e.b(FV.cleanUp)).toBe(0);
+    r.run(1);
+    // Schritt 52: Big_Explo_3, Clean_Up; Quit_Delay bleibt (Abbild), keine weiteren Wellen
+    expect([r.e.b(FV.cleanUp), r.e.w(FV.quitDelay), r.w(r.a2 + OBJ), r.w(a4 + OBJ)]).toEqual([0xff, 100, 0x73e, 0x73e]);
+    r.run(50);
+    expect(usedTracks(r.e, FOREST).length).toBe(8);
   });
 });

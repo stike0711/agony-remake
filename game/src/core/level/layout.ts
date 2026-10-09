@@ -600,6 +600,10 @@ export const FOREST: LevelLayout = {
     // Abbild $4C160; R_SE_Shape $4C138 ($4C1B8), Obj_Sol_Etoile_1 $614 ($4C184), Obj_Tir_1/_2/_8 $416/$428/$494
     // ($4C23C–$4C248)
     [0x4c160, { kind: "solEtoile", shape: 0x4c138, obj: 0x614, shots: [0x416, 0x428, 0x494] }],
+    // Abbild $4C39E; R_T_Table $4C376 ($4C5C0), R_F_Anim_Up $4C38E ($4C488), Obj_Final_1 $232 ($4C3D2),
+    // Obj_Final_Bas_1/_2 $20E/$220 ($4C468/$4C472), Obj_Big_Explo_1–3 $6D0/$706/$73E ($4C4BC/$4C51C/$4C55A)
+    [0x4c39e, { kind: "finalForet", waves: 0x4c376, animUp: 0x4c38e, obj: 0x232, bas1: 0x20e, bas2: 0x220,
+      explo1: 0x6d0, explo2: 0x706, explo3: 0x73e }],
   ]),
   relativeTracks: 0x4c658,
   absoluteTracks: 0x4c658,
