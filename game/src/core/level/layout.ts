@@ -936,6 +936,9 @@ export const MOUNTAINS: LevelLayout = {
     [0x4c368, { kind: "araignee", pal: null, obj: 0x9c, yMode: 4 }],
     // Abbild $4C412, wie Level 1; Obj_Sac $DC ($4C438), Obj_Boulle_1 $F6 ($4C4EE), Sin_Table1 $4D43C ($4C522)
     [0x4c412, { kind: "bomber", obj: 0xdc, bomb: 0xf6, sin: 0x4d43c }],
+    // Abbild $4C276, eigener Code (AG_GAME_LMONTAGNES.S, R_Colonne_Flamme); R_CF_Shape $4C246 ($4C2F2), R_CF_Hight
+    // $4C256 ($4C330), Obj_Grande_Flamme_1 $198 ($4C2A0)
+    [0x4c276, { kind: "colonneFlamme", shape: 0x4c246, hight: 0x4c256, obj: 0x198 }],
   ]),
   relativeTracks: 0x4c9c4, // $2B58
   absoluteTracks: 0x4cf70, // $2CBA

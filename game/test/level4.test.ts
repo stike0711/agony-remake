@@ -40,6 +40,9 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
     display.setMode(true, false);
     // ab Bild 58 Dauerfeuer mit dem Bewegungsmuster von explore-level.ts (dort ab Bild 13170)
     let k = 0, n = 0, f = 0;
+    // R_Colonne_Flamme: Bank je Durchlauf (Kopfwort, x und Objekt der 4 Flammen)
+    const cf: { f: number; count: number; x: number[]; obj: number[] }[] = [];
+    let cfStart = -1, cfEnd = -1;
     for (; f < 2000 && !e.unported && !e.result; f++) {
       let input = f === 49 || f === 50 ? JOY_FIRE : 0;
       if (f >= 58) {
@@ -50,16 +53,53 @@ describe.skipIf(!hasAssets)("Level 4 (ohne Aufnahme)", () => {
       e.setInput(input);
       if (e.ram.word(SHARED.life) < 3) e.ram.setWord(SHARED.life, 7);
       e.tick(display);
+      let slot = -1;
+      for (let i = 0; i < 32; i++) if (e.ram.long(L.routStruct + 28 * i) === 0x4c276) slot = L.routStruct + 28 * i;
+      if (slot >= 0) {
+        if (cfStart < 0) cfStart = f;
+        const bank = e.ram.long(slot + 8);
+        const a = [0, 1, 2, 3].map((i) => bank + 4 + 12 * i);
+        cf.push({ f, count: e.ram.word(bank), x: a.map((p) => e.ram.word(p)), obj: a.map((p) => e.ram.word(p + 4)) });
+      } else if (cfStart >= 0 && cfEnd < 0) cfEnd = f;
       // ohne Regen und Zauber zeigen Sprite 6 und 7 die leere Liste
       if (f === 40) expect([e.ram.long(L.d + V.sprPtrB + 24), e.ram.long(L.d + V.sprPtrB + 28)]).toEqual([L.emptySpr, L.emptySpr]);
     }
-    // R_Bomber (WAIT $80) läuft (übertragen wie Level 1), die Engine hält am ersten R_Colonne_Flamme (WAIT $140); Bildnummer aus
-    // dem Nachbau (Regression, gegen das Original ungeprüft)
+    // R_Bomber (WAIT $80) und R_Colonne_Flamme (WAIT $140) laufen, die Engine hält am ersten R_Sol_Guide ($4C55C, WAIT
+    // $280); Bildnummern aus dem Nachbau (Regression, gegen das Original ungeprüft)
     expect(e.result).toBeNull();
-    expect(e.unported).toContain("$4C276");
-    expect(e.w(V.levelX)).toBeGreaterThanOrEqual(0x140);
-    expect(e.w(V.levelX)).toBeLessThan(0x150);
+    expect(e.unported).toContain("$4C55C");
+    expect(e.w(V.levelX)).toBeGreaterThanOrEqual(0x280);
+    expect(e.w(V.levelX)).toBeLessThan(0x290);
     expect(f).toBe(UNPORTED_AT);
+    // R_Colonne_Flamme (Quelle: AG_GAME_LMONTAGNES.S, Label R_Colonne_Flamme): Start-Durchlauf mit 4 Flammen bei
+    // x 256 + 360, y 446, 411, 376, 341 und Obj_Grande_Flamme_1; Startphasen an den absoluten Adressen $2–$9 (O-018)
+    expect(cfStart).toBe(CF_START);
+    expect(cf[0]!.count).toBe(1);
+    expect(cf[0]!.x).toEqual([616, 616, 616, 616]);
+    expect(cf[0]!.obj).toEqual([0x198, 0x198, 0x198, 0x198]);
+    expect([0, 1, 2, 3].map((i) => e.ram.word(2 + 2 * i))).toEqual([0, 2, 4, 6]);
+    // R_CF_Shape und R_CF_Hight im Abbild
+    expect([0, 1, 2, 3, 4, 5, 6, 7].map((i) => e.ram.word(0x4c246 + 2 * i))).toEqual([0x198, 0x1aa, 0x1bc, 0x1ce, 0x1e0, 0x1f2, 0x204, 0x216]);
+    const hight = [1, 1, 1, 1, 1, 1, 1, 2, 3, 4, 4, 4, 4, 4, 3, 2];
+    expect(hight.map((_, i) => e.ram.word(0x4c256 + 2 * i))).toEqual(hight);
+    // je Durchlauf 2 Pixel nach links, alle 4 Flammen mit demselben Bild (Phase 2, 4, …, 14, 0), alle 3 Durchläufe
+    // der nächste Wert aus R_CF_Hight als Zahl der sichtbaren Flammen
+    // Die Hauptschleife braucht hier 1–3 Bilder je Durchlauf; Durchlauf j aus x = 616 − 2j. Je Durchlauf 2 Pixel nach
+    // links, alle 4 Flammen mit demselben Bild (Phase 2j mod 16), nach jedem dritten Durchlauf der nächste Wert aus
+    // R_CF_Hight als Zahl der sichtbaren Flammen
+    const passes = new Set<number>();
+    for (const r of cf) {
+      const j = (616 - r.x[0]!) / 2;
+      passes.add(j);
+      expect(r.x).toEqual(Array(4).fill(r.x[0]));
+      expect(r.obj).toEqual(Array(4).fill(0x198 + 0x12 * (j % 8)));
+      expect(r.count).toBe(hight[Math.floor(j / 3) % 16]);
+    }
+    // Ende bei x 200: Durchläufe 0–207 sichtbar, im Durchlauf 208 CLOSE
+    // lückenlos bis zum Halt; die Säule läuft dann noch (Ende bei x 200 in routines.test.ts)
+    expect(passes.size).toBe(Math.max(...passes) + 1);
+    expect(passes.size).toBe(CF_PASSES);
+    expect(cfEnd).toBe(-1);
   }, 60_000);
 });
 
@@ -68,4 +108,6 @@ const PATTERN: [number, number][] = [
   [25, JOY_UP], [30, 0], [25, JOY_DOWN], [20, 0], [15, JOY_RIGHT], [30, JOY_DOWN], [20, 0], [15, JOY_LEFT], [40, JOY_UP],
   [25, 0],
 ];
-const UNPORTED_AT = 403;
+const UNPORTED_AT = 724;
+const CF_START = 402;
+const CF_PASSES = 161;

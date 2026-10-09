@@ -15,8 +15,8 @@ Alle Gegner-Routinen, Bonus, Zaubermenü mit allen Zaubern, Äxte, Pause und Lev
 (gegen das Original noch ungeprüft); nach dem Levelende folgen das Ladebild und Level 2 (Abbild und Layout stehen,
 alle Gegner-Routinen samt Endgegner sind übertragen, das Level läuft bis zum Levelende), danach Ladebild und Level 3
 (Abbild und Layout stehen, alle Gegner-Routinen samt Endgegner sind übertragen, das Level läuft bis zum Levelende),
-danach Ladebild und Level 4 (Abbild und Layout stehen, die Wellen laufen bis zur ersten Gegner-Routine).
-Als Nächstes: die Gegner-Routinen von Level 4; am PC Aufnahmen von Level 1 über Bild 14.792 hinaus und
+danach Ladebild und Level 4 (Abbild und Layout stehen, die Wellen laufen bis zum ersten `R_Sol_Guide`).
+Als Nächstes: die übrigen Gegner-Routinen von Level 4; am PC Aufnahmen von Level 1 über Bild 14.792 hinaus und
 von Level 2 zur Prüfung des Übertragenen, Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist
 eingeplant, sobald ein Mac zur Verfügung steht.
 
@@ -31,7 +31,7 @@ eingeplant, sobald ein Mac zur Verfügung steht.
 | 3. Referenz-Emulator mit den ADFs und Kickstart 1.3 einrichten | ✅ erledigt | vAmigaWeb als A500 (OCS, 512 + 512 KB), schrittweise steuerbar, siehe [Setup](setup.md#referenz-emulator) |
 | 4. Asset-Pipeline: Spieldateien entpacken; Grafiken, Paletten, Angriffswellen, Sounds und Musik extrahieren | 🟡 begonnen | Disketten ausgelesen, alle 15 Spieldateien entpackt, Lade- und Startadressen bestimmt; Titelbilder, Menübild, Menüschrift, Texttabelle und Ladebilder 1–2 lokalisiert und mit Python-Prototypen pixelgenau dekodiert; Startliste von Level 1 dekodiert. Pipeline in TypeScript für die Startsequenz fertig (`tools/pipeline/`); Level-Daten fehlen noch |
 | 5. Web-Grundgerüst: Spielschleife, Renderer, Eingabe, Audio, Build nach `server/` | ✅ erledigt | 06.10.2026, [Architektur → Umsetzung](architektur.md#umsetzung-web-grundgerüst); ProTracker-Abspieler inzwischen auch; offen: Vollbild, Tests auf echten Geräten |
-| 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026; übrige Gegner-Routinen, Bonus und Levelende übertragen, ungeprüft (08.10.2026); Level 2 bis zum Levelende übertragen, ungeprüft (09.10.2026); Level 3 bis zum Levelende, ungeprüft (09.10.2026); Level 4: Abbild, Layout, Startliste, ungeprüft (09.10.2026) |
+| 6. Level 1 vollständig spielbar machen und mit dem Original abgleichen, danach Level 2–6 | 🟡 begonnen | Hardware-Modell (E-032); Level 1 ohne Eingabe bis zum Spielende fertig (Wellen, 2 von 11 Gegner-Routinen, Tod, Schild), 07.10.2026; übrige Gegner-Routinen, Bonus und Levelende übertragen, ungeprüft (08.10.2026); Level 2 bis zum Levelende übertragen, ungeprüft (09.10.2026); Level 3 bis zum Levelende, ungeprüft (09.10.2026); Level 4: Abbild, Layout, Startliste, 5 von 8 Gegner-Routinen, ungeprüft (09.10.2026) |
 | 7. Titel/Intro, Menü, Ladebilder, Highscore und Spielende; Gesamtabgleich und Bugfixing | 🟡 begonnen | Titelsequenz, Menü, Story-Seite, Ladebild Level 1 fertig und geprüft (06.10.2026); Ladebilder Level 2–4 übertragen, ungeprüft (08./09.10.2026); offen: Namenseingabe, Cheat, Ladebilder 5–6, Spielende |
 
 ### Aktueller Meilenstein: Start bis Level 1
@@ -76,10 +76,9 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Level 4 – `R_Colonne_Flamme`** (nächster Cloud-Schritt, Ablauf B, Effort „hoch“): `$4C276`
-   (`AG_GAME_LMONTAGNES.S`, Abbild `work/disasm/mountains_rout.txt`); hier hält der Lauf (403 Bilder nach dem Start,
-   WAIT `$140`). Danach `R_Sol_Guide` `$4C55C`, `R_Dragon` `$4C710` (Effort „hoch“) und der Endgegner `R_Final`
-   `$4C888` (Effort „hoch“). Level 4 endet mit `ui.level5Stub` (`flow.ts`, `level4`).
+1. **Level 4 – `R_Sol_Guide`** (nächster Cloud-Schritt, Ablauf B, Effort „hoch“): `$4C55C` mit Parameter
+   (`AG_GAME_LMONTAGNES.S`, Abbild `work/disasm/mountains_rout.txt`); hier hält der Lauf (724 Bilder nach dem Start,
+   WAIT `$280`). Danach `R_Dragon` `$4C710` (Effort „hoch“) und der Endgegner `R_Final` `$4C888` (Effort „hoch“). Level 4 endet mit `ui.level5Stub` (`flow.ts`, `level4`).
 2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
    [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
 
@@ -192,9 +191,15 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 09.10.2026 | Level 3: Endgegner `R_Final` und Levelende (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 | 09.10.2026 | Level 4: Ladebild, Abbild, Layout, Startliste (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 | 09.10.2026 | Level 4: bekannte Gegner-Routinen (Cloud-Session) | mittel | – | – | in der Cloud nicht abfragbar; Sitzung nach Neustart des Workers, kein Compact |
+| 09.10.2026 | Level 4: `R_Colonne_Flamme` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung nach `/clear`, kein Compact |
 
 ## Verlauf
 
+- **09.10.2026 (Level 4: `R_Colonne_Flamme`, Cloud-Session)** – Feuersäule aus 4 Flammen (eigener Code, Abbild
+  `$4C276` gleich dem Quelltext) als `colonneFlamme` in `routines.ts`; Eigenheit O-018 (Startphasen an absoluten
+  Adressen `$2`–`$9`, Flammen im Gleichtakt) nachgebildet. Level 4 läuft jetzt bis zum ersten `R_Sol_Guide`
+  (724 Bilder). 1 neuer Kern-Test, `level4.test.ts` erweitert, 91 Tests; Bild per `explore-level.ts --ppm` angesehen
+  (Säule plausibel). Gegen das Original ungeprüft. origin/main war schon enthalten.
 - **09.10.2026 (Level 4: bekannte Gegner-Routinen, Cloud-Session)** – `R_Bomber`, `R_Volant_Missile`,
   `R_Sol_Kamikaze`, `R_Araignee` per `diff` und Abbild Befehl für Befehl mit Level 1–3 verglichen, als Einträge in
   `MOUNTAINS.routines` (keine neuen Felder nötig). Level 4 läuft jetzt bis zum ersten `R_Colonne_Flamme` (403 Bilder).

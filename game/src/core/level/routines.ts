@@ -9,7 +9,8 @@
 // das Original ungeprüft; der Endgegner von Level 2 (R_Final in Ag_Game_LFORET.s) hat eigenen Code (finalForet).
 // Level 3 nutzt die bekannten Routinen ganz ohne eigene Paletten (auch ohne Rout_Mod_Pal_Counter bei R_Rapide,
 // R_Transporteur und R_Sol_Crache), hat einen eigenen R_Jumper (jumperMarais), R_Sol_Kamikaze und einen eigenen
-// Endgegner mit Zunge (finalMarais); gegen das Original ungeprüft.
+// Endgegner mit Zunge (finalMarais); gegen das Original ungeprüft. Level 4 nutzt R_Bomber, R_Volant_Missile,
+// R_Sol_Kamikaze und R_Araignee wie Level 1–3 und hat eine Feuersäule (colonneFlamme); gegen das Original ungeprüft.
 // Unbekannte Routinen halten die Engine an (LevelEngine.unported).
 
 import type { LevelEngine } from "./engine.ts";
@@ -208,9 +209,18 @@ export interface FinalMaraisDef {
   objLangue: number;
 }
 
+/** Feuersäule aus 4 großen Flammen, die mit dem Boden nach links wandert und wächst und schrumpft (R_Colonne_Flamme, Level 4) */
+export interface ColonneFlammeDef {
+  kind: "colonneFlamme";
+  /** R_CF_Shape (8 Objektnummern), R_CF_Hight (16 Wörter: Zahl der sichtbaren Flammen), Obj_Grande_Flamme_1 */
+  shape: number;
+  hight: number;
+  obj: number;
+}
+
 export type RoutineDef = SolCracheDef | AraigneeDef | TransporteurDef | TirEtoileDef | SpectreDef | RapideDef |
   BomberDef | GrossiDef | VolantMissileDef | FinalDef | KamikazeDef | SolEtoileDef | FinalForetDef | JumperMaraisDef |
-  SolKamikazeDef | FinalMaraisDef;
+  SolKamikazeDef | FinalMaraisDef | ColonneFlammeDef;
 
 const ROUTS = 32;
 const ROUT_LEN = 28;
@@ -271,6 +281,7 @@ export function routineManager(e: LevelEngine): void {
       case "jumperMarais": jumperMarais(e, a0, def); break;
       case "solKamikaze": solKamikaze(e, a0, def); break;
       case "finalMarais": finalMarais(e, a0, def); break;
+      case "colonneFlamme": colonneFlamme(e, a0, def); break;
     }
   }
 }
@@ -1564,4 +1575,62 @@ function finalMarais(e: LevelEngine, a0: number, d: FinalMaraisDef): void {
   ram.setLong(a4 + AWO_STATUS, 0);
   ram.setWord(a3, (mode + 1) & 0xffff);
   ram.setWord(a3 + FM_LANGUE_STEP, 0xfffe);
+}
+
+// R_Colonne_Flamme: Variablen +0 R_CF_Mode, +2–+8 R_CF_Shape_Num_0–3, +10 R_CF_Hight_Num, +12 R_CF_Hight_Delay
+const CF_SHAPE_NUM = 2;
+const CF_HIGHT_NUM = 10;
+const CF_HIGHT_DELAY = 12;
+
+/**
+ * R_Colonne_Flamme (AG_GAME_LMONTAGNES.S, „COLONNE DE FLAMME“): 4 Gegner übereinander (x 256 + 360, y 256 + 190,
+ * je 35 Pixel höher, Obj_Grande_Flamme_1, Energie 32767, schießen nicht), die mit dem Boden 2 Pixel je Durchlauf nach
+ * links wandern und reihum die 8 Bilder aus R_CF_Shape zeigen (jeden Durchlauf das übernächste). Alle 3 Durchläufe
+ * setzt der nächste Wert aus R_CF_Hight das Kopfwort der Bank, also wie viele Flammen von unten sichtbar sind
+ * (1, …, 2, 3, 4, …, 3, 2). Ende, wenn die unterste Flamme x 200 erreicht (geprüft auch im Start-Durchlauf). Ohne
+ * eigene Palette und ohne Rout_Mod_Pal_Counter.
+ * Eigenheit des Originals (O-018): `move.l #…,R_CF_Shape_Num_0` bzw. `R_CF_Shape_Num_2` ohne `(a3)` schreibt die
+ * Startphasen 0, 2, 4, 6 an die absoluten Adressen $2–$9 statt in die Variablen; diese sind beim START_C gelöscht,
+ * alle 4 Flammen zeigen also stets dasselbe Bild. Quelle: AG_GAME_LMONTAGNES.S, Label R_Colonne_Flamme; Abbild
+ * $4C276–$4C366 (gleich dem Quelltext: `move.l #$2, $2.l`, `move.l #$40006, $6.l`), R_CF_Shape $4C246, R_CF_Hight
+ * $4C256.
+ */
+function colonneFlamme(e: LevelEngine, a0: number, d: ColonneFlammeDef): void {
+  const { ram } = e;
+  const bank = ram.long(a0 + ROUT_AWO_PTR);
+  const a3 = a0 + ROUT_VARIABLES;
+  const a2 = bank + 4;
+  if (ram.word(a3) === 0) {
+    ram.setLong(bank, 0x00010000);
+    for (let i = 0, a4 = a2, y = 256 + 190; i < 4; i++, a4 += AWO_LEN, y -= 35) {
+      ram.setWord(a4 + AWO_X, 256 + 360);
+      ram.setWord(a4 + AWO_Y, y);
+      ram.setWord(a4 + AWO_OBJ_OFF, d.obj);
+      ram.setWord(a4 + AWO_ENERGY, 32767);
+      ram.setLong(a4 + AWO_STATUS, 0);
+    }
+    // O-018: absolute Adressen statt R_CF_Shape_Num_0–3(a3)
+    ram.setLong(2, 0x00000002);
+    ram.setLong(6, 0x00040006);
+    ram.setWord(a3, 1);
+    ram.setWord(a3 + CF_HIGHT_NUM, 0);
+    ram.setWord(a3 + CF_HIGHT_DELAY, 0);
+  } else {
+    for (let i = 0, a4 = a2; i < 4; i++, a4 += AWO_LEN) {
+      const n = a3 + CF_SHAPE_NUM + 2 * i;
+      const shape = (ram.word(n) + 2) & 0xf;
+      ram.setWord(n, shape);
+      ram.setWord(a4 + AWO_OBJ_OFF, ram.word(d.shape + shape));
+      ram.setWord(a4 + AWO_X, (ram.word(a4 + AWO_X) - 2) & 0xffff);
+    }
+    const delay = ram.word(a3 + CF_HIGHT_DELAY) + 1;
+    ram.setWord(a3 + CF_HIGHT_DELAY, delay);
+    if (delay === 3) {
+      ram.setWord(a3 + CF_HIGHT_DELAY, 0);
+      const hight = (ram.word(a3 + CF_HIGHT_NUM) + 2) & 0x1f;
+      ram.setWord(a3 + CF_HIGHT_NUM, hight);
+      ram.setWord(bank, ram.word(d.hight + hight));
+    }
+  }
+  if (s16(ram.word(a2 + AWO_X)) <= 200) close(e, a0, bank, false);
 }

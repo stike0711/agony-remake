@@ -299,7 +299,7 @@ Startliste liegen in Quelltext-Reihenfolge (Startadressen aus den `START_C`-Eint
 `R_Sol_Kamikaze` `$4C196`, `R_Colonne_Flamme` `$4C276`, `R_Araignee` `$4C368`, `R_Bomber` `$4C412`, `R_Sol_Guide`
 `$4C55C` (mit Parameter, z. B. 256 + 200), `R_Dragon` `$4C710`, `R_Final` `$4C888` (`START_C` bei `WAIT $2300`;
 Disassembly `work/disasm/mountains_rout.txt`). `R_Rapide` steht im Quelltext, wird aber nicht gestartet. Noch nicht
-übertragen: Im Nachbau hält das Level beim ersten `R_Colonne_Flamme` an (403 Bilder nach dem Start,
+übertragen: Im Nachbau hält das Level beim ersten `R_Sol_Guide` an (724 Bilder nach dem Start, `WAIT $280`,
 `level4.test.ts`).
 
 Aus Level 1–3 bekannt (Quelltext per `diff`, Abbild Befehl für Befehl verglichen, 09.10.2026, gegen das Original
@@ -307,6 +307,15 @@ noch ungeprüft): `R_Bomber` wie Level 1 (Sack `$DC`, Kugel `Obj_Boulle_1` `$F6`
 `R_Araignee` wie Level 2 ohne Palette, Richtung aber in Variable +4 wie Level 1 (`$9C`), `R_Volant_Missile` wie
 Level 3 (ohne Palette, Schuss 2 Pixel je Durchlauf; `$244`/`$25A`, `Obj_Tir_1–8` `$42A`–`$4B4`), `R_Sol_Kamikaze`
 wie Level 3 (`R_SK_Shape` `$4C18A`, `$4CA`).
+
+✔ `R_Colonne_Flamme` (`$4C276`–`$4C366`, gleich dem Quelltext; übertragen 09.10.2026, gegen das Original noch
+ungeprüft): 4 Gegner übereinander (x 256 + 360, y 256 + 190, je 35 Pixel höher, `Obj_Grande_Flamme_1` `$198`,
+Energie 32767, Status 0), ohne eigene Palette und ohne `Rout_Mod_Pal_Counter`. Je Durchlauf 2 Pixel nach links und
+das übernächste der 8 Bilder aus `R_CF_Shape` (`$4C246`: `$198`, `$1AA`, …, `$216`, Abstand `$12`); alle 3
+Durchläufe setzt der nächste Wert aus `R_CF_Hight` (`$4C256`: 1, 1, 1, 1, 1, 1, 1, 2, 3, 4, 4, 4, 4, 4, 3, 2) das
+Kopfwort der Bank, also wie viele Flammen von unten sichtbar sind. Ende, wenn die unterste Flamme x 200 erreicht
+(208 Durchläufe). Eigenheit O-018: Die versetzten Startphasen landen an den absoluten Adressen `$2`–`$9`, alle 4
+Flammen zeigen stets dasselbe Bild.
 
 ### Level 5 – Hochland (`Ag_Game_LPLATEAUX.s`)
 

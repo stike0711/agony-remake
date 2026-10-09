@@ -72,8 +72,9 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
 - [ ] Level 4 – Berge (`LMONTAGNES`) – Ladebild `load_mountains`, Abbild `mountains` als Speicherblöcke, Layout per
       `derive_layout.py` aus Level 3 übertragen (gemeinsamer Code Befehl für Befehl gleich), ohne Regen; gemeinsame
       Variablen aus Level 3; die aus Level 1–3 bekannten Routinen `R_Bomber`, `R_Volant_Missile`, `R_Sol_Kamikaze`,
-      `R_Araignee` übertragen, Lauf bis zum ersten `R_Colonne_Flamme` (WAIT `$140`) (09.10.2026, gegen das Original
-      noch ungeprüft); offen: `R_Colonne_Flamme`, `R_Sol_Guide`, `R_Dragon`, Endgegner, Prüfung mit einer Aufnahme
+      `R_Araignee` übertragen (09.10.2026); `R_Colonne_Flamme` (Feuersäule) übertragen, Lauf bis zum ersten
+      `R_Sol_Guide` (WAIT `$280`) (09.10.2026, gegen das Original noch ungeprüft); offen: `R_Sol_Guide`, `R_Dragon`,
+      Endgegner, Prüfung mit einer Aufnahme
 - [ ] Level 5 – Hochland (`LPLATEAUX`)
 - [ ] Level 6 – Feuer (`LFEUX`)
 
