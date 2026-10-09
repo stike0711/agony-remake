@@ -27,8 +27,10 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
 - [ ] Schuss (Echoortungswelle), dreimal aufrüstbar durch Zaubertränke – Flug als Sprite übertragen (alle 4 Stufen),
       Stufe 0 pixelgenau geprüft; Treffer, Abschüsse und Dauerfeuer gegen den Emulator geprüft (`level1_shoot`,
       07.10.2026); Schussgeräusch als Zustand (Sound_Start)
-- [ ] Zwei kreisende Schwerter als Schutz
-- [ ] Schriftrollen und Zauber-Auswahlmenü (pausiert das Spiel), 8 Zaubersprüche
+- [ ] Zwei kreisende Schwerter als Schutz – Äxte mit Kollisionsrechtecken übertragen, ungeprüft (09.10.2026)
+- [ ] Schriftrollen und Zauber-Auswahlmenü (pausiert das Spiel), 8 Zaubersprüche – Zaubermenü (Leertaste bzw.
+      Zauber-Knopf, mit Menu_Mode auch Feuer halten) und alle 8 Zauber übertragen, ungeprüft (09.10.2026, E-042)
+- [ ] Pause (Taste P, Feuer beendet sie) – übertragen, ungeprüft (09.10.2026); Pause-Knopf für Touch/Gamepad fehlt
 - [ ] Leben (3), Verlust von Power-ups, Wiedereinstieg mit kurzer Unverwundbarkeit – Tod, Explosion, Schild
       (3 s) und Verlust von Waffenstufe und unterer Axt übertragen und geprüft (07.10.2026)
 - [ ] Punkte, Extraleben – Punkte für Treffer (13) und Abschuss (116) geprüft (`level1_shoot`); Extraleben ab
@@ -49,8 +51,9 @@ Legende: `[ ]` offen · `[~]` in Arbeit · `[x]` fertig und mit dem Original abg
       übrige Gegner-Routinen samt Endgegner übertragen, gegen das Original noch ungeprüft (`R_Transporteur`,
       `R_Tir_Etoile`, `R_Spectre`, `R_Rapide`, `R_Bomber`, `R_Volant_Grossi`, `R_Jumper`, `R_Volant_Missile`,
       `R_Final`; 08.10.2026, Kern-Tests in `routines.test.ts`); Bonus übertragen, ungeprüft (08.10.2026); Levelende mit
-      Leben übertragen, ungeprüft, danach Ladebild Level 2 und vorläufig Platzhalter „Level 2“ (08.10.2026); offen: Zauber,
-      Prüfung der neuen Teile mit einer Aufnahme über Bild 14792 hinaus
+      Leben übertragen, ungeprüft, danach Ladebild Level 2 und vorläufig Platzhalter „Level 2“ (08.10.2026); Zaubermenü,
+      Zauber, Äxte und Pause übertragen, ungeprüft (09.10.2026); offen: Prüfung der neuen Teile mit einer Aufnahme über
+      Bild 14792 hinaus
 - [ ] Level 2 – Wald (`LFORET`)
 - [ ] Level 3 – Sumpf (`LMARAIS`)
 - [ ] Level 4 – Berge (`LMONTAGNES`)

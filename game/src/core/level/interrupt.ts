@@ -1,13 +1,14 @@
 // Copper-Interrupt am Ende der Copperliste (sea $43C6–$5BC4; Quelle: Agony_Parent_.s „Copper_Int3“, Ag_Sprites.s).
 // Läuft in jedem Bild: 25-Hz-Takt der Hauptschleife, Eule (Joystick, Flügelschlag, Sprite-Listen), Äxte, Schüsse,
 // Zauber, Tod der Eule, Bonus, Sprite-Zeiger in der Copperliste, Verzögerung des vorderen Playfields und Regen
-// (Level 1). Übertragen sind der Weg ohne Zauber, der Schild nach dem Wiedereinstieg (Zauber 6), der Tod und der Bonus
-// (gegen das Original noch ungeprüft); Zaubermenü, übrige Zauber, Äxte und Pause lösen einen Fehler aus.
+// (Level 1). Zaubermenü, Zauber 0–5 und 7, Äxte und Pause stehen in spells.ts; Zaubermenü, Zauber, Äxte, Pause und
+// Bonus sind gegen das Original noch ungeprüft (W-023, W-024).
 
 import { DMACON } from "../amiga/video.ts";
 import type { LevelEngine } from "./engine.ts";
 import { SHARED } from "./layout.ts";
 import { soundStart } from "./sounds.ts";
+import { axeRects, backFireBall, forwardFireBall, icons, megaBlast, openIconsMenu, rotativeFireBall, seeker, smartBomb, stopTime } from "./spells.ts";
 import { IRQ } from "./timing.ts";
 
 /** SPR_Y_OFF (PAL) und horizontaler Versatz: Sprite-Position = Spielkoordinate − 256 + Fensteranfang */
@@ -161,7 +162,15 @@ function sorcerer(e: LevelEngine): boolean {
   // wird weiter der Knopf. Auch beim Levelende startet Feuer also Schüsse (O-015, gegen das Original noch ungeprüft).
   // Quelle: Ag_Sprites.s, Abschnitt FIRE TEST (bset #7,JoyFire)
   if (e.fire) {
-    if (e.w(V.pause2) !== 0) throw new Error("Level: Pause ist noch nicht übertragen");
+    // in der Pause beendet Feuer die Pause (wirkt erst, wenn FRONT SCROLL Pause2 nachzieht)
+    if (e.w(V.pause2) !== 0) {
+      e.setW(V.pause, 0);
+      e.setW(V.stop, 0);
+      e.setW(V.textDelay, 2);
+      e.setW(V.clBplCon0, e.w(V.clBplCon0) & 0x7ffb);
+    }
+  }
+  if (e.fire && e.w(V.pause2) === 0) {
     e.setW(V.fireCount, e.w(V.fireCount) + 1);
     if (e.w(V.fwFireStep) === FW_F_OFF && e.w(V.fwFireOff) === 0) {
       // neuer Schuss mit Schussgeräusch ($469C–$46B0: Sound_Start mit Nummer 2, Lautstärke $32)
@@ -170,11 +179,11 @@ function sorcerer(e: LevelEngine): boolean {
       soundStart(e, 2, 0x32);
       e.setW(V.fwFirePhase, 0);
     }
-  } else {
-    e.setW(V.fireCount, 0);
   }
+  if (!e.fire) e.setW(V.fireCount, 0);
+  // Zaubermenü mit gehaltenem Feuer (nur mit Menu_Mode, Taste M; sonst Leertaste, spells.ts)
   if (ram.word(SHARED.menuMode) !== 0 && e.w(V.curentSpell) !== 2 && e.w(V.fireCount) === 30 && e.w(V.quitDelay) === 0) {
-    throw new Error("Level: Zaubermenü ist noch nicht übertragen");
+    openIconsMenu(e);
   }
   return true;
 }
@@ -276,12 +285,7 @@ function axes(e: LevelEngine): void {
   e.setW(V.axeDownY, y + traj + 98);
   if (e.sw(V.axeUpY) < 256 - 32) e.setW(V.axeUpY, 256 - 32);
   for (let i = 0; i < 4; i++) ram.setLong(L.goodColList + 16 + 4 * i, 0xffffffff);
-  if (ram.word(SHARED.axeUpOn) !== 0 || ram.word(SHARED.axeDownOn) !== 0) throw new Error("Level: Äxte sind noch nicht übertragen");
-}
-
-/** ICONES SPRITES ($49C2): Zaubermenü – vor dem Start aus */
-function icons(e: LevelEngine): void {
-  if (e.w(e.V.iconesOff) !== 0 || e.w(e.V.iconesMode) !== 0) throw new Error("Level: Zaubermenü ist noch nicht übertragen");
+  axeRects(e);
 }
 
 /**
@@ -318,9 +322,15 @@ function spells(e: LevelEngine): void {
   e.setB(V.sorcererOn, 0xff); // st.b Sorcerer_On
   e.setW(V.fwFireOff, 0);
   for (let i = 0; i < 8; i++) ram.setLong(L.goodColList + 32 + 4 * i, 0xffffffff);
-  const spell = e.w(V.curentSpell);
-  if (spell === 6) shield(e);
-  else if (spell <= 7) throw new Error(`Level: Zauber ${spell} ist noch nicht übertragen`);
+  // Die Zauber prüfen Curent_Spell nacheinander (ein Zauber kann sich unterwegs beenden: st Curent_Spell+1)
+  if (e.w(V.curentSpell) === 0) backFireBall(e);
+  if (e.w(V.curentSpell) === 1) rotativeFireBall(e);
+  if (e.w(V.curentSpell) === 2) stopTime(e);
+  if (e.w(V.curentSpell) === 3) seeker(e);
+  if (e.w(V.curentSpell) === 4) smartBomb(e);
+  if (e.w(V.curentSpell) === 5) megaBlast(e);
+  if (e.w(V.curentSpell) === 6) shield(e);
+  if (e.w(V.curentSpell) === 7) forwardFireBall(e);
   // (-1) SPELL OFF ($54CC)
   if (e.b(V.curentSpell + 1) === 0xff && e.w(V.rainOn) === 0) {
     e.setL(V.sprPtrB + 6 * 4, L.emptySpr);

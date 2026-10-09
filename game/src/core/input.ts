@@ -6,10 +6,15 @@ export const JOY_DOWN = 1 << 1;
 export const JOY_LEFT = 1 << 2;
 export const JOY_RIGHT = 1 << 3;
 export const JOY_FIRE = 1 << 4;
-/** Zaubermenü (im Original: Feuer halten; eigene Taste wegen Dauerfeuer, siehe Architektur) */
+/**
+ * Zaubermenü: im Level wie die Leertaste des Originals (Tastencode $40, öffnet und schließt das Menü); Feuer halten
+ * öffnet es nur mit Menu_Mode (Taste M, im Remake ohne Taste)
+ */
 export const BTN_SPELL = 1 << 5;
 /** Optionsmenü des Remakes öffnen/schließen */
 export const BTN_OPTIONS = 1 << 6;
+/** Pause im Level: wie die Taste P des Originals (Tastencode $19) */
+export const BTN_PAUSE = 1 << 7;
 
 export const JOY_DIRECTIONS = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT;
 

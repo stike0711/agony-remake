@@ -5,7 +5,7 @@
 // wo der Finger aufsetzt; rechte Hälfte = Feuer; Zahnrad oben rechts = Optionsmenü.
 
 import {
-  BTN_OPTIONS, BTN_SPELL, InputFrame, JOY_DOWN, JOY_FIRE, JOY_LEFT, JOY_RIGHT, JOY_UP, NO_TAP,
+  BTN_OPTIONS, BTN_PAUSE, BTN_SPELL, InputFrame, JOY_DOWN, JOY_FIRE, JOY_LEFT, JOY_RIGHT, JOY_UP, NO_TAP,
 } from "../../core/input.ts";
 import type { InputSource, Renderer } from "../types.ts";
 
@@ -17,6 +17,7 @@ const KEYS: Record<string, number> = {
   Numpad7: JOY_UP | JOY_LEFT, Numpad9: JOY_UP | JOY_RIGHT, Numpad1: JOY_DOWN | JOY_LEFT, Numpad3: JOY_DOWN | JOY_RIGHT,
   Space: JOY_FIRE, ControlLeft: JOY_FIRE, ControlRight: JOY_FIRE, KeyX: JOY_FIRE, Numpad0: JOY_FIRE,
   ShiftLeft: BTN_SPELL, KeyM: BTN_SPELL,
+  KeyP: BTN_PAUSE,
   Escape: BTN_OPTIONS, KeyO: BTN_OPTIONS,
 };
 

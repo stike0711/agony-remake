@@ -451,3 +451,14 @@ Status: **gilt** · **vorgeschlagen** (noch nicht umgesetzt oder bestätigt) · 
 - Geeignet für die Cloud: Arbeit am Code mit den vorhandenen Aufnahmen (Gegner-Routinen, Wiki, Werkzeuge). Neue
   Emulator-Aufnahmen nur am PC.
 - Ablauf: [Setup](setup.md#git-arbeitskopie-für-cloud-sessions).
+
+### E-042 Zaubermenü und Pause als Tasten des Originals
+- Datum: 09.10.2026 · Status: gilt
+- Das Abbild weicht im Tastatur-Interrupt des Levels vom Quelltext ab (sea $5CCC): Die Leertaste ($40) öffnet und
+  schließt das Zaubermenü, P ($19) schaltet die Pause, M ($37) schaltet `Menu_Mode` (nur dann öffnet auch 30 Bilder
+  gehaltenes Feuer das Menü; beim Spielstart aus), Esc ($45) bricht das Spiel ab.
+- Lösung: Der Zauber-Knopf des Remakes (`BTN_SPELL`, schon wegen Dauerfeuer vorgesehen) wirkt im Level wie die
+  Leertaste, der neue Knopf `BTN_PAUSE` wie P (Tastatur: P). Drücken und Loslassen lösen wie im Original je einen
+  Tastatur-Interrupt mit KEY TEST aus, zu Beginn des Takts (im Original irgendwann zwischen zwei Bildern).
+- Offen (Entscheidung des Nutzers): Pause-Knopf für Touch und Gamepad; Esc (im Remake Optionsmenü) und M (im Remake
+  Zauber-Knopf) haben im Original andere Aufgaben (Abbruch, `Menu_Mode`); beide bleiben vorerst ohne Taste.

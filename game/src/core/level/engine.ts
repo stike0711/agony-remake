@@ -24,7 +24,7 @@
 // Routine startet; unerwartete Zustände in nicht übertragenen Teilen (Zaubermenü, Pause) lösen einen Fehler aus.
 
 import type { Display } from "../display.ts";
-import { JOY_DOWN, JOY_FIRE, JOY_LEFT, JOY_RIGHT, JOY_UP } from "../input.ts";
+import { BTN_PAUSE, BTN_SPELL, JOY_DOWN, JOY_FIRE, JOY_LEFT, JOY_RIGHT, JOY_UP } from "../input.ts";
 import { Blitter } from "../amiga/blitter.ts";
 import { Ram } from "../amiga/ram.ts";
 import { DMACON, FRAME_LINES, Video } from "../amiga/video.ts";
@@ -39,11 +39,16 @@ import { objects, precompute } from "./objects.ts";
 import { colisionTest, paletteCtrl, playability } from "./playability.ts";
 import { routineManager } from "./routines.ts";
 import { sounds } from "./sounds.ts";
+import { KEY_P, KEY_SPACE, keyDown, keyUp } from "./spells.ts";
 import { drawText, drawTextChars, encodeStatusTexts, status } from "./status.ts";
 import {
   decodeMusicTiming, IRQ_PARTS, LINE, type LoopTiming, type LoopWork, loopStart, ModelTiming, type Placement,
   shortPhaseTime, STEP, STEPS, vposOf, WORK_SLOTS,
 } from "./timing.ts";
+
+/** Tasten des Originals, die das Remake als Knöpfe führt: Zaubermenü = Leertaste ($40), Pause = P ($19) */
+const KEY_BITS = [BTN_SPELL, BTN_PAUSE];
+const KEY_CODES = [KEY_SPACE, KEY_P];
 
 const Stage = {
   /** Schritte von Teil 1b (nach Teil 1a) */
@@ -85,6 +90,8 @@ export class LevelEngine {
   joy1dat = 0;
   /** Feuerknopf gedrückt (CIA-A PRA Bit 7 = 0) */
   fire = false;
+  /** Knöpfe des letzten Takts (Flanken für den Tastatur-Interrupt) */
+  private keyButtons = 0;
   /** Ereignis: Feuer bei „PRESS FIRE TO START“ (Begin_To_Start), das Spiel läuft */
   started = false;
   /** Grund, aus dem die Engine angehalten hat: Das Original würde hier nicht übertragenen Code ausführen */
@@ -331,6 +338,17 @@ export class LevelEngine {
     const y0 = (up ? 1 : 0) ^ y1;
     this.joy1dat = (y1 << 9) | (y0 << 8) | (x1 << 1) | x0;
     this.fire = (buttons & JOY_FIRE) !== 0;
+    // Tastatur-Interrupt des Levels (Int2, KEY TEST): Zaubermenü = Leertaste, Pause = P. Er läuft im Original
+    // irgendwann zwischen zwei Bildern; hier zu Beginn des Takts (vor dem Bildaufbau)
+    const changed = buttons ^ this.keyButtons;
+    this.keyButtons = buttons;
+    if (this.result || this.unported) return;
+    for (let i = 0; i < KEY_BITS.length; i++) {
+      const bit = KEY_BITS[i]!;
+      if ((changed & bit) === 0) continue;
+      if (buttons & bit) keyDown(this, KEY_CODES[i]!);
+      else keyUp(this);
+    }
   }
 
   /** Hält die Engine an der ersten nicht übertragenen Stelle an (siehe `unported`) */

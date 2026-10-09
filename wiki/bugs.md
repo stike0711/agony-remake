@@ -213,6 +213,14 @@ Vorlage für neue Einträge:
   `test/bonus.test.ts`. Ungeprüft gegen den Emulator; im Zeitmodell fehlt die Dauer des Bonus-Teils im
   Copper-Interrupt.
 
+### W-024 Zaubermenü, Zauber, Äxte und Pause ungeprüft
+- Status: offen (wartet auf eine Aufnahme mit Zaubern, status.md „Für den PC“)
+- Seit 09.10.2026 nach der Disassembly übertragen (`spells.ts`), Kern-Tests `test/spells.test.ts`. Nicht nachgebildet:
+  das LACE-Bit, das die Pause in BPLCON0 der Copperliste setzt (im Original springt das Bild um eine halbe Zeile,
+  Bilder abwechselnd 312/313 Zeilen; das Bildmodell kennt kein Interlace), die Tasten des Cheat-Blatts (F1–F4,
+  Levelsprung, mit dem Cheat „FANTASY“). Im Zeitmodell fehlen die Zauber-Teile des Copper-Interrupts außer dem
+  Schild.
+
 ## Eigenheiten und Fehler des Originals
 
 Grundsatz in Phase 1: originalgetreu, also nachbilden. Beheben erst als zuschaltbare Option (E1, siehe

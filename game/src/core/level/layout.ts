@@ -133,6 +133,54 @@ export interface LevelVars {
    */
   spr6pt: number;
   spr7pt: number;
+  /**
+   * Zaubermenü (ICONES SPRITES $49C2): Pfeil (y, runter, hoch), gemerkter Zauber, Feuer losgelassen, Auswahl auf einem
+   * Zauber; Tabellen: Icones_Pal (16 Farben), Icones_Spr (4 Sprites à 768 Byte), Arow_Spr, Mask_Spr, Time_Table
+   */
+  arowY: number;
+  arowDown: number;
+  arowUp: number;
+  safeCurSpell: number;
+  iconesFireUp: number;
+  selectionOn: number;
+  iconesPal: number;
+  iconesSpr: number;
+  arowSpr: number;
+  maskSpr: number;
+  timeTable: number;
+  /** Sorcerer2_X/Y: Position der zweiten Eule (Zauber 3 SEEKER) */
+  sorcerer2X: number;
+  sorcerer2Y: number;
+  /** Zauber 0 BACK FIRE BALL: Back_FB_X0/X1, Back_FB_Spr0/1 */
+  backFbX0: number;
+  backFbX1: number;
+  backFbSpr0: number;
+  backFbSpr1: number;
+  /** Zauber 1 ROTATIVE FIRE BALL: Rot_Step, Rot_Table, FBall_3spr0/1 (auch Zauber 7: FW_FB_Spr0/1) */
+  rotStep: number;
+  rotTable: number;
+  fball3Spr0: number;
+  fball3Spr1: number;
+  /** Zauber 2 STOP TIME: Time_Y, Time_Step, Time_Y_Table, Time_Spr */
+  timeY: number;
+  timeStep: number;
+  timeYTable: number;
+  timeSpr: number;
+  /** Zauber 4 SMART BOMB: Smart_B_X, Smart_B_Step, Smart_B_StepH, Smart_B_StepHC, Smart_B_Spr */
+  smartBX: number;
+  smartBStep: number;
+  smartBStepH: number;
+  smartBStepHC: number;
+  smartBSpr: number;
+  /** Zauber 5 MEGA BLAST: Mega_B_X, Mega_B_Spr (4 Sprites à $25C Byte) */
+  megaBX: number;
+  megaBSpr: number;
+  /** Zauber 7 FORWARD FIRE BALL: Fw_FB_X0/X1, Sin_Table (Bytes) */
+  fwFbX0: number;
+  fwFbX1: number;
+  sinTable: number;
+  /** Wert von BPLCON0 in der Copperliste (Pause setzt Bit 2, LACE) */
+  clBplCon0: number;
 }
 
 export interface LevelLayout {
@@ -309,6 +357,15 @@ export const SEA: LevelLayout = {
     // Spr6pt/Spr7pt $138/$13C (relativ zu a5, siehe oben)
     bonusAnim: 0x7c90, bonusNum: 0x7c9a, spellPri: -0x1c08, bonusShape: -0x1ae6, bonusImage: -0x1ade, spr6pt: 0x138,
     spr7pt: 0x13c,
+    // ICONES SPRITES ($49C2–$4C04) und Tastatur ($5CCC–$5EE2)
+    arowY: 0x7c20, arowDown: 0x7c22, arowUp: 0x7c24, safeCurSpell: 0x7c28, iconesFireUp: 0x7c2a, selectionOn: 0x7cce,
+    iconesPal: -0x2348, iconesSpr: -0x2f48, arowSpr: -0x2328, maskSpr: -0x2218, timeTable: -0x1bf8,
+    // SPELL ROUTINES ($4C38–$54EA)
+    sorcerer2X: 0x7c6c, sorcerer2Y: 0x7c6e, backFbX0: 0x7c64, backFbX1: 0x7c66, backFbSpr0: -0x180c, backFbSpr1: -0x1780,
+    rotStep: 0x7c62, rotTable: -0x1ac6, fball3Spr0: -0x1a14, fball3Spr1: -0x1910, timeY: 0x7c80, timeStep: 0x7c7e,
+    timeYTable: -0x1be8, timeSpr: 0xff4, smartBX: 0x7c74, smartBStep: 0x7c76, smartBStepH: 0x7c78, smartBStepHC: 0x7c7a,
+    smartBSpr: -0x16f4, megaBX: 0x7c7c, megaBSpr: 0x680, fwFbX0: 0x7c68, fwFbX1: 0x7c6a, sinTable: -0x1a36,
+    clBplCon0: 0x5fe2,
   },
 
   sorcererDat: 0x178c0, // $4500

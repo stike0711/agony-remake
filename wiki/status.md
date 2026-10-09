@@ -1,6 +1,6 @@
 # Status
 
-Stand: 08.10.2026
+Stand: 09.10.2026
 
 ## Kurzfassung
 
@@ -11,10 +11,10 @@ Menümusik → Story-Seite → Ladebild von Level 1 mit Lademusik → Level 1, B
 läuft auf einem Modell der Grafik-Hardware mit dem übertragenen Spielcode (E-032): Angriffswellen, die ersten zwei
 Gegner mit eigener Routine, Tod der Eule, Schild beim Wiedereinstieg und Spielende mit Rückkehr ins Menü; ohne
 Eingabe bis nach dem Spielende pixelgenau wie im Emulator, ebenso ein Lauf mit Dauerfeuer, Abschüssen und Ausweichen.
-Alle Gegner-Routinen, Bonus und Levelende von Level 1 sind übertragen (gegen das Original noch ungeprüft); nach dem
-Levelende folgt das Ladebild von Level 2 (gegen das Original noch ungeprüft), danach vorläufig ein Platzhalter. Als
-Nächstes: Zaubermenü, danach die nächsten Level; am PC eine Aufnahme über Bild 14.792
-hinaus zur Prüfung von Gegner-Routinen und Bonus, Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist eingeplant, sobald ein
+Alle Gegner-Routinen, Bonus, Zaubermenü mit allen Zaubern, Äxte, Pause und Levelende von Level 1 sind übertragen
+(gegen das Original noch ungeprüft); nach dem Levelende folgt das Ladebild von Level 2, danach vorläufig ein
+Platzhalter. Als Nächstes: Level 2; am PC eine Aufnahme über Bild 14.792 hinaus zur Prüfung des Übertragenen,
+Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist eingeplant, sobald ein
 Mac zur Verfügung steht.
 
 ## Fahrplan und Fortschritt
@@ -73,10 +73,9 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Zaubermenü** (nächster Cloud-Schritt, neues Spielsystem, Effort „hoch“): Auswahl und Auslösen der Zauber in
-   Level 1 aus dem Quellcode (`Agony_Parent_.s`, Level-Modul `Ag_Game_LMER.s`), übrige Zauber, Äxte, Pause; gegen
-   das Original ungeprüft kennzeichnen. Danach Level 2 selbst (Abbild `LFORET`, Startliste, Routinen); das Ladebild
-   `load_forest` steht schon (`flow.ts`, danach Platzhalter `ui.level2Stub`).
+1. **Level 2 – Wald** (nächster Cloud-Schritt, Ablauf B, Effort „hoch“): Abbild `LFORET` mit der Asset-Pipeline
+   (Speicherblöcke wie Level 1), Layout, Startliste und Routinen von `Ag_Game_LFORET.s`; das Ladebild `load_forest`
+   steht schon (`flow.ts`, danach Platzhalter `ui.level2Stub`). Gegen das Original ungeprüft kennzeichnen.
 2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
    [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
 
@@ -109,8 +108,15 @@ Braucht Emulator, Aufnahmen, Messungen oder Geräte (je mit Empfehlung):
   level1_shoot` mit dem neuen Posten und `SHOOT_MODEL_LAST` in `level1.test.ts` auf `SHOOT_LAST` (14792) anheben;
   Detail je Durchlauf mit `node test/tools/detail-timing.ts level1_shoot 14520 14600`.
 
+- **Zaubermenü, Zauber und Pause** (mit der Aufnahme über Bild 14.792 hinaus, Ablauf C; prüft W-024): an einigen
+  Stellen Leertaste drücken, mit dem Joystick einen Zauber wählen und mit Feuer starten (vorher alle Zauber per Poke
+  verfügbar machen: `Spell_Advailable` $1C4–$1D3 = 1), einmal P drücken und mit Feuer beenden; dazu einen Bonus mit
+  Äxten einsammeln. Im Emulator die Tasten über die Tastatur von vAmiga senden (Tastencodes $40, $19).
+
 Für den Nutzer zu entscheiden:
 
+- Pause-Knopf für Touch und Gamepad; Esc und M haben im Original andere Aufgaben (Abbruch, `Menu_Mode`) als im Remake
+  (E-042).
 - Ton im Level: Soundeffekte (`Sound.bin`) und die Musik von Jeroen Tel (offene Frage: Treiber portieren oder vorab
   aufnehmen).
 
@@ -159,9 +165,16 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 08.10.2026 | Gegner-Routinen Level 1 (Cloud-Session) | hoch | – | – | wie oben; dieselbe Sitzung wie der Schritt davor, kein Compact |
 | 08.10.2026 | Bonus (Cloud-Session) | hoch | – | – | wie oben; dieselbe Sitzung |
 | 08.10.2026 | Levelende Level 1 (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; neue Sitzung, kein Compact |
+| 09.10.2026 | Zaubermenü, Zauber, Äxte, Pause (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; 1 Sitzung, kein Compact |
 
 ## Verlauf
 
+- **09.10.2026 (Zaubermenü, Zauber, Äxte, Pause; Cloud-Session)** – Nach der Disassembly übertragen (`spells.ts`):
+  Zaubermenü (ICONES SPRITES: Pfeil, Auswahl, Maske für fehlende Zauber, Start mit Dauer aus `Time_Table`), die Zauber
+  0–5 und 7 (Back/Rotative/Forward Fire Ball, Stop Time, Seeker, Smart Bomb, Mega Blast), Kollisionsrechtecke der
+  Äxte, Pause und Tastatur-Interrupt (KEY TEST). Das Abbild öffnet das Menü mit der Leertaste, Feuer halten nur mit
+  `Menu_Mode` (E-042: Zauber-Knopf = Leertaste, neuer Pause-Knopf = P). Gegen das Original noch ungeprüft (W-024).
+  Kern-Tests `test/spells.test.ts`; Level 1 läuft mit `explore-level.ts` weiter bis zum Levelende. 60 Tests.
 - **08.10.2026 (Ladebild Level 2, Cloud-Session)** – `load_forest` disassembliert (`work/disasm/load_forest_code.txt`):
   derselbe Code wie `load_sea`, nur mit verschobenen Adressen (Bild `$66F1A`, Palette `$79A2A`, Modul
   „loading_forest“ bei `$6323C`). Pipeline erzeugt alle Ladebilder aus einer Tabelle, `LoadingScreen` mit
