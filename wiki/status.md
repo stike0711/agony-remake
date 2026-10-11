@@ -16,8 +16,9 @@ Alle Gegner-Routinen, Bonus, Zaubermenü mit allen Zaubern, Äxte, Pause und Lev
 alle Gegner-Routinen samt Endgegner sind übertragen, das Level läuft bis zum Levelende), danach Ladebild und Level 3
 (Abbild und Layout stehen, alle Gegner-Routinen samt Endgegner sind übertragen, das Level läuft bis zum Levelende),
 danach Ladebild und Level 4 (ebenso bis zum Levelende), dann vorläufig ein Platzhalter.
-Als Nächstes: Level 5; am PC Aufnahmen von Level 1 über Bild 14.792 hinaus und
-von Level 2 zur Prüfung des Übertragenen, Zeitmodell bei hoher Last, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist
+Level 5: Ladebild, Abbild, Layout und Startliste stehen.
+Als Nächstes (Ablaufplan unter „Nächste Schritte“): am PC Aufnahmen zur Prüfung von Level 1 ab Bild 14.792 und von
+Level 2–4, danach Level 5 und 6, Ton im Level. Eine native App für iPadOS (eventuell auch iOS) ist
 eingeplant, sobald ein Mac zur Verfügung steht.
 
 ## Fahrplan und Fortschritt
@@ -76,13 +77,28 @@ Für den aktuellen Meilenstein:
 
 Jeder Schritt folgt dem passenden [Standardablauf](arbeitsablauf.md); Effort im Regelfall „mittel“ (E-038).
 
-1. **Level 5 – Gegner-Routinen** (nächster Cloud-Schritt, Effort „hoch“, Ablauf B): Layout `HIGHLANDS` steht
-   (09.10.2026), der Lauf hält bei der ersten Routine `R_Rapide` (`$4FD50`, Bild 115 in `level5.test.ts`), danach
-   `ui.level5Stub`. Routinen aus `Ag_Game_LPLATEAUX.s` „ROUTINES“ disassemblieren (`highlands_rout.txt`), Adressen
-   prüfen, dann die Gegner-Routinen (bekannte zuerst, je Schritt
-   Ablauf B).
-2. Danach weitere Teile nur aus Quellcode und vorhandenen Daten (Arbeitsweise „Cloud-Aufträge“ in
-   [arbeitsablauf.md](arbeitsablauf.md)): nächste Level, Präsentation, Highscore, Spielende.
+**Ablaufplan ab 11.10.2026 (wieder lokal am PC):** Das Cloud-Guthaben ist aufgebraucht (09.10.2026), das
+Wochenlimit ist zurückgesetzt. In der Cloud sind Level 1–4 vollständig und Level 5 bis zur ersten Routine übertragen,
+alles ohne Abgleich mit dem Original. Deshalb zuerst prüfen, dann weiterbauen: Fehler im gemeinsamen Code (Bonus,
+Zauber, Engine) wirken in allen Leveln und sollen gefunden sein, bevor Level 5 und 6 darauf aufsetzen. Je Sitzung
+ein Schritt, danach `/clear`; Verbrauch je Schritt eintragen (Arbeitsablauf A.4/F.4).
+
+1. **Aufnahme Level 1 über Bild 14.792 hinaus** (Ablauf C, Effort „hoch“): prüft die Gegner-Routinen von Level 1
+   (W-022), Bonus (W-023), Zaubermenü, Zauber, Äxte und Pause (W-024) sowie O-015. Genaues Vorgehen unter „Für den
+   PC“ (Punkte „Aufnahme über Bild 14.792 hinaus“ und „Zaubermenü, Zauber und Pause“). Abweichungen beheben, bis die
+   Bilder wie bei `level1_shoot` stimmen; das kann zwei Schritte brauchen (Aufnahme, dann Vergleich und Korrekturen).
+2. **Level 2 aufnehmen und vergleichen** (Ablauf C, Effort „hoch“), dabei das Ladebild von Level 2.
+3. **Level 3 und 4 aufnehmen und vergleichen** (je Ablauf C, Effort „hoch“), dabei die Ladebilder 3 und 4 und O-016.
+4. **Level 5 – Gegner-Routinen** (Ablauf B, bekannte zuerst „mittel“, neue und Endgegner „hoch“): Layout
+   `HIGHLANDS` steht, der Lauf hält bei der ersten Routine `R_Rapide` (`$4FD50`, Bild 115 in `level5.test.ts`).
+   Routinen aus `Ag_Game_LPLATEAUX.s` „ROUTINES“ (`highlands_rout.txt`). Danach Levelende und Level 6 (Feuer) nach
+   demselben Muster wie Level 3–5 (`derive_layout.py`), dann Präsentation, Highscore-Eingabe und Spielende.
+   Kann zwischen den Aufnahmen laufen, wenn eine Aufnahme hängt.
+5. **Geräte-Test** auf iPad/Android (Effort „mittel“, braucht den Nutzer mit Tablet), sobald es passt.
+6. **Zeitmodell bei hoher Last** (Effort „maximal“) erst, wenn die übrigen Prüfungen durch sind; die Tests mit
+   gemessener Zeitlage hängen nicht daran.
+
+Offen für den Nutzer: Ton im Level (Tels Musiktreiber portieren oder vorab aufnehmen), siehe unten.
 
 ### Für den PC
 
@@ -199,9 +215,16 @@ Plan Pro. Werte in Prozent des jeweiligen Limits, gemessen zu Beginn und am Ende
 | 09.10.2026 | Level 4: Endgegner `R_Final` und Levelende (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; Sitzung nach Neustart des Workers, kein Compact |
 | 09.10.2026 | Level 5: Ladebild `load_highlands` (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; kleiner Schritt (Budget knapp), kein Compact |
 | 09.10.2026 | Level 5: Abbild, Layout, Startliste (Cloud-Session) | hoch | – | – | in der Cloud nicht abfragbar; Teilschritt in derselben Sitzung, kein Compact |
+| 11.10.2026 | Stand vor dem nächsten lokalen Schritt | – | 0 % (Reset 18.10. ~03:00) | 0 % | Ausgangswert nach dem Wochen-Reset; Cloud-Guthaben aufgebraucht |
 
 ## Verlauf
 
+- **09.–11.10.2026 (Cloud-Phase beendet)** – In Cloud-Sessions (E-041) übertragen und lokal mit allen Tests und Build
+  geprüft: Level 1 komplett (Gegner-Routinen, Bonus, Zaubermenü, Zauber, Äxte, Pause, Levelende), Bedienung nach
+  E-043, Level 2–4 komplett (Ladebild, Abbild, Layout per `derive_layout.py`, alle Gegner-Routinen, Endgegner,
+  Levelende) und Level 5 bis zur ersten Routine; alles gegen das Original noch ungeprüft. Zeitgrenze aller Tests
+  60 s (`vite.config.ts`, Spieldaten vom NAS). Cloud-Guthaben am 09.10.2026 aufgebraucht; weiter lokal nach dem
+  Ablaufplan. 97 Tests.
 - **09.10.2026 (Level 5: Abbild, Layout, Startliste; Cloud-Session)** – Der gemeinsame Code von `highlands` ist
   Befehl für Befehl der von `mountains` (Unterschiede: 87 Teilbilder, `Sky_Count` mit 10 Phasen bei `$1364`, Datei
   `$14` als nächstes Level). Layout `HIGHLANDS` per `derive_layout.py` aus `MOUNTAINS`, die „~“-Werte von Hand

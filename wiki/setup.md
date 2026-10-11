@@ -469,7 +469,9 @@ eine Arbeitskopie mit Git.
 - Cloud-Sessions pushen auf einen eigenen Zweig `claude/<name>`, nicht auf `main`. Zurückholen: in der Kopie
   `git fetch`, `git merge --ff-only origin/claude/<name>`, `git push origin main`, dann `sync.ts pull`. Aufgaben an
   eine laufende Cloud-Session kann Claude von hier aus schicken (SendMessage); antworten kann sie nicht, das Ergebnis
-  steht in ihrem Verlauf und im Zweig. Bestätigt 08.10.2026: Das Cloud-Guthaben wird statt des Wochenlimits belastet.
+  steht in ihrem Verlauf und im Zweig. Bestätigt 08.10.2026: Das Cloud-Guthaben wird statt des Wochenlimits belastet. Guthaben am 09.10.2026 aufgebraucht;
+  Cloud-Sessions zählen seitdem zum Plan-Limit und bringen keinen Vorteil mehr. Die Arbeitskopie bleibt bestehen
+  (Stand 09.10.2026 = Projekt); vor einer erneuten Nutzung `sync.ts push`, committen und pushen.
 - In der Cloud: `cd game && npm install`, einmal `node tools/repo/unpack-captures.ts` (aus der Wurzel), dann
   `npm test`. Für Analysen bei Bedarf `pip install numpy capstone` (Python-Skripte in `tools/analysis/`). Neue Emulator-Aufnahmen gehen nur am PC.
 - Nie gleichzeitig im Projekt und in der Cloud an denselben Dateien arbeiten; vor einer Cloud-Session pushen, danach
